@@ -31,14 +31,16 @@ jobs:
           
 
       - name: Testing
-        uses: pyupio/safety-action@v1
-        with:
-          api-key: ${{ secrets.SAFETY_API_KEY }}
         run: |
           make install-dev-tools
           make security-checks
           make run-pytest
           make check-pep8-compliance
+
+      - name: Safety
+        uses: pyupio/safety-action@v1
+        with:
+          api-key: ${{ secrets.SAFETY_API_KEY }}
           
 
   #deploy-lambda:
