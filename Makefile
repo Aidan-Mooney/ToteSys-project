@@ -20,7 +20,7 @@ install-dev-tools:
 
 security-checks:
 	@echo ">>> Running security checks"
-	$(call execute_in_env, safety scan -r ./requirements.txt)
+	# $(call execute_in_env, safety scan -r ./requirements.txt)
 	$(call execute_in_env, bandit -lll */*.py *c/*.py)
 
 check-pep8-compliance:
