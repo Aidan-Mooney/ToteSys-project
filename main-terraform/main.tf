@@ -7,7 +7,7 @@ terraform {
   }
   backend "s3" {
     bucket = "laurentia-tf-backend"
-    key    = "" #TO BE ADDED
+    key    = "template/terraform.tfstate"
     region = "eu-west-2"
   }
 }
