@@ -3,9 +3,9 @@ resource "aws_s3_bucket" "code_bucket" {
 }
 
 /*
-resource "aws_s3_object" "ingress_lambda_file" {
+resource "aws_s3_object" "ingest_lambda_file" {
   bucket = aws_s3_bucket.code_bucket.bucket
-  key    = "ingress.zip"
+  key    = "ingest.zip"
   source = "${path.module}/..." # module path to code to be saved
 }
 

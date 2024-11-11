@@ -13,3 +13,11 @@ variable "transform_bucket_name" {
 data "aws_ssm_parameter" "transform_bucket_name" {
   name = var.transform_bucket_name
 }
+
+variable "ingest_lambda_name" {
+  default = "ingester"
+}
+
+variable "transform_lambda_name" {
+  default = "transformer"
+}
