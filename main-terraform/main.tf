@@ -7,7 +7,7 @@ terraform {
   }
   backend "s3" {
     bucket = "laurentia-tf-backend"
-    key    = ""
+    key    = "" #TO BE ADDED
     region = "eu-west-2"
   }
 }
@@ -16,12 +16,11 @@ provider "aws"{
   region = "eu-west-2"
   default_tags {
     tags={
-      ProjectName   = ""
-      Team          = ""
-      DeployedFrom  = ""
-      Repository    = ""
-      Environment   = ""
-      RetentionDate = ""
+      ProjectName   = "ETL Pipeline Project"
+      Team          = "Laurentia-4"
+      DeployedFrom  = "Terraform"
+      Repository    = "ToteSys-project"
+      Environment   = "Dev"
     }
   }
 }
