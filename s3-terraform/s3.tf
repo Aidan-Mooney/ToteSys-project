@@ -1,4 +1,4 @@
-resource "aws_s3_bucket" "ingest_bucket" {
+resource "aws_s3_bucket" "ingest_bucket2" {
   bucket_prefix = var.ingest_bucket_prefix
   tags = {
     step = "ingest"
@@ -7,18 +7,18 @@ resource "aws_s3_bucket" "ingest_bucket" {
 }
 
 resource "aws_s3_bucket_versioning" "ingest_bucket_version" {
-  bucket = aws_s3_bucket.ingest_bucket.id
+  bucket = aws_s3_bucket.ingest_bucket2.id
   versioning_configuration {
     status = "Enabled"
   }
 }
 
 resource "aws_s3_bucket_object_lock_configuration" "ingest_bucket_config" {
-  bucket = aws_s3_bucket.ingest_bucket.id
+  bucket = aws_s3_bucket.ingest_bucket2.id
   rule {
     default_retention {
-      mode = "COMPLIANCE"
-      days = 500
+      mode = "GOVERNANCE"
+      days = 1
     }
   }
 }
@@ -42,8 +42,8 @@ resource "aws_s3_bucket_object_lock_configuration" "transform_bucket_config" {
   bucket = aws_s3_bucket.transform_bucket.id
   rule {
     default_retention {
-      mode = "COMPLIANCE"
-      days = 500
+      mode = "GOVERNANCE"
+      days = 1
     }
   }
 }
