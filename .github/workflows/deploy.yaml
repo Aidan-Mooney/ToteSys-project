@@ -5,6 +5,8 @@ on:
     branches:
       - main
 
+      - mattw-deploy-test
+
 jobs:
   run-tests:
     # if: false # this will cause the job to be skipped - delete to enable
@@ -29,6 +31,9 @@ jobs:
           
 
       - name: Testing
+        uses: pyupio/safety-action@v1
+        with:
+          api-key: ${{ secrets.SAFETY_API_KEY }}
         run: |
           make install-dev-tools
           make security-checks
