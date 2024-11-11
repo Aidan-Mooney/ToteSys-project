@@ -30,4 +30,4 @@ check-pep8-compliance:
 
 run-pytest:
 	@echo ">>> Running pytest"
-	$(call execute_in_env, pytest -vvvrP)
+	$(call execute_in_env, pytest test/* -vvvrP)
