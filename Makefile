@@ -4,7 +4,7 @@
 SHELL := /bin/bash
 
 define execute_in_env
-	export PYTHONPATH=$(pwd) && source venv/bin/activate && $1
+	export PYTHONPATH=. && source venv/bin/activate && $1
 endef
 
 create-environment:
@@ -31,4 +31,4 @@ check-pep8-compliance:
 
 run-pytest:
 	@echo ">>> Running pytest"
-	$(call execute_in_env, PYTHONPATH=$(pwd) pytest test/* -vvvrP --testdox)
+	$(call execute_in_env, pytest test/* -vvvrP --testdox)
