@@ -17,7 +17,7 @@ install-requirements: create-environment
 
 install-dev-tools:
 	@echo ">>> Installing Dev Tools"
-	$(call execute_in_env, pip install bandit safety ruff pytest pytest-it moto)
+	$(call execute_in_env, pip install bandit safety ruff pytest pytest-it pytest-cov moto)
 
 security-checks:
 	@echo ">>> Running security checks"
@@ -31,4 +31,4 @@ check-pep8-compliance:
 
 run-pytest:
 	@echo ">>> Running pytest"
-	$(call execute_in_env, pytest --it -vvvrP test/*)
+	$(call execute_in_env, pytest --it -vvvrP --cov=src test/*)
