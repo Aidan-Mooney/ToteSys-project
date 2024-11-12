@@ -3,7 +3,7 @@ name: totesys-cicd
 on:
   push:
     branches:
-      - main
+      - "*"
 
 jobs:
   run-tests:
