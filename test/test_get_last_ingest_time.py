@@ -3,6 +3,7 @@ from boto3 import client
 from moto import mock_aws
 from unittest.mock import patch
 from datetime import datetime
+from os import environ
 from src.utils.get_last_ingest_time import get_latest_filename, get_last_ingest_time
 
 TEST_DATA_PATH = "test/test_data"
@@ -13,6 +14,16 @@ TEST_BUCKET = "test-bucket3141"
 def s3_client():
     s3 = client("s3")
     return s3
+
+
+@fixture(scope="function", autouse=True)
+def aws_credentials():
+    """Mocked AWS Credentials for moto."""
+    environ["AWS_ACCESS_KEY_ID"] = "testing"
+    environ["AWS_SECRET_ACCESS_KEY"] = "testing"
+    environ["AWS_SECURITY_TOKEN"] = "testing"
+    environ["AWS_SESSION_TOKEN"] = "testing"
+    environ["AWS_DEFAULT_REGION"] = "eu-west-2"
 
 
 class Testget_latest_filename:
