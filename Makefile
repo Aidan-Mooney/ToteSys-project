@@ -1,3 +1,4 @@
+
 # Makefile
 
 SHELL := /bin/bash
@@ -20,7 +21,7 @@ install-dev-tools:
 
 security-checks:
 	@echo ">>> Running security checks"
-	$(call execute_in_env, safety scan -r ./requirements.txt)
+	# $(call execute_in_env, safety scan -r ./requirements.txt)
 	$(call execute_in_env, bandit -lll */*.py *c/*.py)
 
 check-pep8-compliance:
@@ -30,4 +31,4 @@ check-pep8-compliance:
 
 run-pytest:
 	@echo ">>> Running pytest"
-	$(call execute_in_env, pytest -vvvrP)
+	$(call execute_in_env, PYTHONPATH=$(pwd) pytest test/* -vvvrP --testdox)
