@@ -21,3 +21,7 @@ variable "ingest_lambda_name" {
 variable "transform_lambda_name" {
   default = "transformer"
 }
+
+variable "python_runtime" {
+  default = "python3.12"
+}
