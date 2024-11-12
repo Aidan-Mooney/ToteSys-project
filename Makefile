@@ -1,3 +1,4 @@
+
 # Makefile
 
 SHELL := /bin/bash
@@ -16,7 +17,7 @@ install-requirements: create-environment
 
 install-dev-tools:
 	@echo ">>> Installing Dev Tools"
-	$(call execute_in_env, pip install bandit safety ruff pytest)
+	$(call execute_in_env, pip install bandit safety ruff pytest pytest-testdox)
 
 security-checks:
 	@echo ">>> Running security checks"
