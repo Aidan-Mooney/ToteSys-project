@@ -18,6 +18,13 @@ def test_function_returns_string_in_correct_date_time_format():
     assert len(output) == 23
     assert output == "2025-11-02 12:01:34.000"
 
+    date_input = datetime(2024, 2, 29, 23, 23, 59, 999999)
+
+    output = format_time(date_input)
+
+    assert len(output) == 23
+    assert output == "2024-02-29 23:23:59.000" 
+
 def test_function_can_accept_datetime_object_where_microseconds_missing():
 
     date_input = datetime(2025, 11, 12, 12, 12, 11)
@@ -26,5 +33,3 @@ def test_function_can_accept_datetime_object_where_microseconds_missing():
 
     assert len(output) == 23
     assert output == "2025-11-12 12:12:11.000"
-
-    
