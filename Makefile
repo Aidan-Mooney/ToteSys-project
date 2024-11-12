@@ -17,7 +17,7 @@ install-requirements: create-environment
 
 install-dev-tools:
 	@echo ">>> Installing Dev Tools"
-	$(call execute_in_env, pip install bandit safety ruff pytest pytest-testdox)
+	$(call execute_in_env, pip install bandit safety ruff pytest pytest-testdox moto)
 
 security-checks:
 	@echo ">>> Running security checks"
