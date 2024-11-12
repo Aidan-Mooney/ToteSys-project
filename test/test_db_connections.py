@@ -2,7 +2,7 @@ from moto import mock_aws
 import boto3
 import pytest
 import os
-from src.utils.db_connections import db_connections_get_secret
+from src.utils.db_connections import db_connections_get_secret, connect_to_db
 import json
 
 class TestDBConnectionGetSecrets:
@@ -42,6 +42,3 @@ class TestDBConnectionGetSecrets:
                           'host': 'example.com', 
                           'database': 'test_db', 
                           'port': 1234}
-
-    def test_
-    
