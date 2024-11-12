@@ -31,4 +31,4 @@ check-pep8-compliance:
 
 run-pytest:
 	@echo ">>> Running pytest"
-	$(call execute_in_env, PYTHONPATH=$(pwd) pytest test/* -vvvrP)
+	$(call execute_in_env, PYTHONPATH=$(pwd) pytest test/* -vvvrP --testdox)
