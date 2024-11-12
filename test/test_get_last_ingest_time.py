@@ -3,9 +3,9 @@ from boto3 import client
 from moto import mock_aws
 from unittest.mock import patch
 from datetime import datetime
-from src.get_last_ingest_time import get_latest_filename, get_last_ingest_time
+from src.utils.get_last_ingest_time import get_latest_filename, get_last_ingest_time
 
-TEST_DATA_PATH = "test/test_data/get_last_ingest_time"
+TEST_DATA_PATH = "test/test_data"
 TEST_BUCKET = "test-bucket3141"
 
 
@@ -71,7 +71,8 @@ class Testget_last_ingest_time:
     def test_1(self):
         test_filename = "2024/11/11/165514"
         with patch(
-            "src.get_last_ingest_time.get_latest_filename", return_value=test_filename
+            "src.utils.get_last_ingest_time.get_latest_filename",
+            return_value=test_filename,
         ):
             result = get_last_ingest_time(TEST_BUCKET, "")
         assert isinstance(result, datetime)
