@@ -19,10 +19,12 @@ def test_function_returns_string_in_correct_date_time_format():
     assert output == "2025-11-02 12:01:34.000"
 
 def test_function_can_accept_datetime_object_where_microseconds_missing():
-    pass
+
     date_input = datetime(2025, 11, 12, 12, 12, 11)
 
     output = format_time(date_input)
 
     assert len(output) == 23
     assert output == "2025-11-12 12:12:11.000"
+
+    
