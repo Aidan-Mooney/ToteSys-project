@@ -3,7 +3,6 @@ import boto3
 import pytest
 import os
 from src.utils.db_connections import db_connections_get_secret, connect_to_db, close_db_connection
-import json
 from unittest.mock import Mock, patch
 from botocore.exceptions import ClientError
 
