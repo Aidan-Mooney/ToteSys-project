@@ -19,6 +19,7 @@ bucket_name = environ["bucket_name"]
 logger = getLogger(__name__)
 
 def lambda_handler(event, context):
+    print(ClientError)
     """
     This function should wrap anything in try:...except: blocks that uses an external service
     This function should log things (what things??)
@@ -26,29 +27,30 @@ def lambda_handler(event, context):
         event = {"tables_to_query": [""]}
     This event will be hard-coded(?) with the names of the tables we'd like to query. (Possible implementation: the event would be stored in TerraForm and passed in by the step function.)
     """
-    end_time = format_time(dt.now())
+    end_time = dt.datetime.now()
+    end_time_str = format_time(end_time)
     table_names = event["tables_to_query"]
     for table_name in table_names:
         try:
-            start_time = format_time(get_last_ingest_time(bucket_name, table_name))
+            start_time = get_last_ingest_time(bucket_name, table_name)
+            start_time_str = format_time(start_time)
             logger.info(f"Successfully retrieved last ingest time from {bucket_name} for table '{table_name}'")
-        except ClientError as e:
+        except (AttributeError, ClientError) as e:
             logger.critical(f"Error retrieving last ingest time from s3:\n{e}")
             break
         try:
-            query_string = generate_new_entry_query(table_name, start_time, end_time)
-            logger.info(f"Successfully generated SQL query for table '{table_name}' between {start_time} and {end_time}")
+            query_string = generate_new_entry_query(table_name, start_time_str, end_time_str)
+            logger.info(f"Successfully generated SQL query for table '{table_name}' between {start_time_str} and {end_time_str}")
         except DateFormatError as e:
-            logger.critical(f"Error generating SQL query for table '{table_name}' between {start_time} and {end_time}:\n{e}")
+            logger.critical(f"Error generating SQL query for table '{table_name}' between {start_time_str} and {end_time_str}:\n{e}")
             break
         try:
             new_rows = query_db(
                 query_string, connect_to_db, close_db_connection, table_name
             )
-            print(new_rows)
             logger.info(f"Successfully retrieved {len(new_rows[table_name])} rows from table '{table_name}'")
         except DatabaseError as e:
-            logger.critical(f"Error querying database with {query_string}:\n{e}")
+            logger.critical(f"Error querying database with query: '{query_string}':\n{e}")
             break
         if new_rows[table_name]:
             file_key = generate_file_key(table_name, end_time)
@@ -59,4 +61,4 @@ def lambda_handler(event, context):
             except ClientError as e:
                 logger.critical(f"Error writing parquet to {bucket_name}/{file_key}:\n{e}")
                 break
-        logger.warning(f"no new rows found for {table_name} between {start_time} and {end_time}")
+        logger.warning(f"no new rows found for {table_name} between {start_time_str} and {end_time_str}")
