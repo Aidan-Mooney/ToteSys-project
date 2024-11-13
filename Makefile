@@ -31,4 +31,4 @@ check-pep8-compliance:
 
 run-pytest:
 	@echo ">>> Running pytest"
-	$(call execute_in_env, pytest --it -vvvrP --cov=src test/*)
+	$(call execute_in_env, pytest --it -vvvrP --cov=src --cov-fail-under=90 test/*)
