@@ -1,5 +1,9 @@
 resource "aws_s3_bucket" "code_bucket" {
   bucket_prefix = "code-bucket" # change to same prefix format to what matt C is making 
+  tags = {
+    Name    = "code_bucket"
+    Purpose = "holds .py files and folders for lambda functions and layers."
+  }
 }
 
 resource "aws_s3_object" "ingest_utils_lambda_file" {

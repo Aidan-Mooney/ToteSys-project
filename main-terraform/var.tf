@@ -1,17 +1,17 @@
-variable "ingest_bucket_name" {
-  default = "ingest_bucket_id"
+variable "ingest_bucket_arn" {
+  default = "ingest_bucket_arn"
 }
 
-data "aws_ssm_parameter" "ingest_bucket_name" {
-  name = var.ingest_bucket_name
+data "aws_ssm_parameter" "ingest_bucket_arn" {
+  name = var.ingest_bucket_arn
 }
 
-variable "transform_bucket_name" {
-  default = "transform_bucket_id"
+variable "transform_bucket_arn" {
+  default = "transform_bucket_arn"
 }
 
-data "aws_ssm_parameter" "transform_bucket_name" {
-  name = var.transform_bucket_name
+data "aws_ssm_parameter" "transform_bucket_arn" {
+  name = var.transform_bucket_arn
 }
 
 variable "ingest_lambda_name" {
