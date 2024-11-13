@@ -15,7 +15,7 @@ def generate_new_entry_query(table_name: str, start_time: str, end_time: str):
     Parameters
     table_name: str The name of the table in the database
     start_time: str The start of the time range (inclusive)
-    end_time: str The end of the time range (inclusive)
+    end_time: str The end of the time range (exclusive)
     """
     time_condition = re.compile(r"^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2}(.\d{3})?)?$")
     try:
@@ -24,7 +24,7 @@ def generate_new_entry_query(table_name: str, start_time: str, end_time: str):
         query = f"""
         SELECT *
         FROM {table_name}
-        WHERE last_updated BETWEEN {start_time} AND {end_time}
+        WHERE '{start_time}' <= last_updated AND last_updated < '{end_time}'
         """
         return query
     except AssertionError:

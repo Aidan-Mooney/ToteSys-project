@@ -10,7 +10,7 @@ def test_1():
     output = """
         SELECT *
         FROM test_table_name
-        WHERE last_updated BETWEEN 2024-11-12 12:13:52.962 AND 2024-11-13 12:13:52.962
+        WHERE '2024-11-12 12:13:52.962' <= last_updated AND last_updated < '2024-11-13 12:13:52.962'
         """
     assert generate_new_entry_query(table_name, start_time, end_time) == output
 
@@ -49,7 +49,7 @@ def test_4():
     output = """
         SELECT *
         FROM test_table_name
-        WHERE last_updated BETWEEN 2024-11-12 AND 2024-11-13
+        WHERE '2024-11-12' <= last_updated AND last_updated < '2024-11-13'
         """
     assert generate_new_entry_query(table_name, start_time, end_time) == output
 
@@ -62,6 +62,6 @@ def test_5():
     output = """
         SELECT *
         FROM test_table_name
-        WHERE last_updated BETWEEN 2024-11-12 12:13:52 AND 2024-11-13 12:13:52
+        WHERE '2024-11-12 12:13:52' <= last_updated AND last_updated < '2024-11-13 12:13:52'
         """
     assert generate_new_entry_query(table_name, start_time, end_time) == output
