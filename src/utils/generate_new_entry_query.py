@@ -17,7 +17,7 @@ def generate_new_entry_query(table_name: str, start_time: str, end_time: str):
     start_time: str The start of the time range (inclusive)
     end_time: str The end of the time range (exclusive)
     """
-    time_condition = re.compile(r"^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2}(.\d{3})?)?$")
+    time_condition = re.compile(r"^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2}(.\d{3})?(\d{3})?)?$")
     try:
         assert time_condition.match(start_time)
         assert time_condition.match(end_time)
