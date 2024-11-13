@@ -1,3 +1,4 @@
 boto3
 pg8000
 pandas
+pyarrow
