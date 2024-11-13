@@ -65,3 +65,16 @@ def test_5():
         WHERE '2024-11-12 12:13:52' <= last_updated AND last_updated < '2024-11-13 12:13:52'
         """
     assert generate_new_entry_query(table_name, start_time, end_time) == output
+
+
+@mark.it("test date and time with microseconds")
+def test_6():
+    table_name = "test_table_name"
+    start_time = "2024-11-12 12:13:52.324567"
+    end_time = "2024-11-13 12:13:52.123456"
+    output = """
+        SELECT *
+        FROM test_table_name
+        WHERE '2024-11-12 12:13:52.324567' <= last_updated AND last_updated < '2024-11-13 12:13:52.123456'
+        """
+    assert generate_new_entry_query(table_name, start_time, end_time) == output
