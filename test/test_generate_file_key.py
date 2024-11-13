@@ -20,18 +20,18 @@ class TestGenerateFileKey:
         self,
     ):
         """check that string has date in correct format"""
-        date_to_test = datetime(2024, 11, 12, 15, 42, 42)
+        date_to_test = datetime(2024, 11, 12, 15, 42, 42, 999999)
         result = generate_file_key("date_test_name", date_to_test)
-        assert result == "date_test_name/2024/11/12/154242.parquet"
+        assert result == "date_test_name/2024/11/12/154242999999.parquet"
 
     def test_generate_file_key_returns_dot_parquet_extension_by_default(self):
         """test that .parquet is appended by default"""
-        date_to_test = datetime(2024, 11, 12, 15, 42, 42)
+        date_to_test = datetime(2024, 11, 12, 15, 42, 42, 123456)
         result = generate_file_key("date_test_name", date_to_test)
-        assert result == "date_test_name/2024/11/12/154242.parquet"
+        assert result == "date_test_name/2024/11/12/154242123456.parquet"
 
-    def test_generate_file_key_returns_giveb_extension_(self):
+    def test_generate_file_key_returns_given_extension_(self):
         """test that .parquet is appended by default"""
-        date_to_test = datetime(2024, 11, 12, 15, 42, 42)
+        date_to_test = datetime(2024, 11, 12, 15, 42, 42, 746352)
         result = generate_file_key("date_test_name", date_to_test, "json")
-        assert result == "date_test_name/2024/11/12/154242.json"
+        assert result == "date_test_name/2024/11/12/154242746352.json"
