@@ -77,10 +77,10 @@ class Testget_latest_filename:
 
 class Testget_last_ingest_time:
     @mark.it(
-        "Returns a datetime object with the correct year, month, day, hour, minute and second"
+        "Returns a datetime object with the correct year, month, day, hour, minute, second and microsecond"
     )
     def test_1(self):
-        test_filename = "2024/11/11/165514"
+        test_filename = "2024/11/11/165514999999"
         with patch(
             "src.utils.get_last_ingest_time.get_latest_filename",
             return_value=test_filename,
@@ -93,6 +93,8 @@ class Testget_last_ingest_time:
         assert result.hour == 16
         assert result.minute == 55
         assert result.second == 14
+        assert result.microsecond == 999999
+
 
 
 class Testintegration:
@@ -108,7 +110,7 @@ class Testintegration:
         with open(f"{TEST_DATA_PATH}/file1.txt") as f:
             body = f.read()
         s3_client.put_object(
-            Body=body, Bucket=TEST_BUCKET, Key="test_table/2025/02/15/025322"
+            Body=body, Bucket=TEST_BUCKET, Key="test_table/2025/02/15/025322999999"
         )
         result = get_last_ingest_time(TEST_BUCKET, "test_table")
         assert isinstance(result, datetime)
@@ -118,3 +120,4 @@ class Testintegration:
         assert result.hour == 2
         assert result.minute == 53
         assert result.second == 22
+        assert result.microsecond == 999999
