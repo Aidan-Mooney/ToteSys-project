@@ -1,6 +1,6 @@
 from src.utils.parquet_data import parquet_data
 
-def test_valid_dictionary_creates_parquet_file():
+def test_output_is_in_parquet_bytes():
 
     input_dict = {
         "test_name": [
@@ -18,4 +18,4 @@ def test_valid_dictionary_creates_parquet_file():
     output = parquet_data(input_dict)
     print(output)
 
-    assert output == 'file created'
+    assert output == 
