@@ -25,3 +25,7 @@ variable "transform_lambda_name" {
 variable "python_runtime" {
   default = "python3.12"
 }
+
+variable "state_machine_name" {
+  default = "totesys_state_machine"
+}
