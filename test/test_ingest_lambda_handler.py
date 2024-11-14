@@ -1,9 +1,7 @@
 from src.lambdas.ingest import lambda_handler
 from unittest.mock import patch
-from pytest import mark, fixture
+from pytest import mark
 from datetime import datetime
-from os import environ
-from boto3 import client
 from botocore.exceptions import ClientError
 from logging import CRITICAL, WARNING, INFO
 from src.utils.generate_new_entry_query import DateFormatError
@@ -20,25 +18,10 @@ Things to be patched:
     - datetime.now
 """
 
-
-@fixture(autouse=True)
-def aws_credentials():
-    """Mocked AWS Credentials for moto."""
-    environ["AWS_ACCESS_KEY_ID"] = "testing"
-    environ["AWS_SECRET_ACCESS_KEY"] = "testing"
-    environ["AWS_SECURITY_TOKEN"] = "testing"
-    environ["AWS_SESSION_TOKEN"] = "testing"
-    environ["AWS_DEFAULT_REGION"] = "eu-west-2"
-
-
-@fixture(scope="function")
-def s3(aws_credentials):
-    return client("s3")
-
-
 class TestIntegration:
-    @mark.it("s3 client is called with the correct file name, bucket and body")
-    def test_1(self, s3, caplog):
+    @mark.it("calls s3 client is called with the correct file name, bucket and body")
+    @patch.dict(f"{PATCH_PATH}.os.environ",{"bucket_name":"test_bucket"}, clear=True)
+    def test_1(self, caplog):
         with patch(f"{PATCH_PATH}.dt.datetime") as dt_mock:
             dt_mock.now.return_value = datetime(2024, 11, 13, 14, 14, 20, 987654)
             with patch(
@@ -92,7 +75,7 @@ class TestIntegration:
                     }
                     with patch(f"{PATCH_PATH}.s3_client") as s3_mock:
                         test_event = {"tables_to_query": ["table_name"]}
-                        environ["bucket_name"] = "test_bucket"
+                        
                         with patch(f"{PATCH_PATH}.parquet_data", return_value=""):
                             caplog.set_level(INFO)
                             lambda_handler(test_event, {})
@@ -108,6 +91,7 @@ class TestIntegration:
 
 
 class TestErrorRaisedByGetLastIngestTime:
+    @patch.dict(f"{PATCH_PATH}.os.environ",{"bucket_name":"test_bucket"}, clear=True)
     @mark.it("creates a critical log if get_last_ingest_time raises ClientError")
     def test_2(self, caplog):
         with patch(f"{PATCH_PATH}.get_last_ingest_time") as client_error_mock:
@@ -127,6 +111,7 @@ class TestErrorRaisedByGetLastIngestTime:
 
 
 class TestErrorRaisedByGenerateNewEntryQuery:
+    @patch.dict(f"{PATCH_PATH}.os.environ",{"bucket_name":"test_bucket"}, clear=True)
     @mark.it(
         "creates a critical log if generate_new_entry_query raises DateFormatError"
     )
@@ -141,6 +126,7 @@ class TestErrorRaisedByGenerateNewEntryQuery:
 
 
 class TestQueryDB:
+    @patch.dict(f"{PATCH_PATH}.os.environ",{"bucket_name":"test_bucket"}, clear=True)
     @mark.it("creates a critical log if query_db raises DatabaseError")
     def test_4(self, caplog):
         with patch(f"{PATCH_PATH}.get_last_ingest_time", return_value=datetime.now()):
@@ -150,6 +136,7 @@ class TestQueryDB:
                     lambda_handler({"tables_to_query": [""]}, {})
                     assert "Error querying database with query" in caplog.text
 
+    @patch.dict(f"{PATCH_PATH}.os.environ",{"bucket_name":"test_bucket"}, clear=True)
     @mark.it("creates a warning log if query_db returns no values")
     def test_5(self, caplog):
         with patch(f"{PATCH_PATH}.get_last_ingest_time", return_value=datetime.now()):
@@ -160,6 +147,7 @@ class TestQueryDB:
         assert "no new rows found for" in caplog.text
 
 class TestErrorRaisedByWriteTos3:
+    @patch.dict(f"{PATCH_PATH}.os.environ",{"bucket_name":"test_bucket"}, clear=True)
     @mark.it("creates a critical log if write_to_s3 raises ClientError")
     def test_6(self, caplog):
         with patch(f"{PATCH_PATH}.get_last_ingest_time", return_value=datetime.now()):

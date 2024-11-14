@@ -8,23 +8,34 @@ from src.utils.parquet_data import parquet_data
 from src.utils.write_to_s3 import write_to_s3
 import datetime as dt
 from boto3 import client
-from os import environ
+import os
 from pg8000.core import DatabaseError
 from botocore.exceptions import ClientError
 from logging import getLogger
 
 
 s3_client = client("s3")
-bucket_name = environ["bucket_name"]
 logger = getLogger(__name__)
 
 def lambda_handler(event, context):
+    bucket_name = os.environ["bucket_name"]
     """
-    This function should wrap anything in try:...except: blocks that uses an external service
-    This function should log things (what things??)
     Structure of event:
-        event = {"tables_to_query": [""]}
-    This event will be hard-coded(?) with the names of the tables we'd like to query. (Possible implementation: the event would be stored in TerraForm and passed in by the step function.)
+        event = {"tables_to_query": ["table_name",...]}
+    
+    Process:
+        - gets the start_time from get_last_ingest_time
+        - end_time is the time at the start of the run
+        - generates a SQL query for each table name
+        - queries the database
+        - converts the data to parquet
+        - adds it to the s3 bucket
+
+    Logs:
+        - INFO when each function is successful
+        - CRITICAL when each function fails fatally
+        - WARNING when query_db returns an empty list
+
     """
     end_time = dt.datetime.now()
     end_time_str = format_time(end_time)
