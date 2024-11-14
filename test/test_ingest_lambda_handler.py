@@ -5,10 +5,9 @@ from datetime import datetime
 from os import environ
 from boto3 import client
 from botocore.exceptions import ClientError
-from logging import CRITICAL
+from logging import CRITICAL, WARNING
 from src.utils.generate_new_entry_query import DateFormatError
 from pg8000.core import DatabaseError
-
 
 
 PATCH_PATH = "src.lambdas.ingest"
@@ -108,32 +107,84 @@ class TestErrorRaisedByGetLastIngestTime:
     @mark.it("creates a critical log if get_last_ingest_time raises ClientError")
     def test_2(self, caplog):
         with patch(f"{PATCH_PATH}.get_last_ingest_time") as client_error_mock:
-            client_error_mock.return_value = ClientError
+            error = ClientError(
+                                {
+                                    "Error": {
+                                        "Code": "InternalServiceError",
+                                        "Message": "not our problem",
+                                    }
+                                },
+                                "testing",
+                            )
+            client_error_mock.side_effect = error
             caplog.set_level(CRITICAL)
-            lambda_handler({'tables_to_query':['']},{})
+            lambda_handler({"tables_to_query": [""]}, {})
             assert "Error retrieving last ingest time from s3:" in caplog.text
 
 
 class TestErrorRaisedByGenerateNewEntryQuery:
-    @mark.it("creates a critical log if generate_new_entry_query raises DateFormatError")
+    @mark.it(
+        "creates a critical log if generate_new_entry_query raises DateFormatError"
+    )
     def test_3(self, caplog):
         with patch(f"{PATCH_PATH}.get_last_ingest_time", return_value=datetime.now()):
-            with patch(f"{PATCH_PATH}.generate_new_entry_query", side_effect=DateFormatError):
+            with patch(
+                f"{PATCH_PATH}.generate_new_entry_query", side_effect=DateFormatError
+            ):
                 caplog.set_level(CRITICAL)
-                lambda_handler({'tables_to_query':['']},{})
+                lambda_handler({"tables_to_query": [""]}, {})
                 assert "Error generating SQL query for table " in caplog.text
 
-class TestErrorRaisedByQueryDB:
+
+class TestQueryDB:
     @mark.it("creates a critical log if query_db raises DatabaseError")
     def test_4(self, caplog):
         with patch(f"{PATCH_PATH}.get_last_ingest_time", return_value=datetime.now()):
             with patch(f"{PATCH_PATH}.generate_new_entry_query", return_value=""):
                 with patch(f"{PATCH_PATH}.query_db", side_effect=DatabaseError):
                     caplog.set_level(CRITICAL)
-                    lambda_handler({'tables_to_query':['']},{})
+                    lambda_handler({"tables_to_query": [""]}, {})
                     assert "Error querying database with query" in caplog.text
 
-# class TestErrorRaisedByWriteTos3:
-#     @mark.it('createsa critical log if write_to_s3 raises ClientError')
-#     def test_(self):
-#         pass
+    @mark.it("creates a warning log if query_db returns no values")
+    def test_5(self, caplog):
+        with patch(f"{PATCH_PATH}.get_last_ingest_time", return_value=datetime.now()):
+            with patch(f"{PATCH_PATH}.generate_new_entry_query", return_value=""):
+                with patch(f"{PATCH_PATH}.query_db", return_value={"something":[]}):
+                    caplog.set_level(WARNING)
+                    lambda_handler({"tables_to_query": ["something"]}, {})
+        assert "no new rows found for" in caplog.text
+
+class TestErrorRaisedByWriteTos3:
+    @mark.it("creates a critical log if write_to_s3 raises ClientError")
+    def test_6(self, caplog):
+        with patch(f"{PATCH_PATH}.get_last_ingest_time", return_value=datetime.now()):
+            with patch(f"{PATCH_PATH}.generate_new_entry_query", return_value=""):
+                with patch(f"{PATCH_PATH}.query_db") as query_db_mock:
+                    query_db_mock.return_value={
+                        "something": [
+                            {
+                                "id": 17,
+                                "title": "Back to the Future",
+                                "ten_divided_by_2": 5,
+                                "rating": 10,
+                                "certificate": "U",
+                                "avg_rating": "2.38",
+                            }
+                        ]
+                    }
+                    with patch(f"{PATCH_PATH}.parquet_data", return_value=""):
+                        with patch(f"{PATCH_PATH}.write_to_s3") as write_to_s3_mock:
+                            error = ClientError(
+                                {
+                                    "Error": {
+                                        "Code": "InternalServiceError",
+                                        "Message": "not our problem",
+                                    }
+                                },
+                                "testing",
+                            )
+                            write_to_s3_mock.side_effect = error
+                            caplog.set_level(CRITICAL)
+                            lambda_handler({"tables_to_query": ["something"]}, {})
+        assert "Error writing parquet to" in caplog.text
