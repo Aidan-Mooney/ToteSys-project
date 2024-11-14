@@ -1,4 +1,4 @@
-# Terriffic Totes
+# Terrific Totes
 
 ## Ingest Process
 
@@ -16,7 +16,7 @@ The ingest process aims to:
 
 #### Purpose
 
-This package provides the ability to connect to the Terriffic Totes database and to close the connection.  It also manages the secret retrival needed to connect.
+This package provides the ability to connect to the Terrific Totes database and to close the connection.  It also manages the secret retrieval needed to connect.
 
 #### Functions
 
@@ -29,11 +29,11 @@ Returns a dictionary containing the requested secret.
 ###### Inputs
 
 `client` Mandatory, no default. Takes a boto3.client secretsmanager object.
-`secret_name` Mandatory, no default. Takes a string representing the name of the secret to be retrived.
+`secret_name` Mandatory, no default. Takes a string representing the name of the secret to be retrieved.
 
 ###### Outputs
 
-`secret` Returns a dictionary containing the secret retrived
+`secret` Returns a dictionary containing the secret retrieved
 
 ###### Logging
 
@@ -44,7 +44,7 @@ ___
 
 ###### Purpose
 
-Returns an auhtenticated pg8000 connection object for the totesysDB
+Returns an authenticated pg8000 connection object for the totesysDB
 
 ###### Inputs
 
@@ -68,7 +68,7 @@ Closes the an existing database connection.
 
 ###### Inputs
 
-`conn` Mandatory, no default. Takes a pg8000 native connnection object
+`conn` Mandatory, no default. Takes a pg8000 native connection object
 
 ###### Outputs
 
@@ -88,13 +88,13 @@ Returns a date string in the agreed format.
 
 ###### Inputs
 
-`date_time` Mandatroy, no default. a date time object to convert
+`date_time` Mandatory, no default. a date time object to convert
 
 ###### Outputs
 
 `formatted_time` a string in the format YYYY-MM-DD HH:MM:SS.sss
 
-### genereate_file_key.py
+### generate_file_key.py
 
 #### Purpose
 
@@ -108,13 +108,13 @@ Generates file names based on table name, time, and file extension.
 
 `end_time` Mandatory, no default. Datetime object representing the end time for the file name.
 
-`extension` Optional, default  "parquet". String representing the file extension. Ommit the '.'
+`extension` Optional, default  "parquet". String representing the file extension. Omit the '.'
 
 ### generate_new_entry_query.py
 
 #### Purpose
 
-Return a valid PostgreSQL query string for rows which were modified in the given table between the start_time and end_time. Will raise DateFormatError if start_time or end_time are in an invalid format. 
+Return a valid PostgreSQL query string for rows which were modified in the given table between the start_time and end_time. Will raise DateFormatError if start_time or end_time are in an invalid format.
 
 ##### generate_new_entry_query
 
@@ -122,7 +122,7 @@ Return a valid PostgreSQL query string for rows which were modified in the given
 
 `table_name` Mandatory, no default. String representing the table name in the database.
 
-`start_time` Mandatory, no default. A `format_time` string represennting the start of the time range (inclusive)
+`start_time` Mandatory, no default. A `format_time` string representing the start of the time range (inclusive)
 
 `end_time` Mandatory, no default. A `format_time` string representing the end of the time range (exclusive)
 
@@ -138,7 +138,7 @@ None currently
 
 #### Purpose
 
-Inspectt the ingested files for the time of the last sucessfully ingest.
+Inspect the ingested files for the time of the last successfully ingest.
 
 ##### `get_latest_filename`
 
@@ -149,12 +149,14 @@ Return the file in the bucket bucket_name with the prefix table_name which has t
 ###### Inputs
 
 `s3_client` Mandatory, no default.  boto3 s3 client connection object
+
 `bucket_name` Mandatory, no default. String contacting the name of the s3 bucket
-`table_name` Manadatory, no default. String containing the table name
+
+`table_name` Mandatory, no default. String containing the table name
 
 ###### Outputs
 
-`most_recent_filename` String, name of the most recent file for the tablename, bucket commindaation.
+`most_recent_filename` String, name of the most recent file for the tablename, bucket combination.
 
 ___
 
@@ -168,7 +170,7 @@ Return a datetime object corresponding to the key of the most-recently-modified 
 
 `bucket_name` Mandatory, no default. String presenting the s3 bucket name
 
-`table_name` Mandatory, no defaullt. String representing the db table name
+`table_name` Mandatory, no default. String representing the db table name
 
 ###### Outputs
 
@@ -178,13 +180,13 @@ Return a datetime object corresponding to the key of the most-recently-modified 
 
 #### Purpose
 
-Takes dictionaries and convets them to bytes in parquet format
+Takes dictionaries and converts them to bytes in parquet format
 
 ##### `parquet_data`
 
 ###### Purpose
 
-Takes a dicitionary and turns it into a parquet formated byte stream
+Takes a dictionary and turns it into a parquet formatted byte stream
 
 ###### Inputs
 
@@ -211,9 +213,13 @@ Take an sql query string and return the result of the query as a dictionary form
 ###### Inputs
 
 `sql_string`: Mandatory, no default. String containing valid PostgreSQL query
+
 `connect_to_db`: Mandatory, no default. Function which returns connection to a database
+
 `close_db_connection` Mandatory, no default. Function which closes database connection
-`dict_name` Optional, default  "response" String name used in the key of the reponse dictionary
+
+`dict_name` Optional, default  "response" String name used in the key of the response dictionary
+
 `kwargs` Optional, no defaault. Keys and values passed into SQL query using :-syntax
 
 ###### Outputs
@@ -230,8 +236,11 @@ Writes provided date to s3
 ###### Inputs
 
 `s3_client` Mandatory, no default. Boto3.client("s3") object
+
 `bucket_name` Mandatory, no default. String containing the name of the bucket (must already exist)
+
 `file_key` Mandatory, no default, String,name of the file in the bucket, including directory and file extension
+
 `data` contents of the file`.
 
 ###### Outputs
