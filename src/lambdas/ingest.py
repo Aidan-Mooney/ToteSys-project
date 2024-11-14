@@ -19,7 +19,6 @@ bucket_name = environ["bucket_name"]
 logger = getLogger(__name__)
 
 def lambda_handler(event, context):
-    print(ClientError)
     """
     This function should wrap anything in try:...except: blocks that uses an external service
     This function should log things (what things??)

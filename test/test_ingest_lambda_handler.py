@@ -1,11 +1,11 @@
 from src.lambdas.ingest import lambda_handler
 from unittest.mock import patch
-from pytest import mark, fixture, raises
+from pytest import mark, fixture
 from datetime import datetime
 from os import environ
 from boto3 import client
 from botocore.exceptions import ClientError
-from logging import CRITICAL, WARNING
+from logging import CRITICAL, WARNING, INFO
 from src.utils.generate_new_entry_query import DateFormatError
 from pg8000.core import DatabaseError
 
@@ -38,7 +38,7 @@ def s3(aws_credentials):
 
 class TestIntegration:
     @mark.it("s3 client is called with the correct file name, bucket and body")
-    def test_1(self, s3):
+    def test_1(self, s3, caplog):
         with patch(f"{PATCH_PATH}.dt.datetime") as dt_mock:
             dt_mock.now.return_value = datetime(2024, 11, 13, 14, 14, 20, 987654)
             with patch(
@@ -94,6 +94,7 @@ class TestIntegration:
                         test_event = {"tables_to_query": ["table_name"]}
                         environ["bucket_name"] = "test_bucket"
                         with patch(f"{PATCH_PATH}.parquet_data", return_value=""):
+                            caplog.set_level(INFO)
                             lambda_handler(test_event, {})
                         expected_calls = {
                             "Bucket": "test_bucket",
@@ -101,6 +102,9 @@ class TestIntegration:
                             "Body": "",
                         }
                         s3_mock.put_object.assert_called_with(**expected_calls)
+                        assert "Successfully retrieved last ingest time from" in caplog.text
+                        assert "Successfully generated SQL query for table" in caplog.text
+                        assert "Successfully written parquet data to" in caplog.text
 
 
 class TestErrorRaisedByGetLastIngestTime:
