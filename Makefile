@@ -13,6 +13,7 @@ create-environment:
 install-requirements: create-environment
 	@echo ">>> Installing requirements."
 	$(call execute_in_env, pip install -r ./requirements.txt)
+	$(call execute_in_env, pip install -r ./requirements.txt -t dependencies/python)
 
 install-dev-tools:
 	@echo ">>> Installing Dev Tools"
