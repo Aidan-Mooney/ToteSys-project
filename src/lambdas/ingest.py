@@ -6,7 +6,7 @@ from src.utils.format_time import format_time
 from src.utils.query_db import query_db
 from src.utils.parquet_data import parquet_data
 from src.utils.write_to_s3 import write_to_s3
-import datetime as dt
+from datetime import timezone, datetime as dt
 from boto3 import client
 import os
 from pg8000.core import DatabaseError
@@ -18,7 +18,6 @@ s3_client = client("s3")
 logger = getLogger(__name__)
 
 def lambda_handler(event, context):
-    bucket_name = os.environ["bucket_name"]
     """
     Structure of event:
         event = {"tables_to_query": ["table_name",...]}
@@ -37,9 +36,11 @@ def lambda_handler(event, context):
         - WARNING when query_db returns an empty list
 
     """
-    end_time = dt.datetime.now()
+    bucket_name = os.environ["bucket_name"]
+    end_time = dt.now(timezone.utc) #add timezone or look at the context to see if there's time
     end_time_str = format_time(end_time)
     table_names = event["tables_to_query"]
+    file_key_list = []
     for table_name in table_names:
         try:
             start_time = get_last_ingest_time(bucket_name, table_name)
@@ -64,6 +65,7 @@ def lambda_handler(event, context):
             break
         if new_rows[table_name]:
             file_key = generate_file_key(table_name, end_time)
+            file_key_list.append(file_key)
             new_rows_parquet = parquet_data(new_rows)
             try:
                 write_to_s3(s3_client, bucket_name, file_key, new_rows_parquet)
@@ -71,4 +73,7 @@ def lambda_handler(event, context):
             except ClientError as e:
                 logger.critical(f"Error writing parquet to {bucket_name}/{file_key}:\n{e}")
                 break
-        logger.warning(f"no new rows found for {table_name} between {start_time_str} and {end_time_str}")
+        else:
+            logger.warning(f"No new rows found for {table_name} between {start_time_str} and {end_time_str}")
+        
+        return {"files_added": file_key_list}
