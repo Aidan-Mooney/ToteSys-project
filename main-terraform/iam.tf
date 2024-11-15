@@ -54,7 +54,19 @@ data "aws_iam_policy_document" "s3_transform_document" {
   }
 }
 
+data "aws_iam_policy_document" "lambda_logging" {
+  statement {
+    effect = "Allow"
 
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = ["arn:aws:logs:*:*:*"]
+  }
+}
 
 #######################################################
 
@@ -74,6 +86,13 @@ resource "aws_iam_policy" "s3_transform_policy" {
     name_prefix = "s3-policy-${var.transform_lambda_name}"
     policy      = data.aws_iam_policy_document.s3_transform_document.json
     description = "allows cloud service to write to ${data.aws_ssm_parameter.transform_bucket_arn.value}"
+}
+
+resource "aws_iam_policy" "lambda_logging-policy" {
+  name        = "lambda_logging"
+  path        = "/"
+  description = "IAM policy for logging from a lambda"
+  policy      = data.aws_iam_policy_document.lambda_logging.json
 }
 
 #########################################################
@@ -96,4 +115,9 @@ resource "aws_iam_role_policy_attachment" "s3_ingest_policy" {
 resource "aws_iam_role_policy_attachment" "s3_transform_policy" {
     role = aws_iam_role.transform_lambda_role.name
     policy_arn = aws_iam_policy.s3_transform_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logs-for-ingest-policy" {
+  role       = aws_iam_role.ingest_lambda_role.name
+  policy_arn = aws_iam_policy.lambda_logging.arn
 }

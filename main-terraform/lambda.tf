@@ -12,13 +12,20 @@ resource "aws_lambda_function" "ingest_lambda_function" {
   s3_bucket             = aws_s3_object.ingest_lambda_file.bucket
   s3_key                = aws_s3_object.ingest_lambda_file.id
   runtime               = var.python_runtime
-  depends_on            = [aws_s3_object.dependencies_lambda_file,
+  depends_on            = [ aws_s3_object.dependencies_lambda_file,
                             aws_s3_object.ingest_lambda_file,
-                            aws_s3_object.ingest_utils_lambda_file]
+                            aws_s3_object.ingest_utils_lambda_file,
+                            aws_iam_role_policy_attachment.lambda_logs-for-ingest-policy,
+                            aws_cloudwatch_log_group.totesys-cw-log-group,
+                            ]
   timeout               = var.default_timeout
   handler               = "${var.ingest_lambda_name}.lambda_handler"
   layers                = [aws_lambda_layer_version.dependencies.arn, aws_lambda_layer_version.ingest_utils.arn]
   environment {
     variables = {s3_bucket = data.aws_ssm_parameter.ingest_bucket_name.value }
+  }
+  logging_config {
+    log_format  = "Text"
+    log_group   = aws_cloudwatch_log_group.totesys-cw-log-group.name
   }
 }
