@@ -8,6 +8,15 @@ resource "aws_iam_role" "transform_lambda_role" {
     assume_role_policy = data.aws_iam_policy_document.assume_role_document.json
 }
 
+resource "aws_iam_role" "state_role" {
+  name_prefix        = "role-${var.state_machine_name}"
+  assume_role_policy = data.data.aws_iam_policy_document.assume_state_role_document.json
+}
+
+resource "aws_iam_role" "eventbridge_role" {
+  name_prefix        = "role-eventbridge-"
+  assume_role_policy = data.data.aws_iam_policy_document.assume_events_role_document.json
+}
 #####################################################
 
 data "aws_iam_policy_document" "assume_role_document" {
@@ -20,6 +29,30 @@ data "aws_iam_policy_document" "assume_role_document" {
     }
   }
 }
+
+data "aws_iam_policy_document" "assume_state_role_document" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["states.amazonaws.com"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "assume_events_role_document" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+  }
+}
+
+###########################################################
 
 data "aws_iam_policy_document" "s3_code_document" {
   statement {
@@ -54,6 +87,34 @@ data "aws_iam_policy_document" "s3_transform_document" {
   }
 }
 
+data "aws_iam_policy_document" "invoke_lambdas_document" {
+  statement {
+
+    actions = [
+      "lambda:InvokeFunction",
+      "xray:PutTraceSegments",
+      "xray:PutTelemetryRecords",
+      "xray:GetSamplingRules",
+      "xray:GetSamplingTargets" 
+    ]
+
+    resources = [
+      "${data.aws_ssm_parameter.transform_bucket_arn.value}/*",
+      "${data.aws_ssm_parameter.ingest_bucket_arn.value}/*",
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "eventsbridge_document"{
+  statement {
+    actions = ["states:StartExecution"]
+
+    resources = [
+      "${aws_sfn_state_machine.state_machine.arn}"
+    ]
+  }
+}
+  
 data "aws_iam_policy_document" "lambda_logging" {
   statement {
     effect = "Allow"
@@ -88,6 +149,18 @@ resource "aws_iam_policy" "s3_transform_policy" {
     description = "allows cloud service to write to ${data.aws_ssm_parameter.transform_bucket_arn.value}"
 }
 
+resource "aws_iam_policy" "invoke_lambdas_policy" {
+  name_prefix = "invoke-lambda-policy-for-${var.state_machine_name}"
+  policy      = data.aws_iam_policy_document.invoke_lambdas_document.json
+  description = "allows cloud service to invoke lambda functions (ingest, transform) by state machine ${var.state_machine_name}"
+}
+
+resource "aws_iam_policy" "eventbridge_policy" {
+  name_prefix = "eventbridge-policy-for-${var.state_machine_name}"
+  policy = data.aws_iam_policy_document.eventsbridge_document.json
+  description = "allows cloud service to start execution on state machine ${var.state_machine_name}"
+}
+
 resource "aws_iam_policy" "lambda_logging-policy" {
   name        = "lambda_logging"
   path        = "/"
@@ -117,7 +190,18 @@ resource "aws_iam_role_policy_attachment" "s3_transform_policy" {
     policy_arn = aws_iam_policy.s3_transform_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "invoke_lambdas_policy_attachment" {
+  role       = aws_iam_role.state_role.name
+  policy_arn = aws_iam_policy.invoke_lambdas_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "eventbridge_policy_attachment" {
+  role       = aws_iam_role.eventbridge_role.name
+  policy_arn = aws_iam_policy.eventbridge_policy.arn
+}
+  
 resource "aws_iam_role_policy_attachment" "lambda_logs-for-ingest-policy" {
   role       = aws_iam_role.ingest_lambda_role.name
   policy_arn = aws_iam_policy.lambda_logging.arn
 }
+  
