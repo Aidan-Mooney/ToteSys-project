@@ -10,12 +10,12 @@ resource "aws_iam_role" "transform_lambda_role" {
 
 resource "aws_iam_role" "state_role" {
   name_prefix        = "role-${var.state_machine_name}"
-  assume_role_policy = data.data.aws_iam_policy_document.assume_state_role_document.json
+  assume_role_policy = data.aws_iam_policy_document.assume_state_role_document.json
 }
 
 resource "aws_iam_role" "eventbridge_role" {
   name_prefix        = "role-eventbridge-"
-  assume_role_policy = data.data.aws_iam_policy_document.assume_events_role_document.json
+  assume_role_policy = data.aws_iam_policy_document.assume_events_role_document.json
 }
 #####################################################
 
@@ -202,6 +202,6 @@ resource "aws_iam_role_policy_attachment" "eventbridge_policy_attachment" {
   
 resource "aws_iam_role_policy_attachment" "lambda_logs-for-ingest-policy" {
   role       = aws_iam_role.ingest_lambda_role.name
-  policy_arn = aws_iam_policy.lambda_logging.arn
+  policy_arn = aws_iam_policy.lambda_logging-policy.arn
 }
   
