@@ -24,4 +24,8 @@ resource "aws_lambda_function" "ingest_lambda_function" {
   environment {
     variables = {s3_bucket = data.aws_ssm_parameter.ingest_bucket_name.value }
   }
+  logging_config {
+    log_format  = "Text"
+    log_group   = aws_cloudwatch_log_group.totesys-cw-log-group.name
+  }
 }
