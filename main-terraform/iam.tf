@@ -99,8 +99,7 @@ data "aws_iam_policy_document" "invoke_lambdas_document" {
     ]
 
     resources = [
-      "${data.aws_ssm_parameter.transform_bucket_arn.value}/*",
-      "${data.aws_ssm_parameter.ingest_bucket_arn.value}/*",
+      "${aws_lambda_function.ingest_lambda_function.arn}*",
     ]
   }
 }
