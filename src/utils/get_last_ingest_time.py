@@ -34,19 +34,18 @@ def get_last_ingest_time(bucket_name: str, table_name: str):
             "second": 0,
             "microsecond": 0,
         }
-        time = {key: int(time[key]) for key in time}
-        return datetime(**time)
-    regex = compile(r"(\d{4})/(\d{2})/(\d{2})/(\d{2})(\d{2})(\d{2})(\d{6})").match(
-        filename
-    )
-    time = {
-        "year": regex.group(1),
-        "month": regex.group(2),
-        "day": regex.group(3),
-        "hour": regex.group(4),
-        "minute": regex.group(5),
-        "second": regex.group(6),
-        "microsecond": regex.group(7),
-    }
+    else:
+        regex = compile(r"(\d{4})/(\d{2})/(\d{2})/(\d{2})(\d{2})(\d{2})(\d{6})").match(
+            filename
+        )
+        time = {
+            "year": regex.group(1),
+            "month": regex.group(2),
+            "day": regex.group(3),
+            "hour": regex.group(4),
+            "minute": regex.group(5),
+            "second": regex.group(6),
+            "microsecond": regex.group(7),
+        }
     time = {key: int(time[key]) for key in time}
     return datetime(**time)
