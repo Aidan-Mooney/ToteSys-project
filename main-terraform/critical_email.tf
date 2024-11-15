@@ -29,7 +29,7 @@ resource "aws_cloudwatch_metric_alarm" "critical_alarm" {
 data "archive_file" "publish" {
   type             = "zip"
   output_file_mode = "0666"
-  source_file      = "${path.module}/../src/ingest_email_publisher.py"
+  source_file      = "${path.module}/../src/lambdas/ingest_email_publisher.py"
   output_path      = "${path.module}/../src_archive/ingest_email_publisher.zip"
 }
 resource "aws_s3_object" "ingest_publisher_lambda_file" {
