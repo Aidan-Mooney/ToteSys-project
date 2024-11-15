@@ -112,7 +112,19 @@ data "aws_iam_policy_document" "eventsbridge_document"{
     resources = [
       "${aws_sfn_state_machine.state_machine.arn}"
     ]
-  }
+}
+  
+data "aws_iam_policy_document" "lambda_logging" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = ["arn:aws:logs:*:*:*"]
 }
 
 #######################################################
@@ -147,6 +159,13 @@ resource "aws_iam_policy" "eventbridge_policy" {
   description = "allows cloud service to start execution on state machine ${var.state_machine_name}"
 }
 
+resource "aws_iam_policy" "lambda_logging-policy" {
+  name        = "lambda_logging"
+  path        = "/"
+  description = "IAM policy for logging from a lambda"
+  policy      = data.aws_iam_policy_document.lambda_logging.json
+}
+
 #########################################################
 
 resource "aws_iam_role_policy_attachment" "s3_ingest_code_policy" {
@@ -178,3 +197,9 @@ resource "aws_iam_role_policy_attachment" "eventbridge_policy_attachment" {
   role       = aws_iam_role.eventbridge_role.name
   policy_arn = aws_iam_policy.eventbridge_policy.arn
 }
+  
+resource "aws_iam_role_policy_attachment" "lambda_logs-for-ingest-policy" {
+  role       = aws_iam_role.ingest_lambda_role.name
+  policy_arn = aws_iam_policy.lambda_logging.arn
+}
+  

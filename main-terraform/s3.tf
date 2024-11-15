@@ -20,13 +20,14 @@ resource "aws_s3_object" "dependencies_lambda_file" {
   source = "${path.module}/../packages/layer/layer.zip"
 }
 
-/*
+
 resource "aws_s3_object" "ingest_lambda_file" {
   bucket = aws_s3_bucket.code_bucket.bucket
-  key    = "ingest.zip"
-  source = "${path.module}/..." # module path to code to be saved
+  key    = "ingest/ingest.zip"
+  source = "${path.module}/../packages/ingester/ingest.zip"
 }
 
+/*
 resource "aws_s3_object" "pg8000_lambda_file" {
   bucket = aws_s3_bucket.code_bucket.bucket
   key    = "pg8000-module.zip"
