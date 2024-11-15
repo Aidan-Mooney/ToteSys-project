@@ -112,6 +112,7 @@ data "aws_iam_policy_document" "eventsbridge_document"{
     resources = [
       "${aws_sfn_state_machine.state_machine.arn}"
     ]
+  }
 }
   
 data "aws_iam_policy_document" "lambda_logging" {
@@ -125,6 +126,7 @@ data "aws_iam_policy_document" "lambda_logging" {
     ]
 
     resources = ["arn:aws:logs:*:*:*"]
+  }
 }
 
 #######################################################
