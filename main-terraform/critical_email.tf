@@ -30,12 +30,12 @@ data "archive_file" "publish" {
   type             = "zip"
   output_file_mode = "0666"
   source_file      = "${path.module}/../src/lambdas/ingest_email_publisher.py"
-  output_path      = "${path.module}/../src_archive/ingest_email_publisher.zip"
+  output_path      = "${path.module}/../src-archive/ingest_email_publisher.zip"
 }
 resource "aws_s3_object" "ingest_publisher_lambda_file" {
   bucket = aws_s3_bucket.code_bucket.id
   key    = "ingest/publish_email.zip"
-  source = "${path.module}/../src_archive/ingest_email_publisher.zip"
+  source = "${path.module}/../src-archive/ingest_email_publisher.zip"
 }
 resource "aws_lambda_function" "publish" {
   function_name = "publisher"
