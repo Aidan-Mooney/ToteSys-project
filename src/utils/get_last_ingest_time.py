@@ -7,10 +7,13 @@ def get_latest_filename(s3_client, bucket_name: str, table_name: str):
     """
     Return the file in the bucket bucket_name with the prefix table_name which has the "biggest" name, ie. the name containing the latest timestamp.
     """
-    objs = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=f"{table_name}/")[
-        "Contents"
-    ]
-    filenames = [obj['Key'] for obj in objs]
+    try:
+        objs = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=f"{table_name}/")[
+            "Contents"
+        ]
+    except KeyError:
+        return None
+    filenames = [obj["Key"] for obj in objs]
     most_recent_filename = max(filenames)[len(table_name) + 1 :]
     return most_recent_filename
 
@@ -21,7 +24,21 @@ def get_last_ingest_time(bucket_name: str, table_name: str):
     """
     s3_client = client("s3")
     filename = get_latest_filename(s3_client, bucket_name, table_name)
-    regex = compile(r"(\d{4})/(\d{2})/(\d{2})/(\d{2})(\d{2})(\d{2})(\d{6})").match(filename)
+    if not filename:
+        time = {
+            "year": 2024,
+            "month": 1,
+            "day": 1,
+            "hour": 0,
+            "minute": 0,
+            "second": 0,
+            "microsecond": 0,
+        }
+        time = {key: int(time[key]) for key in time}
+        return datetime(**time)
+    regex = compile(r"(\d{4})/(\d{2})/(\d{2})/(\d{2})(\d{2})(\d{2})(\d{6})").match(
+        filename
+    )
     time = {
         "year": regex.group(1),
         "month": regex.group(2),

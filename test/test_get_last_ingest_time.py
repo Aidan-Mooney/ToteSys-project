@@ -74,6 +74,17 @@ class Testget_latest_filename:
         expected = "2024/11/11/165514"
         assert result == expected
 
+    @mock_aws
+    @mark.it("Returns none if bucket is empty")
+    def test_3(self, s3_client):
+        s3_client.create_bucket(
+            Bucket=TEST_BUCKET,
+            CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+        )
+        result = get_latest_filename(s3_client, TEST_BUCKET, "test_table")
+        expected = None
+        assert result == expected
+
 
 class Testget_last_ingest_time:
     @mark.it(
@@ -95,6 +106,24 @@ class Testget_last_ingest_time:
         assert result.second == 14
         assert result.microsecond == 999999
 
+    @mark.it(
+        "Returns the default datetime object if no filename exists with the correct year, month, day, hour, minute, second and microsecond"
+    )
+    def test_2(self):
+        test_filename = None
+        with patch(
+            "src.utils.get_last_ingest_time.get_latest_filename",
+            return_value=test_filename,
+        ):
+            result = get_last_ingest_time(TEST_BUCKET, "")
+        assert isinstance(result, datetime)
+        assert result.year == 2024
+        assert result.month == 1
+        assert result.day == 1
+        assert result.hour == 0
+        assert result.minute == 0
+        assert result.second == 0
+        assert result.microsecond == 0
 
 
 class Testintegration:
@@ -121,3 +150,20 @@ class Testintegration:
         assert result.minute == 53
         assert result.second == 22
         assert result.microsecond == 999999
+
+    @mock_aws
+    @mark.it("Returns the default datetime object when no file is found.")
+    def test_2(self, s3_client):
+        s3_client.create_bucket(
+            Bucket=TEST_BUCKET,
+            CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+        )
+        result = get_last_ingest_time(TEST_BUCKET, "test_table")
+        assert isinstance(result, datetime)
+        assert result.year == 2024
+        assert result.month == 1
+        assert result.day == 1
+        assert result.hour == 0
+        assert result.minute == 0
+        assert result.second == 0
+        assert result.microsecond == 0
