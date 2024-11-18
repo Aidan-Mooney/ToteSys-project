@@ -75,10 +75,6 @@ class Warehouse:
         return df
 
     @property
-    def dim_date(start_date: datetime, end_date: datetime) -> DataFrame:
-        pass
-
-    @property
     def fact_sales_order(self) -> DataFrame:
         sales_order = self.dataframes["sales_order"]
         df = sales_order[
@@ -103,10 +99,76 @@ class Warehouse:
         return df
 
 
+def dim_date(start_year: int, end_year: int) -> DataFrame:
+    quarters = {i: int(4 * i / 12) + 1 for i in range(0, 12)}
+    date_lines = []
+    for year in range(start_year, end_year):
+        for month in range(1, 13):
+            for day in range(1, 32):
+                try:
+                    date_id = pd.to_datetime(f"{year}-{month:02d}-{day:02d}")
+                    day_object = datetime(year, month, day)
+                    day_of_week = day_object.weekday()  # monday is 0 and sunday is 6
+                    day_name = [
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday",
+                        "Friday",
+                        "Saturday",
+                        "Sunday",
+                    ][day_of_week]
+                    month_name = [
+                        "January",
+                        "February",
+                        "March",
+                        "April",
+                        "May",
+                        "June",
+                        "July",
+                        "August",
+                        "September",
+                        "October",
+                        "November",
+                        "December",
+                    ][month - 1]
+                    quarter = quarters[month - 1]
+                    date_lines.append(
+                        [
+                            date_id,
+                            year,
+                            month,
+                            day,
+                            day_of_week,
+                            day_name,
+                            month_name,
+                            quarter,
+                        ]
+                    )
+                except ValueError:
+                    continue
+    return pd.DataFrame(
+        date_lines,
+        columns=[
+            "date_id",
+            "year",
+            "month",
+            "day",
+            "day_of_week",
+            "day_name",
+            "month_name",
+            "quarter",
+        ],
+    )
+
+
 if __name__ == "__main__":
     warehouse = Warehouse("df_scoping/tables")
     start_date = datetime(2022, 11, 3, 14, 20, 52, 186000)
     end_date = datetime.now()
     print(start_date)
     print(end_date)
-    print(warehouse.dim_counterparty)
+    # print(warehouse.fact_sales_order)
+    dates = dim_date(2023, 2024)
+    with open("df_scoping/output.txt", "w") as f:
+        f.write(dates.to_string(header=True, index=False))
