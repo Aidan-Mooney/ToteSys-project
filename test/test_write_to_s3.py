@@ -2,7 +2,7 @@ from pytest import mark, fixture
 from moto import mock_aws
 from boto3 import client
 from os import environ
-from src.utils.write_to_s3 import write_to_s3
+from src.utils.python.write_to_s3 import write_to_s3
 
 TEST_FILE_PATH = "test/test_data"
 TEST_BUCKET = "test_bucket"

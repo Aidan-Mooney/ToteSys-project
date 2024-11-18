@@ -1,4 +1,4 @@
-from src.utils.parquet_data import parquet_data
+from src.utils.python.parquet_data import parquet_data
 from io import BytesIO
 import pandas as pd
 import json

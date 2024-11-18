@@ -1,7 +1,7 @@
 """test the generate_file_key function"""
 
 from datetime import datetime, timezone
-from src.utils.generate_file_key import generate_file_key
+from src.utils.python.generate_file_key import generate_file_key
 
 
 class TestGenerateFileKey:

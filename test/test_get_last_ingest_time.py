@@ -4,7 +4,7 @@ from moto import mock_aws
 from unittest.mock import patch
 from datetime import datetime
 from os import environ
-from src.utils.get_last_ingest_time import get_latest_filename, get_last_ingest_time
+from src.utils.python.get_last_ingest_time import get_latest_filename, get_last_ingest_time
 
 TEST_DATA_PATH = "test/test_data"
 TEST_BUCKET = "test-bucket3141"
@@ -93,7 +93,7 @@ class Testget_last_ingest_time:
     def test_1(self):
         test_filename = "2024/11/11/165514999999"
         with patch(
-            "src.utils.get_last_ingest_time.get_latest_filename",
+            "src.utils.python.get_last_ingest_time.get_latest_filename",
             return_value=test_filename,
         ):
             result = get_last_ingest_time(TEST_BUCKET, "")
@@ -112,7 +112,7 @@ class Testget_last_ingest_time:
     def test_2(self):
         test_filename = None
         with patch(
-            "src.utils.get_last_ingest_time.get_latest_filename",
+            "src.utils.python.get_last_ingest_time.get_latest_filename",
             return_value=test_filename,
         ):
             result = get_last_ingest_time(TEST_BUCKET, "")

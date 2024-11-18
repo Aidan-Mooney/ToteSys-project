@@ -1,4 +1,4 @@
-from src.utils.generate_new_entry_query import generate_new_entry_query, DateFormatError
+from src.utils.python.generate_new_entry_query import generate_new_entry_query, DateFormatError
 from pytest import mark, raises
 
 
