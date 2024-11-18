@@ -28,6 +28,8 @@ If the following tables are updated, then the latest version of the dependency a
         - if the table is in the second list, access the parquet file and the parquet file of its dependency and add them to the warehouse
     - run the corresponding methods on the warehouse to produce the newly-updated tables
     - write the parquet files to the transform bucket
+
+The greatest risk of errors comes from accessing DataFrames by name which haven't been added to the Warehouse object yet. So catching KeyErrors could be important for resilience.
 """
 
 
