@@ -1,6 +1,33 @@
 from os import listdir
 from pandas import DataFrame, read_parquet
 
+"""
+===================================================
+|| Rules for importing tables from ingest bucket ||
+===================================================
+Most tables have no dependencies so these can be processed individually and on-demand:
+    - design (dim_design)
+    - transaction (dim_transaction)
+    - address (dim_location)
+    - currency (dim_currency)
+    - payment_type (dim_payment_type)
+    - sales_order (fact_sales_order)
+    - purchase_order (fact_purchase_order)
+    - payment (fact_payment)
+
+If the following tables are updated, then the latest version of the dependency also needs to be retrieved (example_erd_table (warehouse_table) -> dependency)
+    - counterparty (dim_counterparty) -> address
+    - staff (dim_staff) -> department
+
+Plan of action
+    - the input event will contain a list of tables which were newly ingested
+    - for each table in the list
+        - if the table is in the first list, access the parquet file and add it to the warehouse
+        - if the table is in the second list, access the parquet file and the parquet file of its dependency and add them to the warehouse
+    - run the corresponding methods on the warehouse to produce the newly-updated tables
+    - write the parquet files to the transform bucket
+"""
+
 
 class Warehouse:
     def __init__(self, dir: str, extension: str = ".parquet"):
@@ -16,12 +43,18 @@ class Warehouse:
 
     @property
     def dim_design(self) -> DataFrame:
+        """
+        Depends on design. Nothing depends on it.
+        """
         design = self.dataframes["design"]
         df = design["design_id", "design_name", "file_location", "file_name"]
         return df
 
     @property
     def dim_transaction(self) -> DataFrame:
+        """
+        Depends on transaction. Nothing depends on it.
+        """
         transaction = self.dataframes["transaction"]
         df = transaction[
             "transaction_id", "transaction_type", "sales_order_id", "purchase_order_id"
@@ -30,6 +63,10 @@ class Warehouse:
 
     @property
     def dim_counterparty(self) -> DataFrame:
+        """
+        Depends on counterparty, address.
+        If this table is updated then we need to get the latest version of address.
+        """
         address = self.dataframes["address"]
         counterparty = self.dataframes["counterparty"]
         address_cols = address[
@@ -68,6 +105,9 @@ class Warehouse:
 
     @property
     def dim_currency(self) -> DataFrame:
+        """
+        Depends on currency. Nothing depends on it..
+        """
         currency = self.dataframes["currency"]
         names = [
             ["GBP", "Great British Pound"],
@@ -81,12 +121,18 @@ class Warehouse:
 
     @property
     def dim_payment_type(self):
+        """
+        Depends on payment_type. Nothing depends on it.
+        """
         payment_type = self.dataframes["payment_type"]
         df = payment_type[["payment_type_id", "payment_type_name"]]
         return df
 
     @property
     def dim_location(self):
+        """
+        Only depends on address. Counterparty also depends on the address table.
+        """
         location = self.dataframes["address"]
         df = location[
             [
@@ -105,6 +151,10 @@ class Warehouse:
 
     @property
     def dim_staff(self):
+        """
+        Depends on department and staff. Nothing depends on it.
+        If we're updating staff, we'll also have to import the latest version of the department table.
+        """
         staff = self.dataframes["staff"]
         department = self.dataframes["department"]
         staff_cols = staff[
@@ -117,6 +167,10 @@ class Warehouse:
 
     @property
     def fact_sales_order(self) -> DataFrame:
+        """
+        Only depends on sales order. Nothing depends on it.
+        column sales_record_id to be added by PostgreSQL as a serial primary key. Otherwise we'd have to keep track of the previous run's last primary key.
+        """
         sales_order = self.dataframes["sales_order"]
         df = sales_order[
             [
@@ -142,6 +196,7 @@ class Warehouse:
     @property
     def fact_payment(self):
         """
+        Only depends on payment. Nothing depends on it.
         column payment_record_id to be added by PostgreSQL as a serial primary key. Otherwise we'd have to keep track of the previous run's last primary key.
         """
         payment = self.dataframes["payment"]
@@ -166,6 +221,7 @@ class Warehouse:
     @property
     def fact_purchase_order(self):
         """
+        Only depends on purchase_order. Nothing depends on it.
         column purchas_order_id to be added by PostgreSQL as a serial primary key. Otherwise we'd have to keep track of the previous run's last primary key.
         """
         purchase_order = self.dataframes["purchase_order"]
