@@ -104,13 +104,13 @@ class Warehouse:
         return df
 
     @property
-    def dim_payment_type(self):
+    def dim_payment_type(self) -> DataFrame:
         payment_type = self.dataframes["payment_type"]
         df = payment_type[["payment_type_id", "payment_type_name"]]
         return df
 
     @property
-    def dim_location(self):
+    def dim_location(self) -> DataFrame:
         location = self.dataframes["address"]
         df = location[
             [
@@ -128,7 +128,7 @@ class Warehouse:
         return df
 
     @property
-    def dim_staff(self):
+    def dim_staff(self) -> DataFrame:
         staff = self.dataframes["staff"]
         department = self.dataframes["department"]
         staff_cols = staff[
@@ -164,7 +164,7 @@ class Warehouse:
         return df
 
     @property
-    def fact_payment(self):
+    def fact_payment(self) -> DataFrame:
         payment = self.dataframes["payment"]
         df = payment[
             [
@@ -185,7 +185,7 @@ class Warehouse:
         return df
 
     @property
-    def fact_purchase_order(self):
+    def fact_purchase_order(self) -> DataFrame:
         purchase_order = self.dataframes["purchase_order"]
         df = purchase_order[
             [
