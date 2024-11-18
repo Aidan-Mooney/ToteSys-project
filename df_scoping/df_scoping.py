@@ -1,6 +1,7 @@
 import pandas as pd
 from os import listdir
 from pandas import DataFrame
+from datetime import datetime
 # do we need to worry about foreign keys in the warehouse? I think not, as we won't be deleting anything.
 # use df.dt.time to get the time
 # use df.dt.date to get the date
@@ -61,6 +62,10 @@ def dim_counterparty(address: DataFrame, counterparty: DataFrame) -> DataFrame:
 def dim_currency(currency: DataFrame) -> DataFrame:
     df = currency[["currency_id", "currency_code", "currency_name"]]
     return df
+
+
+def dim_date(start_date: datetime, end_date: datetime) -> DataFrame:
+    pass
 
 
 def fact_sales_order(sales_order: DataFrame) -> DataFrame:
