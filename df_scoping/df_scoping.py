@@ -19,6 +19,13 @@ def dim_design(design: DataFrame) -> DataFrame:
     return df
 
 
+def dim_transaction(transaction: DataFrame) -> DataFrame:
+    df = transaction[
+        "transaction_id", "transaction_type", "sales_order_id", "purchase_order_id"
+    ]
+    return df
+
+
 def fact_sales_order(sales_order: DataFrame) -> DataFrame:
     df = sales_order[
         [
