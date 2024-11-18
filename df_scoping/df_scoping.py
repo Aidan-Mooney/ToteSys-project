@@ -26,6 +26,38 @@ def dim_transaction(transaction: DataFrame) -> DataFrame:
     return df
 
 
+def dim_counterparty(address: DataFrame, counterparty: DataFrame) -> DataFrame:
+    """
+    Returns some NaN values - investigate?
+    """
+    address_cols = address[
+        [
+            "address_line_1",
+            "address_line_2",
+            "district",
+            "city",
+            "postal_code",
+            "country",
+            "phone",
+        ]
+    ]
+    address_cols.rename(
+        columns={
+            "address_line_1": "counterparty_legal_address_line_1",
+            "address_line_2": "counterparty_legal_address_line_2",
+            "district": "counterparty_legal_district",
+            "city": "counterparty_legal_city",
+            "postal_code": "counterparty_legal_postal_code",
+            "country": "counterparty_legal_country",
+            "phone": "counterparty_legal_phone_number",
+        },
+        inplace=True,
+    )
+    counterparty_cols = counterparty[["counterparty_id", "counterparty_legal_name"]]
+    df = address_cols.join(counterparty_cols)
+    return df
+
+
 def fact_sales_order(sales_order: DataFrame) -> DataFrame:
     df = sales_order[
         [
@@ -51,4 +83,5 @@ def fact_sales_order(sales_order: DataFrame) -> DataFrame:
 
 if __name__ == "__main__":
     dataframes = make_dfs("df_scoping/tables/")
-    print(fact_sales_order(dataframes["sales_order"]))
+    # print(fact_sales_order(dataframes["sales_order"]))
+    print(dim_counterparty(dataframes["address"], dataframes["counterparty"]))
