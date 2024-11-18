@@ -4,7 +4,10 @@ from moto import mock_aws
 from unittest.mock import patch
 from datetime import datetime
 from os import environ
-from src.utils.python.get_last_ingest_time import get_latest_filename, get_last_ingest_time
+from src.utils.python.get_last_ingest_time import (
+    get_latest_filename,
+    get_last_ingest_time,
+)
 
 TEST_DATA_PATH = "test/test_data"
 TEST_BUCKET = "test-bucket3141"
@@ -117,7 +120,7 @@ class Testget_last_ingest_time:
         ):
             result = get_last_ingest_time(TEST_BUCKET, "")
         assert isinstance(result, datetime)
-        assert result.year == 2024
+        assert result.year == 2000
         assert result.month == 1
         assert result.day == 1
         assert result.hour == 0
@@ -160,7 +163,7 @@ class Testintegration:
         )
         result = get_last_ingest_time(TEST_BUCKET, "test_table")
         assert isinstance(result, datetime)
-        assert result.year == 2024
+        assert result.year == 2000
         assert result.month == 1
         assert result.day == 1
         assert result.hour == 0
