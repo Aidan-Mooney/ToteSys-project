@@ -7,7 +7,19 @@
             "Resource": "arn:aws:states:::lambda:invoke",
             "OutputPath": "$.Payload",
             "Parameters": {
-                "Payload.$": "$",
+                "Payload.$": {"tables_to_query": [
+                "counterparty",
+                "currency",
+                "department",
+                "design",
+                "staff",
+                "sales_order",
+                "address",
+                "payment",
+                "purchase_order",
+                "payment_type",
+                "transaction"
+            ]},
                 "FunctionName": "${lambda_ingest}:$LATEST"
             },
             "Retry": [
