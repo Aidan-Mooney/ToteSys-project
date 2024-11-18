@@ -1,6 +1,6 @@
 resource "null_resource" "create_dependencies" {
   provisioner "local-exec" {
-    command = "pip install -r ${path.module}/../requirements.txt -t ${path.module}/../dependencies/python"
+    command = "pip install -r ${path.module}/../requirements.depends.txt -t ${path.module}/../dependencies/python"
   }
 
   triggers = {

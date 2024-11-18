@@ -12,8 +12,8 @@ create-environment:
 
 install-requirements: create-environment
 	@echo ">>> Installing requirements."
-	$(call execute_in_env, pip install -r ./requirements.txt)
-	$(call execute_in_env, pip install -r ./requirements.txt -t dependencies/python)
+	$(call execute_in_env, pip install -r ./requirements.depends.txt -r ./requirements.other.txt)
+	$(call execute_in_env, pip install -r ./requirements.depends.txt -t dependencies/python)
 
 install-dev-tools:
 	@echo ">>> Installing Dev Tools"
@@ -21,7 +21,7 @@ install-dev-tools:
 
 security-checks:
 	@echo ">>> Running security checks"
-	# $(call execute_in_env, safety scan -r ./requirements.txt)
+	# $(call execute_in_env, safety scan -r ./requirements.depends.txt -r ./requirements.other.txt)
 	$(call execute_in_env, bandit -lll */*.py *c/*.py)
 
 check-pep8-compliance:
