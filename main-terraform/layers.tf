@@ -4,7 +4,7 @@ resource "null_resource" "create_dependencies" {
   }
 
   triggers = {
-    dependencies = filemd5("${path.module}/../requirements.txt")
+    dependencies = filemd5("${path.module}/../requirements.depends.txt")
   }
 }
 
