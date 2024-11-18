@@ -7,7 +7,7 @@
             "Resource": "arn:aws:states:::lambda:invoke",
             "OutputPath": "$.Payload",
             "Parameters": {
-                "Payload.$": {"tables_to_query": [
+                "Payload": {"tables_to_query": [
                 "counterparty",
                 "currency",
                 "department",
