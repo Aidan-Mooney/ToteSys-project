@@ -31,9 +31,6 @@ Plan of action
 
 class Warehouse:
     def __init__(self, dir: str, extension: str = ".parquet"):
-        """
-        Need to think about how the parquet files to read will be specified and retrieved in s3 + lambda
-        """
         parquet_filenames = listdir(dir)
         self.dataframes = {}
         for filename in parquet_filenames:
@@ -43,18 +40,12 @@ class Warehouse:
 
     @property
     def dim_design(self) -> DataFrame:
-        """
-        Depends on design. Nothing depends on it.
-        """
         design = self.dataframes["design"]
         df = design["design_id", "design_name", "file_location", "file_name"]
         return df
 
     @property
     def dim_transaction(self) -> DataFrame:
-        """
-        Depends on transaction. Nothing depends on it.
-        """
         transaction = self.dataframes["transaction"]
         df = transaction[
             "transaction_id", "transaction_type", "sales_order_id", "purchase_order_id"
@@ -63,10 +54,6 @@ class Warehouse:
 
     @property
     def dim_counterparty(self) -> DataFrame:
-        """
-        Depends on counterparty, address.
-        If this table is updated then we need to get the latest version of address.
-        """
         address = self.dataframes["address"]
         counterparty = self.dataframes["counterparty"]
         address_cols = address[
@@ -105,9 +92,6 @@ class Warehouse:
 
     @property
     def dim_currency(self) -> DataFrame:
-        """
-        Depends on currency. Nothing depends on it..
-        """
         currency = self.dataframes["currency"]
         names = [
             ["GBP", "Great British Pound"],
@@ -121,18 +105,12 @@ class Warehouse:
 
     @property
     def dim_payment_type(self):
-        """
-        Depends on payment_type. Nothing depends on it.
-        """
         payment_type = self.dataframes["payment_type"]
         df = payment_type[["payment_type_id", "payment_type_name"]]
         return df
 
     @property
     def dim_location(self):
-        """
-        Only depends on address. Counterparty also depends on the address table.
-        """
         location = self.dataframes["address"]
         df = location[
             [
@@ -151,10 +129,6 @@ class Warehouse:
 
     @property
     def dim_staff(self):
-        """
-        Depends on department and staff. Nothing depends on it.
-        If we're updating staff, we'll also have to import the latest version of the department table.
-        """
         staff = self.dataframes["staff"]
         department = self.dataframes["department"]
         staff_cols = staff[
@@ -167,10 +141,6 @@ class Warehouse:
 
     @property
     def fact_sales_order(self) -> DataFrame:
-        """
-        Only depends on sales order. Nothing depends on it.
-        column sales_record_id to be added by PostgreSQL as a serial primary key. Otherwise we'd have to keep track of the previous run's last primary key.
-        """
         sales_order = self.dataframes["sales_order"]
         df = sales_order[
             [
@@ -195,10 +165,6 @@ class Warehouse:
 
     @property
     def fact_payment(self):
-        """
-        Only depends on payment. Nothing depends on it.
-        column payment_record_id to be added by PostgreSQL as a serial primary key. Otherwise we'd have to keep track of the previous run's last primary key.
-        """
         payment = self.dataframes["payment"]
         df = payment[
             [
@@ -220,10 +186,6 @@ class Warehouse:
 
     @property
     def fact_purchase_order(self):
-        """
-        Only depends on purchase_order. Nothing depends on it.
-        column purchas_order_id to be added by PostgreSQL as a serial primary key. Otherwise we'd have to keep track of the previous run's last primary key.
-        """
         purchase_order = self.dataframes["purchase_order"]
         df = purchase_order[
             [
