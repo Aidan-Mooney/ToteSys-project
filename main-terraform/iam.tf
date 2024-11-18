@@ -68,7 +68,8 @@ data "aws_iam_policy_document" "s3_code_document" {
 data "aws_iam_policy_document" "s3_ingest_document" {
   statement {
 
-    actions = ["s3:WriteObject"]
+    actions = ["s3:WriteObject",
+                "s3:ListBucket"]
 
     resources = [
       "${data.aws_ssm_parameter.ingest_bucket_arn.value}/*",
