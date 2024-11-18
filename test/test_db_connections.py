@@ -2,6 +2,7 @@ from moto import mock_aws
 import boto3
 import pytest
 import os
+import json
 from src.utils.python.db_connections import (
     db_connections_get_secret,
     connect_to_db,
@@ -29,15 +30,13 @@ class TestDBConnectionGetSecrets:
     @pytest.fixture(scope="function", autouse=True)
     def adding_secret(self, secretsmanager):
         secret_name = "secret_test"
-        secret_stuff = (
-            {
-                "user": "project_team",
-                "password": "secret_password",
-                "host": "example.com",
-                "database": "test_db",
-                "port": 1234,
-            },
-        )
+        secret_stuff = {
+            "user": "project_team",
+            "password": "secret_password",
+            "host": "example.com",
+            "database": "test_db",
+            "port": 1234,
+        }
         secretsmanager.create_secret(
             Name=secret_name,
             SecretString=str(secret_stuff),
@@ -85,18 +84,16 @@ class TestConnectToDB:
     @pytest.fixture(scope="function", autouse=True)
     def adding_secret(self, secretsmanager):
         secret_name = "totesys_db_credentials"
-        secret_stuff = (
-            {
-                "user": "project_team",
-                "password": "secret_password",
-                "host": "example.com",
-                "database": "test_db",
-                "port": 1234,
-            },
-        )
+        secret_stuff = {
+            "user": "project_team",
+            "password": "secret_password",
+            "host": "example.com",
+            "database": "test_db",
+            "port": 1234,
+        }
         secretsmanager.create_secret(
             Name=secret_name,
-            SecretString=str(secret_stuff),
+            SecretString=json.dumps(secret_stuff),
             ForceOverwriteReplicaSecret=True,
         )
 
