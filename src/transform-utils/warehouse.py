@@ -158,10 +158,32 @@ class Warehouse:
 
     @property
     def fact_purchase_order(self):
-        pass
+        """
+        column purchas_order_id to be added by PostgreSQL as a serial primary key. Otherwise we'd have to keep track of the previous run's last primary key.
+        """
+        purchase_order = self.dataframes["purchase_order"]
+        df = purchase_order[
+            [
+                "purchase_order_id",
+                "staff_id",
+                "counterparty_id",
+                "item_code",
+                "item_quantity",
+                "item_unit_price",
+                "currency_id",
+                "agreed_delivery_date",
+                "agreed_payment_date",
+                "agreed_delivery_location_id",
+            ]
+        ]
+        df["created_date"] = purchase_order["created_at"].dt.date
+        df["created_time"] = purchase_order["created_at"].dt.time
+        df["last_updated_date"] = purchase_order["last_updated"].dt.date
+        df["last_updated_time"] = purchase_order["last_updated"].dt.time
+        return df
 
 
 if __name__ == "__main__":
     warehouse = Warehouse("test/test_data/parquet_files")
     with open("output.txt", "w") as f:
-        warehouse.fact_payment.to_string(f)
+        warehouse.fact_purchase_order.to_string(f)
