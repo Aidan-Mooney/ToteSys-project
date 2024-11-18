@@ -15,7 +15,7 @@ def make_dfs(dir, extension=".parquet"):
 
 
 def fact_sales_order(sales_order: DataFrame):
-    existing_cols = sales_order[
+    df = sales_order[
         "sales_order_id",
         "design_id",
         "staff_id",
@@ -27,9 +27,12 @@ def fact_sales_order(sales_order: DataFrame):
         "agreed_payment_date",
         "agreed_delivery_location_id",
     ]
-    # rename staff_id
-    # add columns for date and time for last_updated and created_at
-    return sales_order
+    df["created_date"] = sales_order["created_at"].dt.date
+    df["created_time"] = sales_order["created_at"].dt.time
+    df["last_updated_date"] = sales_order["last_updated"].dt.date
+    df["last_updated_time"] = sales_order["last_updated"].dt.time
+    df.rename({"staff_id": "sales_staff_id"}, inplace=True)
+    return df
 
 
 if __name__ == "__main__":
