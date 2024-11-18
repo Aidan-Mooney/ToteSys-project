@@ -2,14 +2,10 @@ import pandas as pd
 from os import listdir
 from pandas import DataFrame
 from datetime import datetime
-# do we need to worry about foreign keys in the warehouse? I think not, as we won't be deleting anything.
-# use df.dt.time to get the time
-# use df.dt.date to get the date
 
 
 class Warehouse:
     def __init__(self, dir: str, extension: str = ".parquet"):
-        # find the start date for dim date automatically
         parquet_filenames = listdir(dir)
         self.dataframes = {}
         for filename in parquet_filenames:
@@ -101,6 +97,29 @@ class Warehouse:
 
 def dim_date(start_year: int, end_year: int) -> DataFrame:
     quarters = {i: int(4 * i / 12) + 1 for i in range(0, 12)}
+    month_names = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ]
+    day_names = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ]
     date_lines = []
     for year in range(start_year, end_year):
         for month in range(1, 13):
@@ -109,29 +128,8 @@ def dim_date(start_year: int, end_year: int) -> DataFrame:
                     date_id = pd.to_datetime(f"{year}-{month:02d}-{day:02d}")
                     day_object = datetime(year, month, day)
                     day_of_week = day_object.weekday()  # monday is 0 and sunday is 6
-                    day_name = [
-                        "Monday",
-                        "Tuesday",
-                        "Wednesday",
-                        "Thursday",
-                        "Friday",
-                        "Saturday",
-                        "Sunday",
-                    ][day_of_week]
-                    month_name = [
-                        "January",
-                        "February",
-                        "March",
-                        "April",
-                        "May",
-                        "June",
-                        "July",
-                        "August",
-                        "September",
-                        "October",
-                        "November",
-                        "December",
-                    ][month - 1]
+                    day_name = day_names[day_of_week]
+                    month_name = month_names[month - 1]
                     quarter = quarters[month - 1]
                     date_lines.append(
                         [
@@ -164,11 +162,6 @@ def dim_date(start_year: int, end_year: int) -> DataFrame:
 
 if __name__ == "__main__":
     warehouse = Warehouse("df_scoping/tables")
-    start_date = datetime(2022, 11, 3, 14, 20, 52, 186000)
-    end_date = datetime.now()
-    print(start_date)
-    print(end_date)
-    # print(warehouse.fact_sales_order)
     dates = dim_date(2023, 2024)
     with open("df_scoping/output.txt", "w") as f:
         f.write(dates.to_string(header=True, index=False))
