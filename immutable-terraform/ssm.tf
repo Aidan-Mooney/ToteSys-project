@@ -26,3 +26,8 @@ resource "aws_ssm_parameter" "transform_bucket_name" {
 #   overwrite = true
 }
 
+resource "aws_ssm_parameter" "secret_arn" {
+  name = "secret_db_credentials"
+  type = "String"
+  value = "${aws_secretsmanager_secret.db_credentials.arn}"
+}
