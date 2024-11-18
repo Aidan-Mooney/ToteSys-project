@@ -7,91 +7,106 @@ from datetime import datetime
 # use df.dt.date to get the date
 
 
-def make_dfs(dir: str, extension: str = ".parquet") -> dict:
-    parquet_filenames = listdir(dir)
-    dataframes = {}
-    for filename in parquet_filenames:
-        dataframes[filename[: -len(extension)]] = pd.read_parquet(f"{dir}{filename}")
-    return dataframes
+class Warehouse:
+    def __init__(self, dir: str, extension: str = ".parquet"):
+        # find the start date for dim date automatically
+        parquet_filenames = listdir(dir)
+        self.dataframes = {}
+        for filename in parquet_filenames:
+            self.dataframes[filename[: -len(extension)]] = pd.read_parquet(
+                f"{dir}/{filename}"
+            )
 
+    @property
+    def dim_design(self) -> DataFrame:
+        design = self.dataframes["design"]
+        df = design["design_id", "design_name", "file_location", "file_name"]
+        return df
 
-def dim_design(design: DataFrame) -> DataFrame:
-    df = design["design_id", "design_name", "file_location", "file_name"]
-    return df
-
-
-def dim_transaction(transaction: DataFrame) -> DataFrame:
-    df = transaction[
-        "transaction_id", "transaction_type", "sales_order_id", "purchase_order_id"
-    ]
-    return df
-
-
-def dim_counterparty(address: DataFrame, counterparty: DataFrame) -> DataFrame:
-    """
-    Returns some NaN values - investigate?
-    """
-    address_cols = address[
-        [
-            "address_line_1",
-            "address_line_2",
-            "district",
-            "city",
-            "postal_code",
-            "country",
-            "phone",
+    @property
+    def dim_transaction(self) -> DataFrame:
+        transaction = self.dataframes["transaction"]
+        df = transaction[
+            "transaction_id", "transaction_type", "sales_order_id", "purchase_order_id"
         ]
-    ]
-    address_cols.rename(
-        columns={
-            "address_line_1": "counterparty_legal_address_line_1",
-            "address_line_2": "counterparty_legal_address_line_2",
-            "district": "counterparty_legal_district",
-            "city": "counterparty_legal_city",
-            "postal_code": "counterparty_legal_postal_code",
-            "country": "counterparty_legal_country",
-            "phone": "counterparty_legal_phone_number",
-        },
-        inplace=True,
-    )
-    counterparty_cols = counterparty[["counterparty_id", "counterparty_legal_name"]]
-    df = address_cols.join(counterparty_cols)
-    return df
+        return df
 
-
-def dim_currency(currency: DataFrame) -> DataFrame:
-    df = currency[["currency_id", "currency_code", "currency_name"]]
-    return df
-
-
-def dim_date(start_date: datetime, end_date: datetime) -> DataFrame:
-    pass
-
-
-def fact_sales_order(sales_order: DataFrame) -> DataFrame:
-    df = sales_order[
-        [
-            "sales_order_id",
-            "design_id",
-            "staff_id",
-            "counterparty_id",
-            "units_sold",
-            "unit_price",
-            "currency_id",
-            "agreed_delivery_date",
-            "agreed_payment_date",
-            "agreed_delivery_location_id",
+    @property
+    def dim_counterparty(self) -> DataFrame:
+        """
+        Returns some NaN values - investigate?
+        """
+        address = self.dataframes["address"]
+        counterparty = self.dataframes["counterparty"]
+        address_cols = address[
+            [
+                "address_line_1",
+                "address_line_2",
+                "district",
+                "city",
+                "postal_code",
+                "country",
+                "phone",
+            ]
         ]
-    ]
-    df["created_date"] = sales_order["created_at"].dt.date
-    df["created_time"] = sales_order["created_at"].dt.time
-    df["last_updated_date"] = sales_order["last_updated"].dt.date
-    df["last_updated_time"] = sales_order["last_updated"].dt.time
-    df.rename(columns={"staff_id": "sales_staff_id"}, inplace=True)
-    return df
+        address_cols.rename(
+            columns={
+                "address_line_1": "counterparty_legal_address_line_1",
+                "address_line_2": "counterparty_legal_address_line_2",
+                "district": "counterparty_legal_district",
+                "city": "counterparty_legal_city",
+                "postal_code": "counterparty_legal_postal_code",
+                "country": "counterparty_legal_country",
+                "phone": "counterparty_legal_phone_number",
+            },
+            inplace=True,
+        )
+        counterparty_cols = counterparty[["counterparty_id", "counterparty_legal_name"]]
+        df = address_cols.join(counterparty_cols)
+        return df
+
+    @property
+    def dim_currency(self) -> DataFrame:
+        currency = self.dataframes["currency"]
+        """
+        Need to make currency lookup dict using the currency code and then add the name as a column
+        """
+        df = currency[["currency_id", "currency_code"]]
+        return df
+
+    @property
+    def dim_date(start_date: datetime, end_date: datetime) -> DataFrame:
+        pass
+
+    @property
+    def fact_sales_order(self) -> DataFrame:
+        sales_order = self.dataframes["sales_order"]
+        df = sales_order[
+            [
+                "sales_order_id",
+                "design_id",
+                "staff_id",
+                "counterparty_id",
+                "units_sold",
+                "unit_price",
+                "currency_id",
+                "agreed_delivery_date",
+                "agreed_payment_date",
+                "agreed_delivery_location_id",
+            ]
+        ]
+        df["created_date"] = sales_order["created_at"].dt.date
+        df["created_time"] = sales_order["created_at"].dt.time
+        df["last_updated_date"] = sales_order["last_updated"].dt.date
+        df["last_updated_time"] = sales_order["last_updated"].dt.time
+        df.rename(columns={"staff_id": "sales_staff_id"}, inplace=True)
+        return df
 
 
 if __name__ == "__main__":
-    dataframes = make_dfs("df_scoping/tables/")
-    # print(fact_sales_order(dataframes["sales_order"]))
-    print(dim_counterparty(dataframes["address"], dataframes["counterparty"]))
+    warehouse = Warehouse("df_scoping/tables")
+    start_date = datetime(2022, 11, 3, 14, 20, 52, 186000)
+    end_date = datetime.now()
+    print(start_date)
+    print(end_date)
+    print(warehouse.dim_counterparty)
