@@ -1,7 +1,5 @@
-import pandas as pd
 from os import listdir
-from pandas import DataFrame
-from datetime import datetime
+from pandas import DataFrame, read_parquet
 
 
 class Warehouse:
@@ -9,7 +7,7 @@ class Warehouse:
         parquet_filenames = listdir(dir)
         self.dataframes = {}
         for filename in parquet_filenames:
-            self.dataframes[filename[: -len(extension)]] = pd.read_parquet(
+            self.dataframes[filename[: -len(extension)]] = read_parquet(
                 f"{dir}/{filename}"
             )
 
@@ -29,13 +27,11 @@ class Warehouse:
 
     @property
     def dim_counterparty(self) -> DataFrame:
-        """
-        Returns some NaN values - investigate?
-        """
         address = self.dataframes["address"]
         counterparty = self.dataframes["counterparty"]
         address_cols = address[
             [
+                "address_id",
                 "address_line_1",
                 "address_line_2",
                 "district",
@@ -57,8 +53,14 @@ class Warehouse:
             },
             inplace=True,
         )
-        counterparty_cols = counterparty[["counterparty_id", "counterparty_legal_name"]]
-        df = address_cols.join(counterparty_cols)
+        counterparty_cols = counterparty[
+            ["counterparty_id", "counterparty_legal_name", "legal_address_id"]
+        ]
+        counterparty_cols.rename(
+            columns={"legal_address_id": "address_id"}, inplace=True
+        )
+        df = address_cols.merge(counterparty_cols, how="inner", on="address_id")
+        df.drop(columns=["address_id"], inplace=True)
         return df
 
     @property
@@ -68,6 +70,42 @@ class Warehouse:
         Need to make currency lookup dict using the currency code and then add the name as a column
         """
         df = currency[["currency_id", "currency_code"]]
+        return df
+
+    @property
+    def dim_payment_type(self):
+        payment_type = self.dataframes["payment_type"]
+        df = payment_type[["payment_type_id", "payment_type_name"]]
+        return df
+
+    @property
+    def dim_location(self):
+        location = self.dataframes["address"]
+        df = location[
+            [
+                "address_id",
+                "address_line_1",
+                "address_line_2",
+                "district",
+                "city",
+                "postal_code",
+                "country",
+                "phone",
+            ]
+        ]
+        df.rename(columns={"address_id": "location_id"}, inplace=True)
+        return df
+
+    @property
+    def dim_staff(self):
+        staff = self.dataframes["staff"]
+        department = self.dataframes["department"]
+        staff_cols = staff[
+            ["staff_id", "first_name", "last_name", "email_address", "department_id"]
+        ]
+        department_cols = department[["department_name", "location", "department_id"]]
+        df = staff_cols.merge(department_cols, how="inner", on="department_id")
+        df.drop(columns=["department_id"], inplace=True)
         return df
 
     @property
@@ -94,74 +132,36 @@ class Warehouse:
         df.rename(columns={"staff_id": "sales_staff_id"}, inplace=True)
         return df
 
+    @property
+    def fact_payment(self):
+        """
+        column payment_record_id to be added by PostgreSQL as a serial primary key. Otherwise we'd have to keep track of the previous run's last primary key.
+        """
+        payment = self.dataframes["payment"]
+        df = payment[
+            [
+                "payment_id",
+                "transaction_id",
+                "counterparty_id",
+                "payment_amount",
+                "currency_id",
+                "payment_type_id",
+                "paid",
+                "payment_date",
+            ]
+        ]
+        df["created_date"] = payment["created_at"].dt.date
+        df["created_time"] = payment["created_at"].dt.time
+        df["last_updated_date"] = payment["last_updated"].dt.date
+        df["last_updated_time"] = payment["last_updated"].dt.time
+        return df
 
-def dim_date(start_year: int, end_year: int) -> DataFrame:
-    quarters = {i: int(4 * i / 12) + 1 for i in range(0, 12)}
-    month_names = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-    ]
-    day_names = [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
-    ]
-    date_lines = []
-    for year in range(start_year, end_year):
-        for month in range(1, 13):
-            for day in range(1, 32):
-                try:
-                    date_id = pd.to_datetime(f"{year}-{month:02d}-{day:02d}")
-                    day_object = datetime(year, month, day)
-                    day_of_week = day_object.weekday()  # monday is 0 and sunday is 6
-                    day_name = day_names[day_of_week]
-                    month_name = month_names[month - 1]
-                    quarter = quarters[month - 1]
-                    date_lines.append(
-                        [
-                            date_id,
-                            year,
-                            month,
-                            day,
-                            day_of_week,
-                            day_name,
-                            month_name,
-                            quarter,
-                        ]
-                    )
-                except ValueError:
-                    continue
-    return pd.DataFrame(
-        date_lines,
-        columns=[
-            "date_id",
-            "year",
-            "month",
-            "day",
-            "day_of_week",
-            "day_name",
-            "month_name",
-            "quarter",
-        ],
-    )
+    @property
+    def fact_purchase_order(self):
+        pass
 
 
 if __name__ == "__main__":
-    warehouse = Warehouse("df_scoping/tables")
-    dates = dim_date(2023, 2024)
-    with open("df_scoping/output.txt", "w") as f:
-        f.write(dates.to_string(header=True, index=False))
+    warehouse = Warehouse("test/test_data/parquet_files")
+    with open("output.txt", "w") as f:
+        warehouse.fact_payment.to_string(f)
