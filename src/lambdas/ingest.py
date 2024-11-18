@@ -93,4 +93,4 @@ def lambda_handler(event, context):
         else:
             logger.warning(f"No new rows found for {table_name} between {start_time_str} and {end_time_str}")
         
-        return {"files_added": file_key_list}
+    return {"files_added": file_key_list}
