@@ -6,7 +6,7 @@ from pandas import DataFrame
 # use df.dt.date to get the date
 
 
-def make_dfs(dir, extension=".parquet"):
+def make_dfs(dir: str, extension: str = ".parquet") -> dict:
     parquet_filenames = listdir(dir)
     dataframes = {}
     for filename in parquet_filenames:
@@ -14,30 +14,29 @@ def make_dfs(dir, extension=".parquet"):
     return dataframes
 
 
-def fact_sales_order(sales_order: DataFrame):
+def fact_sales_order(sales_order: DataFrame) -> DataFrame:
     df = sales_order[
-        "sales_order_id",
-        "design_id",
-        "staff_id",
-        "counterparty_id",
-        "units_sold",
-        "unit_price",
-        "currency_id",
-        "agreed_delivery_date",
-        "agreed_payment_date",
-        "agreed_delivery_location_id",
+        [
+            "sales_order_id",
+            "design_id",
+            "staff_id",
+            "counterparty_id",
+            "units_sold",
+            "unit_price",
+            "currency_id",
+            "agreed_delivery_date",
+            "agreed_payment_date",
+            "agreed_delivery_location_id",
+        ]
     ]
     df["created_date"] = sales_order["created_at"].dt.date
     df["created_time"] = sales_order["created_at"].dt.time
     df["last_updated_date"] = sales_order["last_updated"].dt.date
     df["last_updated_time"] = sales_order["last_updated"].dt.time
-    df.rename({"staff_id": "sales_staff_id"}, inplace=True)
+    df.rename(columns={"staff_id": "sales_staff_id"}, inplace=True)
     return df
 
 
 if __name__ == "__main__":
     dataframes = make_dfs("df_scoping/tables/")
-    # print(dataframes["sales_order"])
-    # print(dataframes["design"])
     print(fact_sales_order(dataframes["sales_order"]))
-    print(fact_sales_order(dataframes["sales_order"]).dt.date)
