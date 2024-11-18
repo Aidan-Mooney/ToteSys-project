@@ -73,6 +73,7 @@ data "aws_iam_policy_document" "s3_ingest_document" {
 
     resources = [
       "${data.aws_ssm_parameter.ingest_bucket_arn.value}/*",
+      "${data.aws_ssm_parameter.ingest_bucket_arn.value}"
     ]
   }
 }
