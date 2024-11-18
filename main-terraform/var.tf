@@ -51,3 +51,10 @@ variable "default_timeout" {
   type = number
 }
 
+variable "credentials_secret_arn" {
+  default = "secret_db_credentials"
+}
+
+data "aws_ssm_parameter" "credentials_secret_arn" {
+  name = var.credentials_secret_arn
+}

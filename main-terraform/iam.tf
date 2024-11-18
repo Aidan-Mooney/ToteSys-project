@@ -76,6 +76,12 @@ data "aws_iam_policy_document" "s3_ingest_document" {
       "${data.aws_ssm_parameter.ingest_bucket_arn.value}"
     ]
   }
+  statement {
+    actions = ["secretsmanager:GetSecretValue"]
+
+    resources = ["${data.aws_ssm_parameter.credentials_secret_arn.value}"
+    ]
+  }
 }
 
 data "aws_iam_policy_document" "s3_transform_document" {
