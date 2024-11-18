@@ -14,6 +14,11 @@ def make_dfs(dir: str, extension: str = ".parquet") -> dict:
     return dataframes
 
 
+def dim_design(design: DataFrame) -> DataFrame:
+    df = design["design_id", "design_name", "file_location", "file_name"]
+    return df
+
+
 def fact_sales_order(sales_order: DataFrame) -> DataFrame:
     df = sales_order[
         [
