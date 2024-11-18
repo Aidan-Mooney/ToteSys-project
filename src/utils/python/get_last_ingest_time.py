@@ -26,7 +26,7 @@ def get_last_ingest_time(bucket_name: str, table_name: str):
     filename = get_latest_filename(s3_client, bucket_name, table_name)
     if not filename:
         time = {
-            "year": 2024,
+            "year": 2000,
             "month": 1,
             "day": 1,
             "hour": 0,
