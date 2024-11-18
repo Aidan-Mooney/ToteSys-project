@@ -1,4 +1,4 @@
-from src.utils.format_time import format_time
+from src.utils.python.format_time import format_time
 from datetime import datetime
 
 def test_function_returns_string():

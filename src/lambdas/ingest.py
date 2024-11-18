@@ -1,19 +1,36 @@
-from src.utils.get_last_ingest_time import get_last_ingest_time
-from src.utils.generate_new_entry_query import generate_new_entry_query, DateFormatError
-from src.utils.db_connections import connect_to_db, close_db_connection
-from src.utils.generate_file_key import generate_file_key
-from src.utils.format_time import format_time
-from src.utils.query_db import query_db
-from src.utils.parquet_data import parquet_data
-from src.utils.write_to_s3 import write_to_s3
-from datetime import timezone, datetime as dt
-from boto3 import client
 import os
-from pg8000.core import DatabaseError
-from botocore.exceptions import ClientError
+from datetime import datetime as dt
+from datetime import timezone
 from logging import getLogger
 
+from boto3 import client
+from botocore.exceptions import ClientError
+from pg8000.core import DatabaseError
 
+DEV_ENVIRONMENT=os.environ['DEV_ENVIRONMENT'] 
+if DEV_ENVIRONMENT == 'testing':
+
+    from src.utils.python.db_connections import close_db_connection, connect_to_db
+    from src.utils.python.format_time import format_time
+    from src.utils.python.generate_file_key import generate_file_key
+    from src.utils.python.generate_new_entry_query import (
+        DateFormatError,
+        generate_new_entry_query,
+    )
+    from src.utils.python.get_last_ingest_time import get_last_ingest_time
+    from src.utils.python.parquet_data import parquet_data
+    from src.utils.python.query_db import query_db
+    from src.utils.python.write_to_s3 import write_to_s3
+else:
+    from db_connections import close_db_connection, connect_to_db
+    from format_time import format_time
+    from generate_file_key import generate_file_key
+    from generate_new_entry_query import DateFormatError, generate_new_entry_query
+    from get_last_ingest_time import get_last_ingest_time
+    from parquet_data import parquet_data
+    from query_db import query_db
+    from write_to_s3 import write_to_s3
+    
 s3_client = client("s3")
 logger = getLogger(__name__)
 

@@ -1,4 +1,4 @@
-from src.utils.query_db import query_db
+from src.utils.python.query_db import query_db
 from pytest import mark, fixture
 from unittest.mock import Mock
 

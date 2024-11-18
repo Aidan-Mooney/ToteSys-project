@@ -2,7 +2,7 @@ from moto import mock_aws
 import boto3
 import pytest
 import os
-from src.utils.db_connections import (
+from src.utils.python.db_connections import (
     db_connections_get_secret,
     connect_to_db,
     close_db_connection,
@@ -106,7 +106,7 @@ class TestConnectToDB:
         pg8000.native = Mock()
         pg8000.native.Connection = Mock()
         pg8000.native.Connection.return_value = True
-        with patch("src.utils.db_connections.pg8000.native.Connection") as mock:
+        with patch("src.utils.python.db_connections.pg8000.native.Connection") as mock:
             connect_to_db()
         mock.assert_called_with(
             user="project_team",
