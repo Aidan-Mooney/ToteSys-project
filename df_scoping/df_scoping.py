@@ -58,6 +58,11 @@ def dim_counterparty(address: DataFrame, counterparty: DataFrame) -> DataFrame:
     return df
 
 
+def dim_currency(currency: DataFrame) -> DataFrame:
+    df = currency[["currency_id", "currency_code", "currency_name"]]
+    return df
+
+
 def fact_sales_order(sales_order: DataFrame) -> DataFrame:
     df = sales_order[
         [
