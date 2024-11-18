@@ -20,7 +20,7 @@ resource "aws_lambda_function" "ingest_lambda_function" {
                             ]
   timeout               = var.default_timeout
   handler               = "${var.ingest_lambda_name}.lambda_handler"
-  layers                = [aws_lambda_layer_version.dependencies.arn, aws_lambda_layer_version.ingest_utils.arn]
+  layers                = ["arn:aws:lambda:eu-west-2:336392948345:layer:AWSSDKPandas-Python312:14", aws_lambda_layer_version.ingest_utils.arn, aws_lambda_layer_version.dependencies.arn]
   environment {
     variables = {s3_bucket = data.aws_ssm_parameter.ingest_bucket_name.value }
   }
