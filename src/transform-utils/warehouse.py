@@ -4,6 +4,9 @@ from pandas import DataFrame, read_parquet
 
 class Warehouse:
     def __init__(self, dir: str, extension: str = ".parquet"):
+        """
+        Need to think about how the parquet files to read will be specified and retrieved in s3 + lambda
+        """
         parquet_filenames = listdir(dir)
         self.dataframes = {}
         for filename in parquet_filenames:
@@ -66,10 +69,14 @@ class Warehouse:
     @property
     def dim_currency(self) -> DataFrame:
         currency = self.dataframes["currency"]
-        """
-        Need to make currency lookup dict using the currency code and then add the name as a column
-        """
-        df = currency[["currency_id", "currency_code"]]
+        names = [
+            ["GBP", "Great British Pound"],
+            ["USD", "United States Dollar"],
+            ["EUR", "Euro"],
+        ]
+        names_cols = DataFrame(names, columns=["currency_code", "currency_name"])
+        currency_cols = currency[["currency_id", "currency_code"]]
+        df = currency_cols.merge(names_cols, how="outer", on="currency_code")
         return df
 
     @property
@@ -186,4 +193,4 @@ class Warehouse:
 if __name__ == "__main__":
     warehouse = Warehouse("test/test_data/parquet_files")
     with open("output.txt", "w") as f:
-        warehouse.fact_purchase_order.to_string(f)
+        warehouse.dim_currency.to_string(f)
