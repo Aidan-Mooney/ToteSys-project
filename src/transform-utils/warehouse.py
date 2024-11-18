@@ -19,7 +19,9 @@ If the following tables are updated, then the latest version of the dependency a
     - counterparty (dim_counterparty) -> address
     - staff (dim_staff) -> department
 
-Plan of action
+=====================================================
+|| Plan of action for the transform lambda handler ||
+=====================================================
     - the input event will contain a list of tables which were newly ingested
     - for each table in the list
         - if the table is in the first list, access the parquet file and add it to the warehouse
