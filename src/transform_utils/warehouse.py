@@ -51,9 +51,9 @@ class Warehouse:
     @property
     def dim_transaction(self) -> DataFrame:
         transaction = self.dataframes["transaction"]
-        df = transaction[
+        df = transaction[[
             "transaction_id", "transaction_type", "sales_order_id", "purchase_order_id"
-        ]
+        ]]
         return df
 
     @property
