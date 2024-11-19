@@ -68,6 +68,9 @@ jobs:
   test-lambda:
       name: test-lambda
       runs-on: ubuntu-latest
+      defaults:
+        run:
+          working-directory: main-terraform
       environment: development
       needs: run-tests
       steps:
@@ -82,11 +85,9 @@ jobs:
         - name: Terraform Setup
           uses: hashicorp/setup-terraform@v3
         - name: Terraform Init
-          working-directory: terraform
           run: terraform init
         - name: Terraform Plan
           id: plan
-          working-directory: terraform
           run: terraform plan -no-color
         - run: echo ${{ steps.plan.outputs.stdout }}
         - run: echo ${{ steps.plan.outputs.stderr }}
