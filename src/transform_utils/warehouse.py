@@ -52,7 +52,12 @@ class Warehouse:
     def dim_transaction(self) -> DataFrame:
         transaction = self.dataframes["transaction"]
         df = transaction[
-            "transaction_id", "transaction_type", "sales_order_id", "purchase_order_id"
+            [
+                "transaction_id",
+                "transaction_type",
+                "sales_order_id",
+                "purchase_order_id",
+            ]
         ]
         return df
 
@@ -215,4 +220,4 @@ class Warehouse:
 if __name__ == "__main__":
     warehouse = Warehouse("test/test_data/parquet_files")
     with open("output.txt", "w") as f:
-        warehouse.dim_currency.to_string(f)
+        warehouse.dim_transaction.to_string(f)
