@@ -24,6 +24,26 @@ class TestDimDesign:
         assert isinstance(design_df, DataFrame)
 
 
+@mark.context("dim_currency")
+class TestDimCurrency:
+    @mark.it("returns data type dataframe")
+    def test_1(self, warehouse_df):
+        df = warehouse_df.dim_currency
+        assert isinstance(df, DataFrame)
+
+    @mark.it("has the correct column headers")
+    def test_2(self, warehouse_df):
+        cols = warehouse_df.dim_currency.columns.values.tolist()
+        assert cols == ["currency_id", "currency_code", "currency_name"]
+
+    @mark.it("has columns containing the correct data types")
+    def test_3(self, warehouse_df):
+        df = warehouse_df.dim_currency
+        col_dtypes = {"currency_id": int64, "currency_code": str, "currency_name": str}
+        for col in col_dtypes:
+            assert isinstance(df.loc[1][col], col_dtypes[col])
+
+
 @mark.context("dim_payment_type")
 class TestDimPaymentType:
     @mark.it("returns data type dataframe")
