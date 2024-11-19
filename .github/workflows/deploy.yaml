@@ -39,8 +39,8 @@ jobs:
           api-key: ${{ secrets.SAFETY_API_KEY }}
 
 
-  test-terraform:
-      name: test-terraform
+  deploy-terraform:
+      name: deploy-terraform
       runs-on: ubuntu-latest
       environment: development
       needs: run-tests
