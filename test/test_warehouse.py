@@ -95,3 +95,27 @@ class TestDimTransaction:
         assert row['transaction_type'] == 'PURCHASE'
         assert isnan(row['sales_order_id'])
         assert row['purchase_order_id'] == 62.0
+
+class TestDimCounterparty:
+    @mark.it("checks that dim_counterparty returns data type dataframe")
+    def test_10(self, warehouse_df):
+        
+        counterparty_df = warehouse_df.dim_transaction
+
+        assert isinstance(counterparty_df, DataFrame)
+
+    @mark.it("checks that dim counterparty returns correct column names")
+    def test_11(self, warehouse_df):
+
+        counterparty_df = warehouse_df.dim_counterparty.columns.values
+
+        assert len(counterparty_df) == 9
+        assert counterparty_df[0] == 'counterparty_legal_address_line_1'
+        assert counterparty_df[1] == 'counterparty_legal_address_line_2'
+        assert counterparty_df[2] == 'counterparty_legal_district'
+        assert counterparty_df[3] == 'counterparty_legal_city'
+        assert counterparty_df[4] == 'counterparty_legal_postal_code'
+        assert counterparty_df[5] == 'counterparty_legal_country'
+        assert counterparty_df[6] == 'counterparty_legal_phone_number'
+        assert counterparty_df[7] == 'counterparty_id'
+        assert counterparty_df[8] == 'counterparty_legal_name'
