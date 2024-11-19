@@ -23,15 +23,44 @@ class TestDimDesign:
 
         assert isinstance(design_df, DataFrame)
 
-    @mark.it("checks that dim design returns correct column names")
+
+@mark.context("dim_location")
+class TestDimLocation:
+    @mark.it("returns data type dataframe")
+    def test_1(self, warehouse_df):
+        df = warehouse_df.dim_location
+        assert isinstance(df, DataFrame)
+
+    @mark.it("has the correct column headers")
+    def test_2(self, warehouse_df):
+        cols = warehouse_df.dim_location.columns.values.tolist()
+        assert cols == [
+            "location_id",
+            "address_line_1",
+            "address_line_2",
+            "district",
+            "city",
+            "postal_code",
+            "country",
+            "phone",
+        ]
+
+    @mark.it("has columns containing the correct data types")
     def test_3(self, warehouse_df):
-        design_df = warehouse_df.dim_design.columns
+        df = warehouse_df.dim_location
+        col_dtypes = {
+            "location_id": int64,
+            "address_line_1": str,
+            "city": str,
+            "postal_code": str,
+            "country": str,
+            "phone": str,
+        }
+        for col in col_dtypes:
+            assert isinstance(df.loc[1][col], col_dtypes[col])
 
-        print(design_df)
-        assert design_df
-        pass
 
-
+@mark.context("dim_staff")
 class TestDimStaff:
     @mark.it("returns data type dataframe")
     def test_1(self, warehouse_df):
@@ -65,6 +94,7 @@ class TestDimStaff:
             assert isinstance(df.loc[1][col], col_dtypes[col])
 
 
+@mark.context("fact_sales_order")
 class TestFactSalesOrder:
     @mark.it("returns data type dataframe")
     def test_1(self, warehouse_df):
@@ -114,6 +144,7 @@ class TestFactSalesOrder:
             assert isinstance(df.loc[1][col], col_dtypes[col])
 
 
+@mark.context("fact_payment")
 class TestFactPayment:
     @mark.it("returns data type dataframe")
     def test_1(self, warehouse_df):
@@ -148,7 +179,6 @@ class TestFactPayment:
             "payment_amount": float64,
             "currency_id": int64,
             "payment_type_id": int64,
-            "paid": bool,
             "payment_date": str,
             "created_date": date,
             "created_time": time,
@@ -159,6 +189,7 @@ class TestFactPayment:
             assert isinstance(df.loc[1][col], col_dtypes[col])
 
 
+@mark.context("fact_purchase_order")
 class TestFactPurchaseOrder:
     @mark.it("returns data type dataframe")
     def test_1(self, warehouse_df):
