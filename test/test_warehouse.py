@@ -1,7 +1,9 @@
-from src.transform_utils.warehouse import Warehouse
-from pytest import mark, fixture
+from numpy import float64, int64, isnan
 from pandas import DataFrame
-from numpy import int64
+from pytest import fixture, mark
+
+from src.transform_utils.warehouse import Warehouse
+
 
 @fixture(autouse=True)
 def warehouse_df():
@@ -61,3 +63,35 @@ class TestDimTransaction:
         transaction_df = warehouse_df.dim_transaction
 
         assert isinstance(transaction_df, DataFrame)
+
+    @mark.it("checks that dim transaction returns correct column names")
+    def test_7(self, warehouse_df):
+
+        transaction_df = warehouse_df.dim_transaction.columns.values
+
+        assert len(transaction_df) == 4
+        assert transaction_df[0] == 'transaction_id'
+        assert transaction_df[1] == 'transaction_type'
+        assert transaction_df[2] == 'sales_order_id'
+        assert transaction_df[3] == 'purchase_order_id'
+
+    @mark.it("checks that dim transaction dataframe contents returns correct value types")
+    def test_8(self, warehouse_df):
+
+        transaction_df = warehouse_df.dim_transaction
+
+        assert isinstance(transaction_df.loc[1]['transaction_id'], int64)
+        assert isinstance(transaction_df.loc[1]['transaction_type'], str)
+        assert isinstance(transaction_df.loc[1]['sales_order_id'], float64)
+        assert isinstance(transaction_df.loc[1]['purchase_order_id'], float64)
+
+    @mark.it("checks that dim transaction dataframe returns correct values within rows")
+    def test_9(self, warehouse_df):
+
+        transaction_df = warehouse_df.dim_transaction
+        row = transaction_df.loc[100]
+
+        assert row['transaction_id'] == 101
+        assert row['transaction_type'] == 'PURCHASE'
+        assert isnan(row['sales_order_id'])
+        assert row['purchase_order_id'] == 62.0
