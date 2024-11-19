@@ -45,7 +45,7 @@ class Warehouse:
     @property
     def dim_design(self) -> DataFrame:
         design = self.dataframes["design"]
-        df = design["design_id", "design_name", "file_location", "file_name"]
+        df = design[["design_id", "design_name", "file_location", "file_name"]]
         return df
 
     @property
