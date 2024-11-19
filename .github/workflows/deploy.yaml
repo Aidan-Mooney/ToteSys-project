@@ -38,29 +38,59 @@ jobs:
         with:
           api-key: ${{ secrets.SAFETY_API_KEY }}
 
-  check-terraform:
-    name: check-terraform
-    needs: run-tests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: main-terraform
+  # check-terraform:
+  #   name: check-terraform
+  #   needs: run-tests
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: main-terraform
 
-    steps:
-    - name: Checkout Repo
-      uses: actions/checkout@v4
+  #   steps:
+  #   - name: Checkout Repo
+  #     uses: actions/checkout@v4
 
-    - uses: hashicorp/setup-terraform@v3
-      with:
-        region: ${{ secrets.AWS_REGION }}
-        access_key: ${{ secrets.AWS_ACCESS_KEY }}
-        secret_key: ${{ secrets.AWS_SECRET_KEY }}
-        
-    - run: terraform init
+  #   - uses: hashicorp/setup-terraform@v3
+  #     with:
+  #       region: ${{ secrets.AWS_REGION }}
+  #       access_key: ${{ secrets.AWS_ACCESS_KEY }}
+  #       secret_key: ${{ secrets.AWS_SECRET_KEY }}
 
-    - id: plan
-      run: terraform plan -no-color
+  #   - run: terraform init
 
-    - run: echo ${{ steps.plan.outputs.stdout }}
-    - run: echo ${{ steps.plan.outputs.stderr }}
-    - run: echo ${{ steps.plan.outputs.exitcode }}
+  #   - id: plan
+  #     run: terraform plan -no-color
+
+  #   - run: echo ${{ steps.plan.outputs.stdout }}
+  #   - run: echo ${{ steps.plan.outputs.stderr }}
+  #   - run: echo ${{ steps.plan.outputs.exitcode }}
+
+  test-lambda:
+      name: test-lambda
+      runs-on: ubuntu-latest
+      environment: development
+      needs: run-tests
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ secrets.AWS_REGION }}
+        - name: Terraform Setup
+          uses: hashicorp/setup-terraform@v3
+        - name: Terraform Init
+          working-directory: terraform
+          run: terraform init
+        - name: Terraform Plan
+          id: plan
+          working-directory: terraform
+          run: terraform plan -no-color
+        - run: echo ${{ steps.plan.outputs.stdout }}
+        - run: echo ${{ steps.plan.outputs.stderr }}
+        - run: echo ${{ steps.plan.outputs.exitcode }}
+# - name: Terraform Apply
+        #   working-directory: terraform
+        #   run: terraform apply -auto-approve
