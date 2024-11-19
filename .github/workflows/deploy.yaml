@@ -51,7 +51,11 @@ jobs:
       uses: actions/checkout@v4
 
     - uses: hashicorp/setup-terraform@v3
-
+      with:
+        region: ${{ secrets.AWS_REGION }}
+        access_key: ${{ secrets.AWS_ACCESS_KEY }}
+        secret_key: ${{ secrets.AWS_SECRET_KEY }}
+        
     - run: terraform init
 
     - id: plan
