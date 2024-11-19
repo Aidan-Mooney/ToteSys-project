@@ -42,12 +42,10 @@ jobs:
     name: check-terraform
     needs: run-tests
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v4
-    - name: Working Dir
-      run:
-      working-directory: main-terraform
 
     - uses: hashicorp/setup-terraform@v3
 
