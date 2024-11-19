@@ -3,7 +3,8 @@ name: totesys-cicd
 on:
   push:
     branches:
-      - "*"
+      - main
+      - cd-terraform
 
 jobs:
   run-tests:
@@ -37,3 +38,23 @@ jobs:
         with:
           api-key: ${{ secrets.SAFETY_API_KEY }}
 
+  check-terraform:
+    name: check-terraform
+    needs: run-tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+    run:
+        working-directory: main-terraform
+
+    - uses: hashicorp/setup-terraform@v3
+
+    - run: terraform init
+
+    - id: plan
+      run: terraform plan -no-color
+
+    - run: echo ${{ steps.plan.outputs.stdout }}
+    - run: echo ${{ steps.plan.outputs.stderr }}
+    - run: echo ${{ steps.plan.outputs.exitcode }}
