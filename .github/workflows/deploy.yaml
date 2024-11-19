@@ -45,7 +45,7 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-        run:
+      - name: Working Dir
           working-directory: main-terraform
 
       - uses: hashicorp/setup-terraform@v3
