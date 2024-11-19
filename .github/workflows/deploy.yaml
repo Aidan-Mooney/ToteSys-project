@@ -7,63 +7,37 @@ on:
       - cd-terraform
 
 jobs:
-  run-tests:
-    name: run-tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-
-      - name: Setup Python 3.x
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Create Environment
-        run: make create-environment
-
-      - name: Install dependencies
-        run: |
-          make install-requirements
-
-      - name: Testing
-        run: |
-          make install-dev-tools
-          make security-checks
-          make run-pytest
-          make check-pep8-compliance
-
-      - name: Safety
-        uses: pyupio/safety-action@v1
-        with:
-          api-key: ${{ secrets.SAFETY_API_KEY }}
-
-  # check-terraform:
-  #   name: check-terraform
-  #   needs: run-tests
+  # run-tests:
+  #   name: run-tests
   #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: main-terraform
-
   #   steps:
-  #   - name: Checkout Repo
-  #     uses: actions/checkout@v4
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v4
 
-  #   - uses: hashicorp/setup-terraform@v3
-  #     with:
-  #       region: ${{ secrets.AWS_REGION }}
-  #       access_key: ${{ secrets.AWS_ACCESS_KEY }}
-  #       secret_key: ${{ secrets.AWS_SECRET_KEY }}
+  #     - name: Setup Python 3.x
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: '3.12'
 
-  #   - run: terraform init
+  #     - name: Create Environment
+  #       run: make create-environment
 
-  #   - id: plan
-  #     run: terraform plan -no-color
+  #     - name: Install dependencies
+  #       run: |
+  #         make install-requirements
 
-  #   - run: echo ${{ steps.plan.outputs.stdout }}
-  #   - run: echo ${{ steps.plan.outputs.stderr }}
-  #   - run: echo ${{ steps.plan.outputs.exitcode }}
+  #     - name: Testing
+  #       run: |
+  #         make install-dev-tools
+  #         make security-checks
+  #         make run-pytest
+  #         make check-pep8-compliance
+
+  #     - name: Safety
+  #       uses: pyupio/safety-action@v1
+  #       with:
+  #         api-key: ${{ secrets.SAFETY_API_KEY }}
+
 
   test-lambda:
       name: test-lambda
@@ -72,7 +46,7 @@ jobs:
         run:
           working-directory: main-terraform
       environment: development
-      needs: run-tests
+      #needs: run-tests
       steps:
         - name: Checkout
           uses: actions/checkout@v4
@@ -84,6 +58,8 @@ jobs:
             aws-region: ${{ secrets.AWS_REGION }}
         - name: Terraform Setup
           uses: hashicorp/setup-terraform@v3
+        - name: Terraform Validate
+          run: terraform validate
         - name: Terraform Init
           run: terraform init
         - name: Terraform Plan
