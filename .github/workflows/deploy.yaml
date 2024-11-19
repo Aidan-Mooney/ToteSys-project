@@ -42,6 +42,9 @@ jobs:
     name: check-terraform
     needs: run-tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: main-terraform
 
     steps:
     - name: Checkout Repo
