@@ -216,4 +216,4 @@ class Warehouse:
 if __name__ == "__main__":
     warehouse = Warehouse("test/test_data/parquet_files")
     with open("output.txt", "w") as f:
-        warehouse.dim_currency.to_string(f)
+        warehouse.dim_transaction.to_string(f)
