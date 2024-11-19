@@ -50,6 +50,12 @@ jobs:
       steps:
         - name: Checkout
           uses: actions/checkout@v4
+        - name: Create Environment
+          run: make create-environment
+        - name: Install dependencies
+          run: |
+            make install-requirements
+
         - name: Configure AWS Credentials
           uses: aws-actions/configure-aws-credentials@v4
           with:
