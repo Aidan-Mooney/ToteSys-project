@@ -119,3 +119,17 @@ class TestDimCounterparty:
         assert counterparty_df[6] == 'counterparty_legal_phone_number'
         assert counterparty_df[7] == 'counterparty_id'
         assert counterparty_df[8] == 'counterparty_legal_name'
+
+    @mark.it("checks that dim counterparty returns correct data types")
+    def test_12(self, warehouse_df):
+        counterparty_df = warehouse_df.dim_counterparty
+
+        assert isinstance(counterparty_df.loc[3]['counterparty_legal_address_line_1'],str)
+        assert isinstance(counterparty_df.loc[3]['counterparty_legal_address_line_2'],str|None)
+        assert isinstance(counterparty_df.loc[3]['counterparty_legal_district'],str|None)
+        assert isinstance(counterparty_df.loc[3]['counterparty_legal_city'],str)
+        assert isinstance(counterparty_df.loc[3]['counterparty_legal_postal_code'],str)
+        assert isinstance(counterparty_df.loc[3]['counterparty_legal_country'],str)
+        assert isinstance(counterparty_df.loc[3]['counterparty_legal_phone_number'],str)
+        assert isinstance(counterparty_df.loc[3]['counterparty_id'],int64)
+        assert isinstance(counterparty_df.loc[3]['counterparty_legal_name'],str)
