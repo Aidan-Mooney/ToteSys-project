@@ -98,7 +98,7 @@ data "aws_iam_policy_document" "s3_transform_document" {
     actions = ["s3:GetObject"]
 
     resources = [
-      "${data.aws_ssm_paramter.ingest_bucket_arn.value}/*"
+      "${data.aws_ssm_parameter.ingest_bucket_arn.value}/*"
     ]
   }
 }

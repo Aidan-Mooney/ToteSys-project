@@ -8,7 +8,7 @@ data "archive_file" "ingester" {
 data "archive_file" "transformer" {
   type             = "zip"
   output_file_mode = "0666"
-  source_file = "${path.module}../src/lambdas/fake_transform.py" # change to 'transform.py' when the lambda handler is available
+  source_file = "${path.module}../src/lambdas/transform.py" # change to 'transform.py' when the lambda handler is available
   output_path = "${path.module}/../packages/transformer/transform.zip"
 }
 
