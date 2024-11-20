@@ -28,3 +28,10 @@ resource "aws_s3_object" "ingest_lambda_file" {
   source = "${path.module}/../packages/ingester/ingest.zip"
   etag   = filemd5(data.archive_file.ingester.output_path)
 }
+
+resource "aws_s3_object" "transform_lambda_file" {
+  bucket = aws_s3_bucket.code_bucket.bucket
+  key    = "transform/transform.zip"
+  source = "${path.module}/../packages/transformer/transform.zip"
+  etag   = filemd5(data.archive_file.transformer.output_path)
+}

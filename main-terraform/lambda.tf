@@ -40,11 +40,12 @@ resource "aws_lambda_function" "ingest_lambda_function" {
 resource "aws_lambda_function" "transform_lambda_function" {
   role                  = #iam roles
   function_name         = var.transform_lambda_name
-  source_code_hash      = #
-  s3_bucket             = # code bucket
-  s3_key                = #name of code we are assigning
+  source_code_hash      = data.archive_file.transformer.output_base64sha256
+  s3_bucket             = aws_s3_object.transform_lambda_file.bucket
+  s3_key                = aws_s3_object.transform_lambda_file.id
   runtime               = var.python_runtime
-  depends_on            = [ #all the other terraform stuffs 
+  depends_on            = [ aws_s3_object.transform_lambda_file,
+                            aws_cloudwatch_log_group.totesys-cw-log-group
                           ]
   timeout               = var.default_timeout
   handler               = "${var.transform_lambda_name}.lambda_handler"
