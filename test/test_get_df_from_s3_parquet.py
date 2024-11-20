@@ -3,7 +3,7 @@ from pytest import fixture, mark
 from boto3 import client
 from os import environ
 from io import BytesIO
-from src.transform_utils.get_df_from_s3_parquet import get_df_from_s3_parquet
+from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
 from pandas import DataFrame, read_parquet
 
 TEST_BUCKET = "test_bucket"

@@ -2,7 +2,7 @@ from pandas import DataFrame
 from os import environ
 
 if environ["DEV_ENVIRONMENT"] == "testing":
-    from src.transform_utils.get_df_from_s3_parquet import get_df_from_s3_parquet
+    from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
 else:
     from get_df_from_s3_parquet import get_df_from_s3_parquet
 

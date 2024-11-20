@@ -9,7 +9,7 @@ from os import environ
 from io import BytesIO
 
 environ["DEV_ENVIRONMENT"] = "testing"
-from src.transform_utils.warehouse import Warehouse
+from src.utils.python.warehouse import Warehouse
 
 TEST_BUCKET = "test_bucket"
 
