@@ -1,5 +1,5 @@
 from os import listdir
-
+from src.transform_utils.get_df_from_s3_parquet import get_df_from_s3_parquet
 from pandas import DataFrame, read_parquet
 
 """
@@ -35,13 +35,11 @@ The greatest risk of errors comes from accessing DataFrames by name which haven'
 
 
 class Warehouse:
-    def __init__(self, dir: str, extension: str = ".parquet"):
-        parquet_filenames = listdir(dir)
+    def __init__(self, list_of_filenames, bucket_name):
         self.dataframes = {}
-        for filename in parquet_filenames:
-            self.dataframes[filename[: -len(extension)]] = read_parquet(
-                f"{dir}/{filename}"
-            )
+        for filename in list_of_filenames:
+            table_name = filename[: filename.index("/")]
+            self.dataframes[table_name] = get_df_from_s3_parquet(filename, bucket_name)
 
     @property
     def dim_design(self) -> DataFrame:
@@ -52,9 +50,14 @@ class Warehouse:
     @property
     def dim_transaction(self) -> DataFrame:
         transaction = self.dataframes["transaction"]
-        df = transaction[[
-            "transaction_id", "transaction_type", "sales_order_id", "purchase_order_id"
-        ]]
+        df = transaction[
+            [
+                "transaction_id",
+                "transaction_type",
+                "sales_order_id",
+                "purchase_order_id",
+            ]
+        ]
         return df
 
     @property
