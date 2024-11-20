@@ -11,8 +11,8 @@ from src.utils.python.write_to_s3 import write_to_s3
 #     table_name : path_to_latest_file,
 #     table_name2: path_to_latest_file,
 #     ...
-#     std_address: path_to_address,
-#     std_department: path_to_department,
+#     std_address: path_to_static_address,
+#     std_department: path_to_static_department,
 # }
 
 
