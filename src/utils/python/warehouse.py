@@ -1,6 +1,5 @@
 from pandas import DataFrame
 from os import environ
-from boto3 import client
 
 if environ["DEV_ENVIRONMENT"] == "testing":
     from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
