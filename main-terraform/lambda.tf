@@ -38,13 +38,14 @@ resource "aws_lambda_function" "ingest_lambda_function" {
 }
 
 resource "aws_lambda_function" "transform_lambda_function" {
-  role                  = #iam roles
+  role                  = aws_iam_role.transform_lambda_role.arn
   function_name         = var.transform_lambda_name
   source_code_hash      = data.archive_file.transformer.output_base64sha256
   s3_bucket             = aws_s3_object.transform_lambda_file.bucket
   s3_key                = aws_s3_object.transform_lambda_file.id
   runtime               = var.python_runtime
   depends_on            = [ aws_s3_object.transform_lambda_file,
+                            aws_iam_role_policy_attachment.s3_transform_policy,
                             aws_cloudwatch_log_group.totesys-cw-log-group
                           ]
   timeout               = var.default_timeout

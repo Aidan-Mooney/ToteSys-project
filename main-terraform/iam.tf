@@ -87,13 +87,22 @@ data "aws_iam_policy_document" "s3_ingest_document" {
 data "aws_iam_policy_document" "s3_transform_document" {
   statement {
 
-    actions = ["s3:WriteObject"]
+    actions = ["s3:PutObject"]
 
     resources = [
       "${data.aws_ssm_parameter.transform_bucket_arn.value}/*",
     ]
   }
+  statement {
+    
+    actions = ["s3:GetObject"]
+
+    resources = [
+      "${data.aws_ssm_paramter.ingest_bucket_arn.value}/*"
+    ]
+  }
 }
+
 
 data "aws_iam_policy_document" "invoke_lambdas_document" {
   statement {
