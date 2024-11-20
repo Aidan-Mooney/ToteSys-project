@@ -33,7 +33,8 @@ else:
     
 s3_client = client("s3")
 logger = getLogger(__name__)
-
+# Idea: Every time the address and department tables are updated, store them in a specific location in the s3 bucket. These paths should always be passed in the return value under std_address and std_department.
+# This would be in addition to the usual behaviour of storing the updated rows at address/yyyy/mm/dd/hhMMssmicros.parquet.
 def lambda_handler(event, context):
     """
     Structure of event:
