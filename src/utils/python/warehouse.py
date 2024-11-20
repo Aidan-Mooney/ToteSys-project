@@ -1,58 +1,56 @@
-from os import listdir
-from pandas import DataFrame, read_parquet
+from pandas import DataFrame
+from os import environ
 
-"""
-===================================================
-|| Rules for importing tables from ingest bucket ||
-===================================================
-Most tables have no dependencies so these can be processed individually and on-demand:
-    - design (dim_design)
-    - transaction (dim_transaction)
-    - address (dim_location)
-    - currency (dim_currency)
-    - payment_type (dim_payment_type)
-    - sales_order (fact_sales_order)
-    - purchase_order (fact_purchase_order)
-    - payment (fact_payment)
-
-If the following tables are updated, then the latest version of the dependency also needs to be retrieved (example_erd_table (warehouse_table) -> dependency)
-    - counterparty (dim_counterparty) -> address
-    - staff (dim_staff) -> department
-
-=====================================================
-|| Plan of action for the transform lambda handler ||
-=====================================================
-    - the input event will contain a list of tables which were newly ingested
-    - for each table in the list
-        - if the table is in the first list, access the parquet file and add it to the warehouse
-        - if the table is in the second list, access the parquet file and the parquet file of its dependency and add them to the warehouse
-    - run the corresponding methods on the warehouse to produce the newly-updated tables
-    - write the parquet files to the transform bucket
-
-The greatest risk of errors comes from accessing DataFrames by name which haven't been added to the Warehouse object yet. So catching KeyErrors could be important for resilience.
-"""
+if environ["DEV_ENVIRONMENT"] == "testing":
+    from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
+else:
+    from get_df_from_s3_parquet import get_df_from_s3_parquet
 
 
 class Warehouse:
-    def __init__(self, dir: str, extension: str = ".parquet"):
-        parquet_filenames = listdir(dir)
+    def __init__(self, list_of_filenames: list[str], bucket_name: str):
+        """
+        Warehouse object expects parquet file from ingest bucket and creates dim- and fact- tables.
+
+        Warning: Only access properties for which you have ingested the relevant dependencies, otherwise will raise a KeyError.
+
+        __init__:
+            list_of_filenames: list of file keys in an s3 bucket
+            bucket_name: name of the s3 bucket to access ingest files from
+
+        Properties:
+            dim_design (depends on design)
+            dim_transation (depends on transaction)
+            dim_counterparty (depends on counterparty and address)
+            dim_currency (depends on currency)
+            dim_payment_type (depends on payment_type)
+            dim_location (depends on address)
+            dim_staff (depends on staff and department)
+            fact_sales_order (depends on sales_order)
+            fact_payment (depends on payment)
+            fact_purchase_order (depends on purchase_order)
+        """
         self.dataframes = {}
-        for filename in parquet_filenames:
-            self.dataframes[filename[: -len(extension)]] = read_parquet(
-                f"{dir}/{filename}"
-            )
+        for filename in list_of_filenames:
+            table_name = filename[: filename.index("/")]
+            self.dataframes[table_name] = get_df_from_s3_parquet(filename, bucket_name)
 
     @property
     def dim_design(self) -> DataFrame:
         design = self.dataframes["design"]
-        df = design["design_id", "design_name", "file_location", "file_name"]
+        df = design[["design_id", "design_name", "file_location", "file_name"]]
         return df
 
     @property
     def dim_transaction(self) -> DataFrame:
         transaction = self.dataframes["transaction"]
         df = transaction[
-            "transaction_id", "transaction_type", "sales_order_id", "purchase_order_id"
+            [
+                "transaction_id",
+                "transaction_type",
+                "sales_order_id",
+                "purchase_order_id",
+            ]
         ]
         return df
 
@@ -210,9 +208,3 @@ class Warehouse:
         df["last_updated_date"] = purchase_order["last_updated"].dt.date
         df["last_updated_time"] = purchase_order["last_updated"].dt.time
         return df
-
-
-if __name__ == "__main__":
-    warehouse = Warehouse("test/test_data/parquet_files")
-    with open("output.txt", "w") as f:
-        warehouse.dim_currency.to_string(f)
