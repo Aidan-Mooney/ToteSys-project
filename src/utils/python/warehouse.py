@@ -1,6 +1,5 @@
 from pandas import DataFrame
 from os import environ
-from boto3 import client
 
 if environ["DEV_ENVIRONMENT"] == "testing":
     from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
@@ -9,7 +8,7 @@ else:
 
 
 class Warehouse:
-    def __init__(self, list_of_filenames: list[str], bucket_name: str):
+    def __init__(self, list_of_filenames: list[str], bucket_name: str, s3_client):
         """
         Warehouse object expects parquet file from ingest bucket and creates dim- and fact- tables.
 
@@ -31,7 +30,7 @@ class Warehouse:
             fact_payment (depends on payment)
             fact_purchase_order (depends on purchase_order)
         """
-        self.s3_client = client("s3")
+        self.s3_client = s3_client
         self.dataframes = {}
         for filename in list_of_filenames:
             table_name = filename[: filename.index("/")]
