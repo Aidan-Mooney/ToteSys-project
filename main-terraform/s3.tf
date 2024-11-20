@@ -8,7 +8,7 @@ resource "aws_s3_bucket" "code_bucket" {
 
 #########################################
 
-resource "aws_s3_object" "utils_lambda_file" {
+resource "aws_s3_object" "lambda_file" {
   bucket = aws_s3_bucket.code_bucket.id
   key    = "utils/utils.zip"
   source = "${path.module}/../packages/utils/utils.zip"
