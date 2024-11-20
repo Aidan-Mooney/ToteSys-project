@@ -138,13 +138,13 @@ def test_3():
         CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
     )
     put_parquet_to_s3(
-        f"test/test_data/parquet_files/address.parquet",
+        "test/test_data/parquet_files/address.parquet",
         ig_bucket_name,
         s3_client,
         "std_address",
     )
     put_parquet_to_s3(
-        f"test/test_data/parquet_files/department.parquet",
+        "test/test_data/parquet_files/department.parquet",
         ig_bucket_name,
         s3_client,
         "std_department",
