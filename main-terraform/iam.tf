@@ -117,6 +117,7 @@ data "aws_iam_policy_document" "invoke_lambdas_document" {
 
     resources = [
       "${aws_lambda_function.ingest_lambda_function.arn}*",
+      "${aws_lambda_function.transform_lambda_function.arn}*",
     ]
   }
 }
