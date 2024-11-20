@@ -2,12 +2,16 @@ from numpy import float64, int64, isnan
 from pandas import DataFrame, read_parquet
 from datetime import date, time
 from pytest import fixture, mark
-from src.transform_utils.warehouse import Warehouse
 from os import listdir
 from moto import mock_aws
 from boto3 import client
 from os import environ
 from io import BytesIO
+
+environ["DEV_ENVIRONMENT"] = "testing"
+from src.transform_utils.warehouse import Warehouse
+
+TEST_BUCKET = "test_bucket"
 
 
 @fixture
@@ -18,9 +22,6 @@ def warehouse_df():
         table_name = filename[: -len(".parquet")]
         warehouse.dataframes[table_name] = read_parquet(f"{dir}/{filename}")
     return warehouse
-
-
-TEST_BUCKET = "test_bucket"
 
 
 @fixture(scope="function", autouse=True)
