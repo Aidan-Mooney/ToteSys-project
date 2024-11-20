@@ -4,9 +4,13 @@ from datetime import date, time
 from pytest import fixture, mark
 from src.transform_utils.warehouse import Warehouse
 from os import listdir
+from moto import mock_aws
+from boto3 import client
+from os import environ
+from io import BytesIO
 
 
-@fixture(autouse=True)
+@fixture
 def warehouse_df():
     warehouse = Warehouse([], "")
     dir = "test/test_data/parquet_files"
@@ -16,12 +20,53 @@ def warehouse_df():
     return warehouse
 
 
+TEST_BUCKET = "test_bucket"
+
+
+@fixture(scope="function", autouse=True)
+def aws_credentials():
+    """Mocked AWS Credentials for moto."""
+    environ["AWS_ACCESS_KEY_ID"] = "testing"
+    environ["AWS_SECRET_ACCESS_KEY"] = "testing"
+    environ["AWS_SECURITY_TOKEN"] = "testing"
+    environ["AWS_SESSION_TOKEN"] = "testing"
+    environ["AWS_DEFAULT_REGION"] = "eu-west-2"
+
+
+@mark.context("__init__")
 class TestConstructor:
     @mark.it("checks that constructor returns a dictionary")
     def test_1(self, warehouse_df):
         assert isinstance(warehouse_df.dataframes, dict)
 
+    @mock_aws
+    @mark.it("retreives a dataframe from s3 bucket")
+    def test_2(self):
+        s3_client = client("s3")
+        s3_client.create_bucket(
+            Bucket=TEST_BUCKET,
+            CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+        )
+        test_df = read_parquet("test/test_data/parquet_files/transaction.parquet")
+        parquet_data = BytesIO()
+        test_df.to_parquet(parquet_data, index=False)
+        test_key = "transaction/dddddd.parquet"
+        s3_client.put_object(
+            Bucket=TEST_BUCKET, Key=test_key, Body=parquet_data.getvalue()
+        )
+        warehouse = Warehouse([test_key], TEST_BUCKET)
+        transaction = warehouse.dim_transaction
+        assert isinstance(transaction, DataFrame)
+        cols = transaction.columns.values.tolist()
+        assert cols == [
+            "transaction_id",
+            "transaction_type",
+            "sales_order_id",
+            "purchase_order_id",
+        ]
 
+
+@mark.context("dim_design")
 class TestDimDesign:
     @mark.it("checks that dim design returns data type dataframe")
     def test_2(self, warehouse_df):
@@ -57,6 +102,7 @@ class TestDimDesign:
         assert row["file_name"] == "bronze-20221024-4dds.json"
 
 
+@mark.context("dim_transaction")
 class TestDimTransaction:
     @mark.it("checks that dim transaction returns data type dataframe")
     def test_6(self, warehouse_df):
@@ -96,10 +142,11 @@ class TestDimTransaction:
         assert row["purchase_order_id"] == 62.0
 
 
+@mark.context("dim_counterparty")
 class TestDimCounterparty:
     @mark.it("checks that dim_counterparty returns data type dataframe")
     def test_10(self, warehouse_df):
-        counterparty_df = warehouse_df.dim_transaction
+        counterparty_df = warehouse_df.dim_counterparty
 
         assert isinstance(counterparty_df, DataFrame)
 
