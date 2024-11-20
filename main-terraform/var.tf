@@ -35,7 +35,7 @@ variable "ingest_lambda_name" {
 }
 
 variable "transform_lambda_name" {
-  default = "transformer"
+  default = "transform"
 }
 
 variable "python_runtime" {

@@ -29,3 +29,28 @@ resource "aws_lambda_function" "ingest_lambda_function" {
     log_group   = aws_cloudwatch_log_group.totesys-cw-log-group.name
   }
 }
+
+resource "aws_lambda_function" "transform_lambda_function" {
+  role                  = #iam roles
+  function_name         = var.transform_lambda_name
+  source_code_hash      = #
+  s3_bucket             = # code bucket
+  s3_key                = #name of code we are assigning
+  runtime               = var.python_runtime
+  depends_on            = [ #all the other terraform stuffs 
+                          ]
+  timeout               = var.default_timeout
+  handler               = "${var.transform_lambda_name}.lambda_handler"
+  layers                = ["arn:aws:lambda:eu-west-2:336392948345:layer:AWSSDKPandas-Python312:14", #utils
+                          ] 
+  environment {
+    variables = {ingest_bucket_name = data.aws_ssm_parameter.ingest_bucket_name.value, 
+                 transform_bucket_name = data.aws_ssm_parameter.transform_bucket_name, 
+                 DEV_ENVIRONMENT = "deploy"
+                }
+              }
+  logging_config {
+    log_format  = "Text"
+    log_group   = aws_cloudwatch_log_group.totesys-cw-log-group.name
+  }
+}
