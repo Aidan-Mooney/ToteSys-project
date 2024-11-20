@@ -120,8 +120,11 @@ def test_2():
         "counterparty_legal_name",
     ]
 
+
 @mock_aws
-@mark.it("doesn't construct location and department tables when only std_address and std_department are in the event")
+@mark.it(
+    "doesn't construct location and department tables when only std_address and std_department are in the event"
+)
 def test_3():
     ig_bucket_name = "ig_bucket"
     tf_bucket_name = "tf_bucket"
@@ -135,29 +138,26 @@ def test_3():
         CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
     )
     put_parquet_to_s3(
-            f"test/test_data/parquet_files/address.parquet",
-            ig_bucket_name,
-            s3_client,
-            "std_address",
-        )
+        f"test/test_data/parquet_files/address.parquet",
+        ig_bucket_name,
+        s3_client,
+        "std_address",
+    )
     put_parquet_to_s3(
-            f"test/test_data/parquet_files/department.parquet",
-            ig_bucket_name,
-            s3_client,
-            "std_department",
-        )
+        f"test/test_data/parquet_files/department.parquet",
+        ig_bucket_name,
+        s3_client,
+        "std_department",
+    )
     with patch.dict(
-            environ,
-            {"ig_bucket_name": ig_bucket_name, "tf_bucket_name": tf_bucket_name},
-            clear=True,
-        ):
-        test_time = [2024, 11, 20, 21, 48]
-        with patch("src.lambdas.mattyc_in_tha_ware_house.datetime") as mock:
-            mock.now.return_value = datetime(*test_time)
-            transform(
-                {
-                    "std_department": "std_department/yadayada.parquet",
-                    "std_address": "std_address/yadayada.parquet",
-                }
-            )
-    assert not s3_client.list_objects_v2(Bucket=tf_bucket_name)['KeyCount']
+        environ,
+        {"ig_bucket_name": ig_bucket_name, "tf_bucket_name": tf_bucket_name},
+        clear=True,
+    ):
+        transform(
+            {
+                "std_department": "std_department/yadayada.parquet",
+                "std_address": "std_address/yadayada.parquet",
+            }
+        )
+    assert not s3_client.list_objects_v2(Bucket=tf_bucket_name)["KeyCount"]
