@@ -3,8 +3,10 @@ from pytest import mark, fixture
 from boto3 import client
 from os import environ
 from src.transform_utils.get_parquet_body_from_s3 import get_parquet_body_from_s3
+from unittest.mock import patch
 
 TEST_BUCKET = "test_bucket"
+PATCH_PATH = "src.transform_utils.get_parquet_body_from_s3"
 
 
 @fixture(scope="function", autouse=True)
@@ -25,6 +27,8 @@ def s3_client():
 @mock_aws
 def test_1(s3_client):
     bucket_name = TEST_BUCKET
+    # with patch(f"{PATCH_PATH}.s3_client") as s3_client_patch:
+    # s3_client_patch.get_object.get_object =
     s3_client.create_bucket(
         Bucket=bucket_name,
         CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
