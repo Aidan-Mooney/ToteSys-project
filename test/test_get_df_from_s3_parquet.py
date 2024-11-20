@@ -40,7 +40,7 @@ def test_1(s3_client):
     s3_client.put_object(
         Bucket=TEST_BUCKET, Key="file.parquet", Body=parquet_data.getvalue()
     )
-    result = get_df_from_s3_parquet("file.parquet", TEST_BUCKET)
+    result = get_df_from_s3_parquet(s3_client, TEST_BUCKET, "file.parquet")
     assert isinstance(result, DataFrame)
     cols = result.columns.values.tolist()
     assert cols == [

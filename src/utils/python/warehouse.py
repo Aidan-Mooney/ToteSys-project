@@ -1,5 +1,6 @@
 from pandas import DataFrame
 from os import environ
+from boto3 import client
 
 if environ["DEV_ENVIRONMENT"] == "testing":
     from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
@@ -30,10 +31,13 @@ class Warehouse:
             fact_payment (depends on payment)
             fact_purchase_order (depends on purchase_order)
         """
+        self.s3_client = client("s3")
         self.dataframes = {}
         for filename in list_of_filenames:
             table_name = filename[: filename.index("/")]
-            self.dataframes[table_name] = get_df_from_s3_parquet(filename, bucket_name)
+            self.dataframes[table_name] = get_df_from_s3_parquet(
+                self.s3_client, bucket_name, filename
+            )
 
     @property
     def dim_design(self) -> DataFrame:

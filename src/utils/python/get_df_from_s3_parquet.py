@@ -1,17 +1,16 @@
-from boto3 import client
 from io import BytesIO
 from pandas import read_parquet, DataFrame
 
 
-def get_df_from_s3_parquet(filename: str, bucket_name: str) -> DataFrame:
+def get_df_from_s3_parquet(s3_client, bucket_name: str, filename: str) -> DataFrame:
     """
     Return the pandas DataFrame contained at the location filename inside bucket bucket_name.
 
     Parameters:
-        filename: file key in s3 bucket
+        s3_client: boto3 s3 client
         bucket_name: name of bucket
+        filename: file key in s3 bucket
     """
     buffer = BytesIO()
-    s3_client = client("s3")
     s3_client.download_fileobj(bucket_name, filename, buffer)
     return read_parquet(buffer)
