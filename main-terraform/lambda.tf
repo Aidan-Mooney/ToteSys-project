@@ -21,13 +21,13 @@ resource "aws_lambda_function" "ingest_lambda_function" {
   runtime               = var.python_runtime
   depends_on            = [ aws_s3_object.dependencies_lambda_file,
                             aws_s3_object.ingest_lambda_file,
-                            aws_s3_object.ingest_utils_lambda_file,
+                            aws_s3_object.utils_lambda_file,
                             aws_iam_role_policy_attachment.lambda_logs-for-ingest-policy,
                             aws_cloudwatch_log_group.totesys-cw-log-group,
                             ]
   timeout               = var.default_timeout
   handler               = "${var.ingest_lambda_name}.lambda_handler"
-  layers                = ["arn:aws:lambda:eu-west-2:336392948345:layer:AWSSDKPandas-Python312:14", aws_lambda_layer_version.ingest_utils.arn, aws_lambda_layer_version.dependencies.arn]
+  layers                = ["arn:aws:lambda:eu-west-2:336392948345:layer:AWSSDKPandas-Python312:14", aws_lambda_layer_version.utils.arn, aws_lambda_layer_version.dependencies.arn]
   environment {
     variables = {bucket_name = data.aws_ssm_parameter.ingest_bucket_name.value, DEV_ENVIRONMENT = "deploy"}
   }
@@ -46,11 +46,12 @@ resource "aws_lambda_function" "transform_lambda_function" {
   runtime               = var.python_runtime
   depends_on            = [ aws_s3_object.transform_lambda_file,
                             aws_iam_role_policy_attachment.s3_transform_policy,
+                            aws_s3_object.utils_lambda_file,
                             aws_cloudwatch_log_group.totesys-cw-log-group
                           ]
   timeout               = var.default_timeout
   handler               = "${var.transform_lambda_name}.lambda_handler"
-  layers                = ["arn:aws:lambda:eu-west-2:336392948345:layer:AWSSDKPandas-Python312:14", #utils
+  layers                = ["arn:aws:lambda:eu-west-2:336392948345:layer:AWSSDKPandas-Python312:14", aws_lambda_layer_version.utils.arn, aws_lambda_layer_version.dependencies.arn#utils
                           ] 
   environment {
     variables = {ingest_bucket_name = data.aws_ssm_parameter.ingest_bucket_name.value, 
