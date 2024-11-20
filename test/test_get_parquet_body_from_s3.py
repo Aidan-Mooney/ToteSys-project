@@ -4,6 +4,8 @@ from boto3 import client
 from os import environ
 from src.transform_utils.get_parquet_body_from_s3 import get_parquet_body_from_s3
 
+TEST_BUCKET = "test_bucket"
+
 
 @fixture(scope="function", autouse=True)
 def aws_credentials():
@@ -22,14 +24,14 @@ def s3_client():
 
 @mock_aws
 def test_1(s3_client):
-    bucket_name = "testy-b"
+    bucket_name = TEST_BUCKET
     s3_client.create_bucket(
         Bucket=bucket_name,
         CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
     )
     test_body = "lalalalal"
-    s3_client.put_object(Bucket=bucket_name, Key="file.parquet", Body=test_body)
-    result = get_parquet_body_from_s3("file.parquet", bucket_name)
+    s3_client.put_object(Bucket=TEST_BUCKET, Key="file.parquet", Body=test_body)
+    result = get_parquet_body_from_s3("file.parquet", TEST_BUCKET)
     assert result == test_body
 
 
