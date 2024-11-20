@@ -65,7 +65,5 @@ def dim_date(start_year: int, end_year: int) -> DataFrame:
             "quarter",
         ],
     )
-
-
-if __name__ == "__main__":
-    dim_date(2020, 2026).to_parquet("data/dim_date.parquet")
+# if __name__ == "__main__":
+#     dim_date(2020, 2026).to_parquet("data/dim_date.parquet")

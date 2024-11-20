@@ -1,4 +1,4 @@
-from src.transform_utils.dim_date import dim_date
+from src.dim_date import dim_date
 from pandas import DataFrame, Timestamp
 from pytest import mark
 import numpy
