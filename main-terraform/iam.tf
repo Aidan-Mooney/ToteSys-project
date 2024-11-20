@@ -220,4 +220,8 @@ resource "aws_iam_role_policy_attachment" "lambda_logs-for-ingest-policy" {
   role       = aws_iam_role.ingest_lambda_role.name
   policy_arn = aws_iam_policy.lambda_logging-policy.arn
 }
-  
+
+resource "aws_iam_role_policy_attachment" "lambda_logs-for-transform-policy" {
+  role       = aws_iam_role.transform_lambda_role.name
+  policy_arn = aws_iam_policy.lambda_logging-policy.arn
+}
