@@ -8,7 +8,7 @@ resource "aws_s3_bucket" "code_bucket" {
 
 #########################################
 
-resource "aws_s3_object" "utils_lambda_file" {
+resource "aws_s3_object" "utils_file" {
   bucket = aws_s3_bucket.code_bucket.id
   key    = "utils/utils.zip"
   source = "${path.module}/../packages/utils/utils.zip"
@@ -17,8 +17,8 @@ resource "aws_s3_object" "utils_lambda_file" {
 
 resource "aws_s3_object" "dependencies_lambda_file" {
   bucket = aws_s3_bucket.code_bucket.id
-  key    = "layer/layer.zip"
-  source = "${path.module}/../packages/layer/layer.zip"
+  key    = "dependencies/dependencies.zip"
+  source = "${path.module}/../packages/dependencies/dependencies.zip"
   etag   = filemd5(data.archive_file.dependencies.output_path)
 }
 
