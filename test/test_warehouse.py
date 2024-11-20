@@ -14,9 +14,11 @@ from src.utils.python.warehouse import Warehouse
 TEST_BUCKET = "test_bucket"
 
 
+@mock_aws
 @fixture
 def warehouse_df():
-    warehouse = Warehouse([], "")
+    s3_client = client("s3")
+    warehouse = Warehouse([], "", s3_client)
     dir = "test/test_data/parquet_files"
     for filename in listdir(dir):
         table_name = filename[: -len(".parquet")]
@@ -55,7 +57,7 @@ class TestConstructor:
         s3_client.put_object(
             Bucket=TEST_BUCKET, Key=test_key, Body=parquet_data.getvalue()
         )
-        warehouse = Warehouse([test_key], TEST_BUCKET)
+        warehouse = Warehouse([test_key], TEST_BUCKET, s3_client)
         transaction = warehouse.dim_transaction
         assert isinstance(transaction, DataFrame)
         cols = transaction.columns.values.tolist()
