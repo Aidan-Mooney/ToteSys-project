@@ -1,4 +1,5 @@
 from os import listdir
+
 from pandas import DataFrame, read_parquet
 
 """
@@ -45,15 +46,15 @@ class Warehouse:
     @property
     def dim_design(self) -> DataFrame:
         design = self.dataframes["design"]
-        df = design["design_id", "design_name", "file_location", "file_name"]
+        df = design[["design_id", "design_name", "file_location", "file_name"]]
         return df
 
     @property
     def dim_transaction(self) -> DataFrame:
         transaction = self.dataframes["transaction"]
-        df = transaction[
+        df = transaction[[
             "transaction_id", "transaction_type", "sales_order_id", "purchase_order_id"
-        ]
+        ]]
         return df
 
     @property
@@ -215,4 +216,4 @@ class Warehouse:
 if __name__ == "__main__":
     warehouse = Warehouse("test/test_data/parquet_files")
     with open("output.txt", "w") as f:
-        warehouse.dim_currency.to_string(f)
+        warehouse.dim_transaction.to_string(f)
