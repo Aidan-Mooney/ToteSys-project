@@ -1,9 +1,8 @@
 from moto import mock_aws
-from pytest import mark, fixture
+from pytest import fixture
 from boto3 import client
 from os import environ
 from src.transform_utils.get_parquet_body_from_s3 import get_parquet_body_from_s3
-from unittest.mock import patch
 
 TEST_BUCKET = "test_bucket"
 PATCH_PATH = "src.transform_utils.get_parquet_body_from_s3"
