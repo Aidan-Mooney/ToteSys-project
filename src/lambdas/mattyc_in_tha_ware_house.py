@@ -17,7 +17,7 @@ TRANSFORM_BUCKET_NAME = environ["tf_bucket_name"]
 # }
 
 
-def lambda_handler(event, context={}):
+def transform(event, context={}):
     current_time = datetime.now()
     s3_client = client("s3")
     relationships = {
@@ -44,5 +44,5 @@ def lambda_handler(event, context={}):
                 s3_client,
                 TRANSFORM_BUCKET_NAME,
                 file_key=generate_file_key(table_name, current_time),
-                parquet_df=generate_parquet_of_df(df),
+                data=generate_parquet_of_df(df),
             )
