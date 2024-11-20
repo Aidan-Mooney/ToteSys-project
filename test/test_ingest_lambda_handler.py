@@ -1,5 +1,6 @@
 import os
-os.environ['DEV_ENVIRONMENT']='testing'
+
+os.environ["DEV_ENVIRONMENT"] = "testing"
 
 from src.lambdas.ingest import lambda_handler
 from unittest.mock import patch
@@ -19,6 +20,7 @@ Things to be patched:
     - write_to_s3
     - datetime.now
 """
+
 
 class TestIntegration:
     @mark.it("calls s3 client is called with the correct file name, bucket and body")
@@ -92,9 +94,7 @@ class TestIntegration:
         assert "Successfully retrieved 5 rows from table" in caplog.text
         assert "Successfully written parquet data to" in caplog.text
         assert "No new rows found for" not in caplog.text
-        assert response == {
-            "files_added": ["table_name/2024/11/13/141420987654.parquet"]
-        }
+        assert response == {"table_name": "table_name/2024/11/13/141420987654.parquet", "std_address": "path_to_static_address", "stf_department": "path_to_static_department"}
 
 
 class TestErrorRaisedByGetLastIngestTime:
