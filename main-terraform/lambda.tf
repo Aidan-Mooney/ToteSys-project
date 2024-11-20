@@ -21,7 +21,7 @@ resource "aws_lambda_function" "ingest_lambda_function" {
   runtime               = var.python_runtime
   depends_on            = [ aws_s3_object.dependencies_lambda_file,
                             aws_s3_object.ingest_lambda_file,
-                            aws_s3_object.lambda_file,
+                            aws_s3_object.utils_file,
                             aws_iam_role_policy_attachment.lambda_logs-for-ingest-policy,
                             aws_cloudwatch_log_group.totesys-cw-log-group,
                             ]
@@ -46,7 +46,7 @@ resource "aws_lambda_function" "transform_lambda_function" {
   runtime               = var.python_runtime
   depends_on            = [ aws_s3_object.transform_lambda_file,
                             aws_iam_role_policy_attachment.s3_transform_policy,
-                            aws_s3_object.lambda_file,
+                            aws_s3_object.utils_file,
                             aws_cloudwatch_log_group.totesys-cw-log-group
                           ]
   timeout               = var.default_timeout

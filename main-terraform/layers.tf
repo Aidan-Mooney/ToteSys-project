@@ -14,7 +14,7 @@ data "archive_file" "dependencies"{
   type             = "zip"
   output_file_mode = "0666"
   source_dir       = "${path.module}/../dependencies"
-  output_path      = "${path.module}/../packages/layer/layer.zip"
+  output_path      = "${path.module}/../packages/dependencies/dependencies.zip"
 }
 
 data "archive_file" "utils"{
@@ -38,8 +38,8 @@ resource "aws_lambda_layer_version" "dependencies" {
 resource "aws_lambda_layer_version" "utils" {
   layer_name          = "utils"
   compatible_runtimes = [var.python_runtime]
-  s3_bucket           = aws_s3_object.lambda_file.bucket
-  s3_key              = aws_s3_object.lambda_file.key
-  depends_on          = [aws_s3_object.lambda_file]
+  s3_bucket           = aws_s3_object.utils_file.bucket
+  s3_key              = aws_s3_object.utils_file.key
+  depends_on          = [aws_s3_object.utils_file]
   source_code_hash    = data.archive_file.utils.output_base64sha256
 }
