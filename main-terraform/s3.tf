@@ -35,3 +35,10 @@ resource "aws_s3_object" "transform_lambda_file" {
   source = "${path.module}/../packages/transformer/transform.zip"
   etag   = filemd5(data.archive_file.transformer.output_path)
 }
+
+resource "aws_s3_object" "dim_date_parquet" {
+  bucket = aws_ssm_parameter.transform_bucket_name.value
+  key    = "dim_date/2024/11/20/1135000000.parquet"
+  source = "${path.module}/../data/dim_date.parquet"
+  etag   = filemd5("${path.module}/../data/dim_date.parquet")
+}
