@@ -1,7 +1,7 @@
 resource "aws_cloudwatch_event_rule" "scheduler" {
   name = "every_5_mins_rule"
   description = "trigger step function seconds"
-  schedule_expression = "rate(1 minute)"
+  schedule_expression = "rate(5 minute)"
 }
 
 resource "aws_cloudwatch_event_target" "step_func_target" {
