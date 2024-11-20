@@ -35,11 +35,11 @@ resource "aws_lambda_layer_version" "dependencies" {
   source_code_hash    = data.archive_file.dependencies.output_base64sha256
 }
 
-resource "aws_lambda_layer_version" "ingest_utils" {
-  layer_name          = "ingest_utils"
+resource "aws_lambda_layer_version" "utils" {
+  layer_name          = "utils"
   compatible_runtimes = [var.python_runtime]
-  s3_bucket           = aws_s3_object.ingest_utils_lambda_file.bucket
-  s3_key              = aws_s3_object.ingest_utils_lambda_file.key
-  depends_on          = [aws_s3_object.ingest_utils_lambda_file]
+  s3_bucket           = aws_s3_object.utils_lambda_file.bucket
+  s3_key              = aws_s3_object.utils_lambda_file.key
+  depends_on          = [aws_s3_object.utils_lambda_file]
   source_code_hash    = data.archive_file.utils.output_base64sha256
 }
