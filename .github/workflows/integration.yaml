@@ -1,10 +1,9 @@
-name: totesys-deploy
+name: totesys-test
 
 on:
-  pull_request:
-    types: closed
+  push:
     branches:
-      - main
+      - "*"
 
 jobs:
   run-tests:
@@ -72,35 +71,4 @@ jobs:
           working-directory: main-terraform
           run: terraform plan
 
-  deploy-terraform:
-    name: deploy-terraform
-    runs-on: ubuntu-latest
-    environment: development
-    needs: test-terraform
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Create Environment
-        run: make create-environment
-      - name: Install dependencies
-        run: |
-          make install-requirements
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      - name: Terraform Setup
-        uses: hashicorp/setup-terraform@v3
-      - name: Terraform Init
-        working-directory: main-terraform
-        run: terraform init
-      - name: Terraform Validate
-        working-directory: main-terraform
-        run: terraform validate
-      - name: Terraform Apply
-        id: apply
-        working-directory: main-terraform
-        run: terraform apply -auto-approve
