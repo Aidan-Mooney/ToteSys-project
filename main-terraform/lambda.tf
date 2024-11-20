@@ -5,6 +5,13 @@ data "archive_file" "ingester" {
   output_path      = "${path.module}/../packages/ingester/ingest.zip"
 }
 
+data "archive_file" "transformer" {
+  type             = "zip"
+  output_file_mode = "0666"
+  source_file = "${path.module}../src/lambdas/fake_transform.py" # change to 'transform.py' when the lambda handler is available
+  output_path = "${path.module}/../packages/transformer/transform.zip"
+}
+
 resource "aws_lambda_function" "ingest_lambda_function" {
   role                  = aws_iam_role.ingest_lambda_role.arn
   function_name         = var.ingest_lambda_name
@@ -45,7 +52,7 @@ resource "aws_lambda_function" "transform_lambda_function" {
                           ] 
   environment {
     variables = {ingest_bucket_name = data.aws_ssm_parameter.ingest_bucket_name.value, 
-                 transform_bucket_name = data.aws_ssm_parameter.transform_bucket_name, 
+                 transform_bucket_name = data.aws_ssm_parameter.transform_bucket_name.value, 
                  DEV_ENVIRONMENT = "deploy"
                 }
               }
@@ -54,3 +61,4 @@ resource "aws_lambda_function" "transform_lambda_function" {
     log_group   = aws_cloudwatch_log_group.totesys-cw-log-group.name
   }
 }
+
