@@ -4,6 +4,7 @@ resource "aws_sfn_state_machine" "state_machine" {
   role_arn = aws_iam_role.state_role.arn
   definition = templatefile("${path.module}/../state-machine/state_machine.asl.json", {
     lambda_ingest = aws_lambda_function.ingest_lambda_function.arn
+    lambda_transform = aws_lambda_function.transform_lambda_function.arn
   }
   )
 }

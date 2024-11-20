@@ -1,8 +1,8 @@
 {
-    "Comment": "A description of my state machine",
-    "StartAt": "Lambda Invoke",
+    "Comment": "A state machine for ingesting, transforming and loading.",
+    "StartAt": "Ingest Invoke",
     "States": {
-        "Lambda Invoke": {
+        "Ingest Invoke": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "OutputPath": "$.Payload",
@@ -35,6 +35,30 @@
                 "BackoffRate": 2,
                 "JitterStrategy": "FULL"
             }
+            ],
+            "Next": "Transform Invoke"
+        },
+        "Transform Invoke": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+                "Payload.$": "$",
+                "FunctionName": "${lambda_transform}:$LATEST"
+            },
+            "Retry": [
+                {
+                "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 1,
+                "MaxAttempts": 3,
+                "BackoffRate": 2,
+                "JitterStrategy": "FULL"
+                }
             ],
             "End": true
         }
