@@ -6,6 +6,7 @@ class Warehouse:
     def __init__(self, list_of_filenames: list[str], bucket_name: str):
         """
         Warehouse object expects parquet file from ingest bucket and creates dim- and fact- tables.
+
         Warning: Only access properties for which you have ingested the relevant dependencies, otherwise will raise a KeyError.
 
         __init__:
