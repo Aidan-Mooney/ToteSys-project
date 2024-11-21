@@ -47,7 +47,7 @@ variable "state_machine_name" {
 }
 
 variable "default_timeout" {
-  default = 30
+  default = 150
   type = number
 }
 
