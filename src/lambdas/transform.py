@@ -20,10 +20,8 @@ def lambda_handler(event, context={}):
         "address": "address/yadayada.parquet",
         "counterparty": "counterparty/yadayada.parquet",
         "currency": "currency/yadayada.parquet",
-        "design": "design/yadayada.parquet",
+        "design": "design/yadayada.parquet"
         ...
-        "static_department": "department/yadayada.parquet",
-        "static_address": "address/yadayada.parquet",
     }
     and adds the files stored at these paths in the ingest bucket to a Warehouse object. It then extracts the corresponding warehouse tables and places them in the transform s3 bucket.
     """
@@ -46,6 +44,10 @@ def lambda_handler(event, context={}):
     ingest_paths = []
     for table_name in event:
         ingest_paths.append(event[table_name])
+    if "staff" in event:
+        ingest_paths.append(environ["static_department_path"])
+    if "counterparty" in event and "address" not in event:
+        ingest_paths.append(environ["static_address_path"])
     warehouse = Warehouse(ingest_paths, INGEST_BUCKET_NAME, s3_client)
     for table_name in event:
         if table_name in relationships:
