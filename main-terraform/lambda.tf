@@ -29,7 +29,7 @@ resource "aws_lambda_function" "ingest_lambda_function" {
   handler               = "${var.ingest_lambda_name}.lambda_handler"
   layers                = ["arn:aws:lambda:eu-west-2:336392948345:layer:AWSSDKPandas-Python312:14", aws_lambda_layer_version.utils.arn, aws_lambda_layer_version.dependencies.arn]
   environment {
-    variables = {bucket_name = data.aws_ssm_parameter.ingest_bucket_name.value, DEV_ENVIRONMENT = "deploy"}
+    variables = {ingest_bucket_name = data.aws_ssm_parameter.ingest_bucket_name.value, DEV_ENVIRONMENT = "deploy"}
   }
   logging_config {
     log_format  = "Text"
