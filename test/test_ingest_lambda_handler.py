@@ -2,7 +2,7 @@ import os
 
 os.environ["DEV_ENVIRONMENT"] = "testing"
 
-from src.lambdas.transform import lambda_handler
+from src.lambdas.ingest import lambda_handler
 from unittest.mock import patch
 from pytest import mark
 from datetime import datetime
@@ -24,7 +24,9 @@ Things to be patched:
 
 class TestIntegration:
     @mark.it("calls s3 client is called with the correct file name, bucket and body")
-    @patch.dict(f"{PATCH_PATH}.os.environ", {"bucket_name": "test_bucket"}, clear=True)
+    @patch.dict(
+        f"{PATCH_PATH}.os.environ", {"ingest_bucket_name": "test_bucket"}, clear=True
+    )
     def test_1(self, caplog):
         with patch(f"{PATCH_PATH}.dt") as dt_mock:
             dt_mock.now.return_value = datetime(2024, 11, 13, 14, 14, 20, 987654)
@@ -95,14 +97,14 @@ class TestIntegration:
         assert "Successfully written parquet data to" in caplog.text
         assert "No new rows found for" not in caplog.text
         assert response == {
-            "table_name": "table_name/2024/11/13/141420987654.parquet",
-            "std_address": "path_to_static_address",
-            "stf_department": "path_to_static_department",
+            "files_added": ["table_name/2024/11/13/141420987654.parquet"]
         }
 
 
 class TestErrorRaisedByGetLastIngestTime:
-    @patch.dict(f"{PATCH_PATH}.os.environ", {"bucket_name": "test_bucket"}, clear=True)
+    @patch.dict(
+        f"{PATCH_PATH}.os.environ", {"ingest_bucket_name": "test_bucket"}, clear=True
+    )
     @mark.it("creates a critical log if get_last_ingest_time raises ClientError")
     def test_2(self, caplog):
         with patch(f"{PATCH_PATH}.get_last_ingest_time") as client_error_mock:
@@ -122,7 +124,9 @@ class TestErrorRaisedByGetLastIngestTime:
 
 
 class TestErrorRaisedByGenerateNewEntryQuery:
-    @patch.dict(f"{PATCH_PATH}.os.environ", {"bucket_name": "test_bucket"}, clear=True)
+    @patch.dict(
+        f"{PATCH_PATH}.os.environ", {"ingest_bucket_name": "test_bucket"}, clear=True
+    )
     @mark.it(
         "creates a critical log if generate_new_entry_query raises DateFormatError"
     )
@@ -137,7 +141,9 @@ class TestErrorRaisedByGenerateNewEntryQuery:
 
 
 class TestQueryDB:
-    @patch.dict(f"{PATCH_PATH}.os.environ", {"bucket_name": "test_bucket"}, clear=True)
+    @patch.dict(
+        f"{PATCH_PATH}.os.environ", {"ingest_bucket_name": "test_bucket"}, clear=True
+    )
     @mark.it("creates a critical log if query_db raises DatabaseError")
     def test_4(self, caplog):
         with patch(f"{PATCH_PATH}.get_last_ingest_time", return_value=datetime.now()):
@@ -147,7 +153,9 @@ class TestQueryDB:
                     lambda_handler({"tables_to_query": [""]}, {})
         assert "Error querying database with query" in caplog.text
 
-    @patch.dict(f"{PATCH_PATH}.os.environ", {"bucket_name": "test_bucket"}, clear=True)
+    @patch.dict(
+        f"{PATCH_PATH}.os.environ", {"ingest_bucket_name": "test_bucket"}, clear=True
+    )
     @mark.it("creates a warning log if query_db returns no values")
     def test_5(self, caplog):
         with patch(f"{PATCH_PATH}.get_last_ingest_time", return_value=datetime.now()):
@@ -159,7 +167,9 @@ class TestQueryDB:
 
 
 class TestErrorRaisedByWriteTos3:
-    @patch.dict(f"{PATCH_PATH}.os.environ", {"bucket_name": "test_bucket"}, clear=True)
+    @patch.dict(
+        f"{PATCH_PATH}.os.environ", {"ingest_bucket_name": "test_bucket"}, clear=True
+    )
     @mark.it("creates a critical log if write_to_s3 raises ClientError")
     def test_6(self, caplog):
         with patch(f"{PATCH_PATH}.get_last_ingest_time", return_value=datetime.now()):
