@@ -58,3 +58,11 @@ variable "credentials_secret_arn" {
 data "aws_ssm_parameter" "credentials_secret_arn" {
   name = var.credentials_secret_arn
 }
+
+variable "static_address_path" {
+  default = "static/address.parquet"
+}
+
+variable "static_department_path" {
+  default = "static/department.parquet"
+}

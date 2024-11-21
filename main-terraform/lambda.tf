@@ -29,7 +29,11 @@ resource "aws_lambda_function" "ingest_lambda_function" {
   handler               = "${var.ingest_lambda_name}.lambda_handler"
   layers                = ["arn:aws:lambda:eu-west-2:336392948345:layer:AWSSDKPandas-Python312:14", aws_lambda_layer_version.utils.arn, aws_lambda_layer_version.dependencies.arn]
   environment {
-    variables = {ingest_bucket_name = data.aws_ssm_parameter.ingest_bucket_name.value, DEV_ENVIRONMENT = "deploy"}
+    variables = { ingest_bucket_name = data.aws_ssm_parameter.ingest_bucket_name.value,
+                  DEV_ENVIRONMENT = "deploy",
+                  static_address_path = var.static_address_path,
+                  static_department_path=var.static_department_path
+                }
   }
   logging_config {
     log_format  = "Text"
@@ -57,6 +61,8 @@ resource "aws_lambda_function" "transform_lambda_function" {
     variables = {ingest_bucket_name = data.aws_ssm_parameter.ingest_bucket_name.value, 
                  transform_bucket_name = data.aws_ssm_parameter.transform_bucket_name.value, 
                  DEV_ENVIRONMENT = "deploy"
+                 static_address_path = var.static_address_path,
+                 static_department_path=var.static_department_path
                 }
               }
   logging_config {
