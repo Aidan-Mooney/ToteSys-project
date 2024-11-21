@@ -7,6 +7,7 @@ from moto import mock_aws
 from boto3 import client
 from os import environ
 from io import BytesIO
+from logging import CRITICAL
 
 environ["DEV_ENVIRONMENT"] = "testing"
 from src.utils.python.warehouse import Warehouse
@@ -67,6 +68,16 @@ class TestConstructor:
             "sales_order_id",
             "purchase_order_id",
         ]
+
+    @mock_aws
+    @mark.it("Makes a critical log when the bucket doesn't exist")
+    def test_3(self, caplog):
+        s3_client = client("s3")
+        test_key = "transaction/dddddd.parquet"
+        caplog.set_level(CRITICAL)
+        Warehouse([test_key], TEST_BUCKET, s3_client)
+        assert "CRITICAL" in caplog.text
+        assert "encountered error retrieving file" in caplog.text
 
 
 @mark.context("dim_design")
