@@ -46,7 +46,7 @@ class Warehouse:
                     self.s3_client, bucket_name, filename
                 )
             except ClientError as c:
-                logger.warning(
+                logger.critical(
                     f"{__name__} encountered error retrieving file {filename} from bucket {bucket_name}: {c}"
                 )
 
