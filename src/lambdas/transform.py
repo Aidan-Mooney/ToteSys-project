@@ -33,6 +33,7 @@ def lambda_handler(event, context={}):
                 ...
             }
     """
+    logger.critical(f"event {event}")
     INGEST_BUCKET_NAME = environ["ingest_bucket_name"]
     TRANSFORM_BUCKET_NAME = environ["transform_bucket_name"]
     current_time = datetime.now()
