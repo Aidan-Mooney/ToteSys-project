@@ -85,6 +85,6 @@ def lambda_handler(event, context={}):
                 logger.critical(f"{__name__} failed to write to s3: {c}")
             except AttributeError as a:
                 logger.critical(
-                    f"Unable to accesss attribute {warehouse_table_name} from warehouse: {a}"
+                    f"Unable to access attribute {warehouse_table_name} from warehouse 🏠🚛: {a}"
                 )
     return transformed_file_paths
