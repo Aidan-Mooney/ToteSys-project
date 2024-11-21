@@ -23,11 +23,16 @@ PATCHED_ENVIRON = {
 
 
 @mock_aws
-def put_parquet_file_to_s3(filepath, bucket_name, s3_client, table_name):
+def put_parquet_file_to_s3(
+    filepath, bucket_name, s3_client, table_name, static_path=False
+):
     test_df = read_parquet(filepath)
     parquet_data = BytesIO()
-    s3_key = f"{table_name}/yadayada.parquet"
     test_df.to_parquet(parquet_data, index=False)
+    if static_path:
+        s3_key = f"static/{table_name}.parquet"
+    else:
+        s3_key = f"{table_name}/yadayada.parquet"
     s3_client.put_object(Bucket=bucket_name, Key=s3_key, Body=parquet_data.getvalue())
 
 
@@ -61,7 +66,7 @@ def test_1():
             test_time = [2024, 11, 20, 21, 48]
             mock.now.return_value = datetime(*test_time)
             transform({"transaction": test_key})
-    result_key = f"transaction/{test_time[0]}/{test_time[1]}/{test_time[2]}/{test_time[3]}{test_time[4]}00000000.parquet"
+    result_key = f"dim_transaction/{test_time[0]}/{test_time[1]}/{test_time[2]}/{test_time[3]}{test_time[4]}00000000.parquet"
     result = get_df_from_s3_parquet(s3_client, tf_bucket_name, result_key)
     assert isinstance(result, DataFrame)
     assert result.columns.values.tolist() == [
@@ -107,15 +112,13 @@ def test_2():
                     "counterparty": "counterparty/yadayada.parquet",
                     "currency": "currency/yadayada.parquet",
                     "design": "design/yadayada.parquet",
-                    "static_department": "department/yadayada.parquet",
-                    "static_address": "address/yadayada.parquet",
                 }
             )
     tf_parquet_list = [
         item["Key"]
         for item in s3_client.list_objects_v2(Bucket=tf_bucket_name)["Contents"]
     ]
-    result = get_df_from_s3_parquet(s3_client, tf_bucket_name, tf_parquet_list[1])
+    result = get_df_from_s3_parquet(s3_client, tf_bucket_name, tf_parquet_list[0])
     assert result.columns.values.tolist() == [
         "counterparty_legal_address_line_1",
         "counterparty_legal_address_line_2",
@@ -131,7 +134,57 @@ def test_2():
 
 @mock_aws
 @mark.it(
-    "doesn't construct location and department tables when only std_address and std_department are in the event"
+    "successfully constructs staff table without department table present in the event"
+)
+def test_4():
+    s3_client = client("s3")
+    s3_client.create_bucket(
+        Bucket=ig_bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+    )
+    s3_client.create_bucket(
+        Bucket=tf_bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+    )
+    put_parquet_file_to_s3(
+        "test/test_data/parquet_files/staff.parquet", ig_bucket_name, s3_client, "staff"
+    )
+    put_parquet_file_to_s3(
+        "test/test_data/parquet_files/department.parquet",
+        ig_bucket_name,
+        s3_client,
+        "department",
+        True,
+    )
+    with patch.dict(
+        environ,
+        PATCHED_ENVIRON,
+        clear=True,
+    ):
+        with patch("src.lambdas.transform.datetime") as mock:
+            test_time = [2024, 11, 20, 21, 48]
+            mock.now.return_value = datetime(*test_time)
+            transform(
+                {
+                    "staff": "staff/yadayada.parquet",
+                }
+            )
+    result_key = f"dim_staff/{test_time[0]}/{test_time[1]}/{test_time[2]}/{test_time[3]}{test_time[4]}00000000.parquet"
+    result = get_df_from_s3_parquet(s3_client, tf_bucket_name, result_key)
+    assert s3_client.list_objects_v2(Bucket=tf_bucket_name)["KeyCount"] == 1
+
+
+@mock_aws
+@mark.it(
+    "successfully constructs counterparty table without address table present in the event"
+)
+def test_5():
+    pass
+
+
+@mock_aws
+@mark.it(
+    "doesn't construct location and department tables when nothing is passed in the event"
 )
 def test_3():
     s3_client = client("s3")
@@ -160,10 +213,5 @@ def test_3():
         PATCHED_ENVIRON,
         clear=True,
     ):
-        transform(
-            {
-                "std_department": "std_department/yadayada.parquet",
-                "std_address": "std_address/yadayada.parquet",
-            }
-        )
+        transform({})
     assert not s3_client.list_objects_v2(Bucket=tf_bucket_name)["KeyCount"]

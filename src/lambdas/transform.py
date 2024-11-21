@@ -48,7 +48,6 @@ def lambda_handler(event, context={}):
         ingest_paths.append(environ["static_department_path"])
     if "counterparty" in event and "address" not in event:
         ingest_paths.append(environ["static_address_path"])
-    print(ingest_paths)
     warehouse = Warehouse(ingest_paths, INGEST_BUCKET_NAME, s3_client)
     transformed_file_paths = {}
     for table_name in event:

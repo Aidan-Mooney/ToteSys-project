@@ -33,7 +33,10 @@ class Warehouse:
         self.s3_client = s3_client
         self.dataframes = {}
         for filename in list_of_filenames:
-            table_name = filename[: filename.index("/")]
+            if filename[0:6] == "static":
+                table_name = filename[len("static") + 1 : -len(".parquet")]
+            else:
+                table_name = filename[: filename.index("/")]
             self.dataframes[table_name] = get_df_from_s3_parquet(
                 self.s3_client, bucket_name, filename
             )
