@@ -6,11 +6,14 @@ from io import BytesIO
 from unittest.mock import patch
 from datetime import datetime
 from pytest import mark
+from botocore.exceptions import ClientError
+from logging import CRITICAL
 
 environ["DEV_ENVIRONMENT"] = "testing"
 
 from src.lambdas.transform import lambda_handler as transform
 from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
+from src.utils.python.warehouse import Warehouse
 
 ig_bucket_name = "ig_bucket"
 tf_bucket_name = "tf_bucket"
@@ -272,3 +275,101 @@ def test_3():
     ):
         transform({})
     assert not s3_client.list_objects_v2(Bucket=tf_bucket_name)["KeyCount"]
+
+
+@mock_aws
+@mark.it("Raises critical log when fails to write to s3")
+def test_6(caplog):
+    s3_client = client("s3")
+    s3_client.create_bucket(
+        Bucket=ig_bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+    )
+    s3_client.create_bucket(
+        Bucket=tf_bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+    )
+    put_parquet_file_to_s3(
+        "test/test_data/parquet_files/counterparty.parquet",
+        ig_bucket_name,
+        s3_client,
+        "counterparty",
+    )
+    put_parquet_file_to_s3(
+        "test/test_data/parquet_files/address.parquet",
+        ig_bucket_name,
+        s3_client,
+        "address",
+        True,
+    )
+    with patch.dict(
+        environ,
+        PATCHED_ENVIRON,
+        clear=True,
+    ):
+        with patch("src.lambdas.transform.datetime") as mock:
+            test_time = [2024, 11, 20, 21, 48]
+            mock.now.return_value = datetime(*test_time)
+            with patch(
+                "src.lambdas.transform.write_to_s3",
+                side_effect=ClientError(
+                    {
+                        "Error": {
+                            "Code": "InternalServiceError",
+                            "Message": "not our problem",
+                        }
+                    },
+                    "testing",
+                ),
+            ):
+                caplog.set_level(CRITICAL)
+                transform(
+                    {
+                        "counterparty": "counterparty/yadayada.parquet",
+                    }
+                )
+    assert "CRITICAL" in caplog.text
+    assert "failed to write to s3" in caplog.text
+
+
+@mock_aws
+@mark.it("raises critical log when fails to retrieve attribute from warehouse")
+def test_7(caplog):
+    s3_client = client("s3")
+    s3_client.create_bucket(
+        Bucket=ig_bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+    )
+    s3_client.create_bucket(
+        Bucket=tf_bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+    )
+    put_parquet_file_to_s3(
+        "test/test_data/parquet_files/counterparty.parquet",
+        ig_bucket_name,
+        s3_client,
+        "counterparty",
+    )
+    put_parquet_file_to_s3(
+        "test/test_data/parquet_files/address.parquet",
+        ig_bucket_name,
+        s3_client,
+        "address",
+        True,
+    )
+    with patch.dict(
+        environ,
+        PATCHED_ENVIRON,
+        clear=True,
+    ):
+        with patch("src.lambdas.transform.getattr") as mock:
+            mock.side_effect = AttributeError
+            caplog.set_level(CRITICAL)
+            transform(
+                {
+                    "counterparty": "counterparty/yadayada.parquet",
+                }
+            )
+            print(mock.call_count)
+    assert "CRITICAL" in caplog.text
+    assert "Unable to get attribute" in caplog.text
