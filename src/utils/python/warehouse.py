@@ -37,14 +37,10 @@ class Warehouse:
         self.s3_client = s3_client
         self.dataframes = {}
         for filename in list_of_filenames:
-            logger.critical(filename)
             if filename[0:6] == "static":
                 table_name = filename[len("static") + 1 : -len(".parquet")]
             else:
-                try:
-                    table_name = filename[: filename.index("/")]
-                except ValueError:
-                    raise ValueError(f"filename: {filename}")
+                table_name = filename[: filename.index("/")]
             try:
                 self.dataframes[table_name] = get_df_from_s3_parquet(
                     self.s3_client, bucket_name, filename
@@ -53,6 +49,7 @@ class Warehouse:
                 logger.critical(
                     f"{__name__} encountered error retrieving file {filename} from bucket {bucket_name}: {c}"
                 )
+                raise c
 
     @property
     def dim_design(self) -> DataFrame:

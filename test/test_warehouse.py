@@ -1,13 +1,14 @@
 from numpy import float64, int64, isnan
 from pandas import DataFrame, read_parquet
 from datetime import date, time
-from pytest import fixture, mark
+from pytest import fixture, mark, raises
 from os import listdir
 from moto import mock_aws
 from boto3 import client
 from os import environ
 from io import BytesIO
 from logging import CRITICAL
+from botocore.exceptions import ClientError
 
 environ["DEV_ENVIRONMENT"] = "testing"
 from src.utils.python.warehouse import Warehouse
@@ -75,7 +76,8 @@ class TestConstructor:
         s3_client = client("s3")
         test_key = "transaction/dddddd.parquet"
         caplog.set_level(CRITICAL)
-        Warehouse([test_key], TEST_BUCKET, s3_client)
+        with raises(ClientError):
+            Warehouse([test_key], TEST_BUCKET, s3_client)
         assert "CRITICAL" in caplog.text
         assert "encountered error retrieving file" in caplog.text
 

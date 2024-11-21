@@ -370,4 +370,6 @@ def test_7(caplog):
                 }
             )
     assert "CRITICAL" in caplog.text
-    assert "Unable to get attribute" in caplog.text
+    assert "Unable to access attribute" in caplog.text
+    # print(f"this guy👉{caplog.text}")
+    # print("helo")
