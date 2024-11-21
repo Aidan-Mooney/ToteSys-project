@@ -41,7 +41,10 @@ class Warehouse:
             if filename[0:6] == "static":
                 table_name = filename[len("static") + 1 : -len(".parquet")]
             else:
-                table_name = filename[: filename.index("/")]
+                try:
+                    table_name = filename[: filename.index("/")]
+                except ValueError:
+                    raise ValueError(f"filename: {filename}")
             try:
                 self.dataframes[table_name] = get_df_from_s3_parquet(
                     self.s3_client, bucket_name, filename
