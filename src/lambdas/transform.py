@@ -48,13 +48,14 @@ def lambda_handler(event, context={}):
         ingest_paths.append(environ["static_department_path"])
     if "counterparty" in event and "address" not in event:
         ingest_paths.append(environ["static_address_path"])
+    print(ingest_paths)
     warehouse = Warehouse(ingest_paths, INGEST_BUCKET_NAME, s3_client)
     transformed_file_paths = {}
     for table_name in event:
         if table_name in relationships:
             warehouse_table_name = relationships[table_name]
             df = getattr(warehouse, warehouse_table_name)
-            file_key = generate_file_key(table_name, current_time)
+            file_key = generate_file_key(warehouse_table_name, current_time)
             write_to_s3(
                 s3_client,
                 TRANSFORM_BUCKET_NAME,
