@@ -1,6 +1,5 @@
 from boto3 import client
 from botocore.exceptions import ClientError
-from src.utils.python.warehouse import Warehouse
 from os import environ
 from datetime import datetime
 from logging import getLogger
@@ -9,10 +8,12 @@ if environ["DEV_ENVIRONMENT"] == "testing":
     from src.utils.python.generate_file_key import generate_file_key
     from src.utils.python.generate_parquet_of_df import generate_parquet_of_df
     from src.utils.python.write_to_s3 import write_to_s3
+    from src.utils.python.warehouse import Warehouse
 else:
     from generate_file_key import generate_file_key
     from generate_parquet_of_df import generate_parquet_of_df
     from write_to_s3 import write_to_s3
+    from warehouse import Warehouse
 
 logger = getLogger(__name__)
 
