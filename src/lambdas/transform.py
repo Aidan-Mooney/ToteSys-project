@@ -60,6 +60,7 @@ def lambda_handler(event, context={}):
         warehouse = Warehouse(ingest_paths, INGEST_BUCKET_NAME, s3_client)
     except ValueError as v:
         logger.critical(f"big fixing {v}")
+        logger.critical(ingest_paths)
     transformed_file_paths = {}
     for table_name in event:
         if table_name in relationships:
