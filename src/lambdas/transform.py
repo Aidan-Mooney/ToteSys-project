@@ -24,6 +24,9 @@ def lambda_handler(event, context={}):
         ...
     }
     and adds the files stored at these paths in the ingest bucket to a Warehouse object. It then extracts the corresponding warehouse tables and places them in the transform s3 bucket.
+    Returns {"table_name_1": "path_to_dim/fact_table_1_in_tf_bucket"
+                ...
+            }
     """
     INGEST_BUCKET_NAME = environ["ingest_bucket_name"]
     TRANSFORM_BUCKET_NAME = environ["transform_bucket_name"]
