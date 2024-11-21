@@ -134,7 +134,7 @@ def test_2():
 
 @mock_aws
 @mark.it(
-    "successfully constructs staff table without department table present in the event"
+    "successfully constructs staff table without department table present in the event and doesn't add tables to the transform bucket which weren't present in the event"
 )
 def test_4():
     s3_client = client("s3")
@@ -170,8 +170,16 @@ def test_4():
                 }
             )
     result_key = f"dim_staff/{test_time[0]}/{test_time[1]}/{test_time[2]}/{test_time[3]}{test_time[4]}00000000.parquet"
-    result = get_df_from_s3_parquet(s3_client, tf_bucket_name, result_key)
     assert s3_client.list_objects_v2(Bucket=tf_bucket_name)["KeyCount"] == 1
+    result = get_df_from_s3_parquet(s3_client, tf_bucket_name, result_key)
+    assert result.columns.values.tolist() == [
+        "staff_id",
+        "first_name",
+        "last_name",
+        "email_address",
+        "department_name",
+        "location",
+    ]
 
 
 @mock_aws
@@ -179,7 +187,56 @@ def test_4():
     "successfully constructs counterparty table without address table present in the event"
 )
 def test_5():
-    pass
+    s3_client = client("s3")
+    s3_client.create_bucket(
+        Bucket=ig_bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+    )
+    s3_client.create_bucket(
+        Bucket=tf_bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+    )
+    put_parquet_file_to_s3(
+        "test/test_data/parquet_files/counterparty.parquet",
+        ig_bucket_name,
+        s3_client,
+        "counterparty",
+    )
+    put_parquet_file_to_s3(
+        "test/test_data/parquet_files/address.parquet",
+        ig_bucket_name,
+        s3_client,
+        "address",
+        True,
+    )
+    with patch.dict(
+        environ,
+        PATCHED_ENVIRON,
+        clear=True,
+    ):
+        with patch("src.lambdas.transform.datetime") as mock:
+            test_time = [2024, 11, 20, 21, 48]
+            mock.now.return_value = datetime(*test_time)
+            transform(
+                {
+                    "counterparty": "counterparty/yadayada.parquet",
+                }
+            )
+    result_key = f"dim_counterparty/{test_time[0]}/{test_time[1]}/{test_time[2]}/{test_time[3]}{test_time[4]}00000000.parquet"
+    assert s3_client.list_objects_v2(Bucket=tf_bucket_name)["KeyCount"] == 1
+    result = get_df_from_s3_parquet(s3_client, tf_bucket_name, result_key)
+    assert result.columns.values.tolist() == [
+        "counterparty_legal_address_line_1",
+        "counterparty_legal_address_line_2",
+        "counterparty_legal_district",
+        "counterparty_legal_city",
+        "counterparty_legal_postal_code",
+        "counterparty_legal_country",
+        "counterparty_legal_phone_number",
+        "counterparty_id",
+        "counterparty_legal_name",
+    ]
+    assert s3_client.list_objects_v2(Bucket=tf_bucket_name)["KeyCount"] == 1
 
 
 @mock_aws
