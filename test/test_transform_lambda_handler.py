@@ -13,7 +13,6 @@ environ["DEV_ENVIRONMENT"] = "testing"
 
 from src.lambdas.transform import lambda_handler as transform
 from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
-from src.utils.python.warehouse import Warehouse
 
 ig_bucket_name = "ig_bucket"
 tf_bucket_name = "tf_bucket"
