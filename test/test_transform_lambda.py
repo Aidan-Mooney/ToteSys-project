@@ -1,5 +1,3 @@
-from src.lambdas.transform import transform
-from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
 from moto import mock_aws
 from boto3 import client
 from pandas import read_parquet, DataFrame
@@ -10,6 +8,9 @@ from datetime import datetime
 from pytest import mark
 
 environ["DEV_ENVIRONMENT"] = "testing"
+
+from src.lambdas.transform import transform
+from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
 
 
 @mock_aws

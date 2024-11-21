@@ -2,7 +2,7 @@ import os
 
 os.environ["DEV_ENVIRONMENT"] = "testing"
 
-from src.lambdas.ingest import lambda_handler
+from src.lambdas.transform import lambda_handler
 from unittest.mock import patch
 from pytest import mark
 from datetime import datetime
@@ -94,7 +94,11 @@ class TestIntegration:
         assert "Successfully retrieved 5 rows from table" in caplog.text
         assert "Successfully written parquet data to" in caplog.text
         assert "No new rows found for" not in caplog.text
-        assert response == {"table_name": "table_name/2024/11/13/141420987654.parquet", "std_address": "path_to_static_address", "stf_department": "path_to_static_department"}
+        assert response == {
+            "table_name": "table_name/2024/11/13/141420987654.parquet",
+            "std_address": "path_to_static_address",
+            "stf_department": "path_to_static_department",
+        }
 
 
 class TestErrorRaisedByGetLastIngestTime:

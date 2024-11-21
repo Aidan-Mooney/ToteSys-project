@@ -2,18 +2,15 @@ from boto3 import client
 from src.utils.python.warehouse import Warehouse
 from os import environ
 from datetime import datetime
-from src.utils.python.generate_file_key import generate_file_key
-from src.utils.python.generate_parquet_of_df import generate_parquet_of_df
-from src.utils.python.write_to_s3 import write_to_s3
 
-
-# structure of event should be {
-#     table_name : path_to_latest_file,
-#     table_name2: path_to_latest_file,
-#     ...
-#     std_address: path_to_static_address,
-#     std_department: path_to_static_department,
-# }
+if environ["DEV_ENVIRONMENT"] == "testing":
+    from src.utils.python.generate_file_key import generate_file_key
+    from src.utils.python.generate_parquet_of_df import generate_parquet_of_df
+    from src.utils.python.write_to_s3 import write_to_s3
+else:
+    from generate_file_key import generate_file_key
+    from generate_parquet_of_df import generate_parquet_of_df
+    from write_to_s3 import write_to_s3
 
 
 def transform(event, context={}):
