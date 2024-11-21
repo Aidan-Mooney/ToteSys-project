@@ -25,15 +25,6 @@ def get_last_ingest_time(bucket_name: str, table_name: str):
     s3_client = client("s3")
     filename = get_latest_filename(s3_client, bucket_name, table_name)
     if not filename:
-        # time = {
-        #     "year": 2000,
-        #     "month": 1,
-        #     "day": 1,
-        #     "hour": 0,
-        #     "minute": 0,
-        #     "second": 0,
-        #     "microsecond": 0,
-        # }
         return False
     else:
         regex = compile(r"(\d{4})/(\d{2})/(\d{2})/(\d{2})(\d{2})(\d{2})(\d{6})").match(

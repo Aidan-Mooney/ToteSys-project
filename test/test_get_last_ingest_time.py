@@ -117,15 +117,7 @@ class Testget_last_ingest_time:
             return_value=test_filename,
         ):
             result = get_last_ingest_time(TEST_BUCKET, "")
-        assert result == False
-        # assert isinstance(result, datetime)
-        # assert result.year == 2000
-        # assert result.month == 1
-        # assert result.day == 1
-        # assert result.hour == 0
-        # assert result.minute == 0
-        # assert result.second == 0
-        # assert result.microsecond == 0
+        assert result is False 
 
 
 class Testintegration:
@@ -161,12 +153,4 @@ class Testintegration:
             CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
         )
         result = get_last_ingest_time(TEST_BUCKET, "test_table")
-        assert result == False
-        # assert isinstance(result, datetime)
-        # assert result.year == 2000
-        # assert result.month == 1
-        # assert result.day == 1
-        # assert result.hour == 0
-        # assert result.minute == 0
-        # assert result.second == 0
-        # assert result.microsecond == 0
+        assert result is False 
