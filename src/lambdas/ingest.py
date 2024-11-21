@@ -105,7 +105,7 @@ def lambda_handler(event, context):
                 query_string = generate_new_entry_query(
                     table_name, base_date, end_time_str
                 )
-                new_rows = query_db(query_string)
+                new_rows = query_db(query_string, connect_to_db, close_db_connection, table_name)
             file_key = generate_file_key(table_name, end_time)
             return_val[table_name] = file_key
             new_rows_parquet = parquet_data(new_rows)
