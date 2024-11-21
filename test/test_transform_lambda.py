@@ -1,4 +1,4 @@
-from src.lambdas.mattyc_in_tha_ware_house import transform
+from src.lambdas.transform import transform
 from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
 from moto import mock_aws
 from boto3 import client
@@ -11,7 +11,7 @@ from pytest import mark
 
 
 @mock_aws
-def put_parquet_to_s3(filepath, bucket_name, s3_client, table_name):
+def put_parquet_file_to_s3(filepath, bucket_name, s3_client, table_name):
     test_df = read_parquet(filepath)
     parquet_data = BytesIO()
     s3_key = f"{table_name}/yadayada.parquet"
@@ -42,13 +42,13 @@ def test_1():
     s3_client.put_object(
         Bucket=ig_bucket_name, Key=test_key, Body=parquet_data.getvalue()
     )
-    test_time = [2024, 11, 20, 21, 48]
     with patch.dict(
         environ,
         {"ig_bucket_name": ig_bucket_name, "tf_bucket_name": tf_bucket_name},
         clear=True,
     ):
-        with patch("src.lambdas.mattyc_in_tha_ware_house.datetime") as mock:
+        with patch("src.lambdas.transform.datetime") as mock:
+            test_time = [2024, 11, 20, 21, 48]
             mock.now.return_value = datetime(*test_time)
             transform({"transaction": test_key})
     result_key = f"transaction/{test_time[0]}/{test_time[1]}/{test_time[2]}/{test_time[3]}{test_time[4]}00000000.parquet"
@@ -79,7 +79,7 @@ def test_2():
         CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
     )
     for table_name in ["address", "counterparty", "currency", "design", "department"]:
-        put_parquet_to_s3(
+        put_parquet_file_to_s3(
             f"test/test_data/parquet_files/{table_name}.parquet",
             ig_bucket_name,
             s3_client,
@@ -90,8 +90,8 @@ def test_2():
         {"ig_bucket_name": ig_bucket_name, "tf_bucket_name": tf_bucket_name},
         clear=True,
     ):
-        test_time = [2024, 11, 20, 21, 48]
-        with patch("src.lambdas.mattyc_in_tha_ware_house.datetime") as mock:
+        with patch("src.lambdas.transform.datetime") as mock:
+            test_time = [2024, 11, 20, 21, 48]
             mock.now.return_value = datetime(*test_time)
             transform(
                 {
@@ -137,13 +137,13 @@ def test_3():
         Bucket=tf_bucket_name,
         CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
     )
-    put_parquet_to_s3(
+    put_parquet_file_to_s3(
         "test/test_data/parquet_files/address.parquet",
         ig_bucket_name,
         s3_client,
         "std_address",
     )
-    put_parquet_to_s3(
+    put_parquet_file_to_s3(
         "test/test_data/parquet_files/department.parquet",
         ig_bucket_name,
         s3_client,
