@@ -21,6 +21,13 @@ Things to be patched:
     - datetime.now
 """
 
+ig_bucket_name = "test_bucket"
+PATCHED_ENVIRON = {
+    "ingest_bucket_name": ig_bucket_name,
+    "static_address_path": "static/address.parquet",
+    "static_department_path": "static/department.parquet",
+}
+
 
 class TestIntegration:
     @mark.it("calls s3 client is called with the correct file name, bucket and body")
@@ -201,17 +208,28 @@ class TestErrorRaisedByWriteTos3:
                             lambda_handler({"tables_to_query": ["something"]}, {})
         assert "Error writing parquet to" in caplog.text
 
+
 class TestIngestDimTable:
     @patch.dict(
         f"{PATCH_PATH}.os.environ", {"ingest_bucket_name": "test_bucket"}, clear=True
     )
-    @mark.it('gets full table is returned when only few values is modified in the normalised dim table')
+    @mark.it(
+        "gets full table is returned when only few values is modified in the normalised dim table"
+    )
     def test_7(self):
         with patch(f"{PATCH_PATH}.dt") as dt_mock:
             dt_mock.now.return_value = datetime(2024, 11, 13, 14, 14, 20, 987654)
-            with patch(f"{PATCH_PATH}.get_last_ingest_time", return_value=datetime(2024, 11, 13, 14, 00, 20, 987654)):
-                with patch(f"{PATCH_PATH}.generate_new_entry_query") as generate_new_entry_query_mock:
-                    generate_new_entry_query_mock.side_effect = ["first_call", "second_call"]
+            with patch(
+                f"{PATCH_PATH}.get_last_ingest_time",
+                return_value=datetime(2024, 11, 13, 14, 00, 20, 987654),
+            ):
+                with patch(
+                    f"{PATCH_PATH}.generate_new_entry_query"
+                ) as generate_new_entry_query_mock:
+                    generate_new_entry_query_mock.side_effect = [
+                        "first_call",
+                        "second_call",
+                    ]
                     with patch(f"{PATCH_PATH}.query_db") as query_db_mock:
                         query_db_mock.return_value = {
                             "test_dim_table": [
@@ -229,31 +247,47 @@ class TestIngestDimTable:
                             test_event = {"tables_to_query": ["test_dim_table"]}
 
                             with patch(f"{PATCH_PATH}.parquet_data", return_value=""):
-        
                                 response = lambda_handler(test_event, {})
         assert generate_new_entry_query_mock.call_count == 2
         assert query_db_mock.call_count == 2
-        call_values = generate_new_entry_query_mock.call_args_list 
+        call_values = generate_new_entry_query_mock.call_args_list
         call_arg_1, _ = call_values[0]
         call_arg_2, _ = call_values[1]
-        assert call_arg_1 == ('test_dim_table', '2024-11-13 14:00:20.987654', '2024-11-13 14:14:20.987654')
-        assert call_arg_2 == ('test_dim_table', '2000-01-01 00:00:00.000000', '2024-11-13 14:14:20.987654')
+        assert call_arg_1 == (
+            "test_dim_table",
+            "2024-11-13 14:00:20.987654",
+            "2024-11-13 14:14:20.987654",
+        )
+        assert call_arg_2 == (
+            "test_dim_table",
+            "2000-01-01 00:00:00.000000",
+            "2024-11-13 14:14:20.987654",
+        )
         call_values = query_db_mock.call_args_list
         call_arg_1, _ = call_values[0]
         call_arg_2, _ = call_values[1]
-        assert call_arg_1[0] == 'first_call'
-        assert call_arg_2[0] == 'second_call'
-        assert response == {'test_dim_table': 'test_dim_table/2024/11/13/141420987654.parquet'}
+        assert call_arg_1[0] == "first_call"
+        assert call_arg_2[0] == "second_call"
+        assert response == {
+            "test_dim_table": "test_dim_table/2024/11/13/141420987654.parquet"
+        }
 
     @patch.dict(
         f"{PATCH_PATH}.os.environ", {"ingest_bucket_name": "test_bucket"}, clear=True
     )
-    @mark.it('checks if table is a normalised fact table then generate_new_entry_query and query_db is called once')
+    @mark.it(
+        "checks if table is a normalised fact table then generate_new_entry_query and query_db is called once"
+    )
     def test_8(self):
         with patch(f"{PATCH_PATH}.dt") as dt_mock:
             dt_mock.now.return_value = datetime(2024, 11, 13, 14, 14, 20, 987654)
-            with patch(f"{PATCH_PATH}.get_last_ingest_time", return_value=datetime(2024, 11, 13, 14, 00, 20, 987654)):
-                with patch(f"{PATCH_PATH}.generate_new_entry_query") as generate_new_entry_query_mock:
+            with patch(
+                f"{PATCH_PATH}.get_last_ingest_time",
+                return_value=datetime(2024, 11, 13, 14, 00, 20, 987654),
+            ):
+                with patch(
+                    f"{PATCH_PATH}.generate_new_entry_query"
+                ) as generate_new_entry_query_mock:
                     generate_new_entry_query_mock.return_value = ""
                     with patch(f"{PATCH_PATH}.query_db") as query_db_mock:
                         query_db_mock.return_value = {
@@ -275,4 +309,54 @@ class TestIngestDimTable:
                                 response = lambda_handler(test_event, {})
         assert generate_new_entry_query_mock.call_count == 1
         assert query_db_mock.call_count == 1
-        assert response == {'payment': 'payment/2024/11/13/141420987654.parquet'}
+        assert response == {"payment": "payment/2024/11/13/141420987654.parquet"}
+
+
+class TestStaticEnviron:
+    @patch.dict(f"{PATCH_PATH}.os.environ", PATCHED_ENVIRON, clear=True)
+    @mark.it("checks if static_table_name_key is added to s3")
+    def test_9(self):
+        with patch(f"{PATCH_PATH}.dt") as dt_mock:
+            dt_mock.now.return_value = datetime(2024, 11, 13, 14, 14, 20, 987654)
+            with patch(
+                f"{PATCH_PATH}.get_last_ingest_time",
+                return_value=datetime(2024, 11, 13, 14, 00, 20, 987654),
+            ):
+                with patch(
+                    f"{PATCH_PATH}.generate_new_entry_query"
+                ) as generate_new_entry_query_mock:
+                    generate_new_entry_query_mock.return_value = ""
+                    with patch(f"{PATCH_PATH}.query_db") as query_db_mock:
+                        query_db_mock.return_value = {
+                            "address": [
+                                {
+                                    "id": 17,
+                                    "title": "Back to the Future",
+                                    "ten_divided_by_2": 5,
+                                    "rating": 10,
+                                    "certificate": "U",
+                                    "avg_rating": "2.38",
+                                }
+                            ]
+                        }
+                        with patch(f"{PATCH_PATH}.s3_client") as s3_mock:
+                            test_event = {"tables_to_query": ["address"]}
+
+                            with patch(f"{PATCH_PATH}.parquet_data", return_value=""):
+                                response = lambda_handler(test_event, {})
+                                expected_static_call = {
+                                    "Bucket": "test_bucket",
+                                    "Key": "static/address.parquet",
+                                    "Body": "",
+                                }
+                                expected_call = {
+                                    "Bucket": "test_bucket",
+                                    "Key": "address/2024/11/13/141420987654.parquet",
+                                    "Body": "",
+                                }
+                                call_values = s3_mock.put_object.call_args_list
+                                _, call_kwargs_1 = call_values[0]
+                                _, call_kwargs_2 = call_values[1]
+            assert call_kwargs_1 == expected_static_call
+            assert call_kwargs_2 == expected_call
+            assert response == {'address': 'address/2024/11/13/141420987654.parquet'}

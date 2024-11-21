@@ -116,11 +116,11 @@ def lambda_handler(event, context):
                 new_rows = query_db(query_string, connect_to_db, close_db_connection, table_name)
             file_key = generate_file_key(table_name, end_time)
             return_val[table_name] = file_key
-            new_rows_parquet = parquet_data(new_rows)
+            new_rows_parquet = parquet_data(new_rows[table_name])
             try:
                 if table_name in ['address', 'department']:
-                    file_key = os.environ[f"static_{table_name}_path"]   
-                    write_to_s3(s3_client, bucket_name, file_key, new_rows_parquet)
+                    static_file_key = os.environ[f"static_{table_name}_path"]   
+                    write_to_s3(s3_client, bucket_name, static_file_key, new_rows_parquet)
                 write_to_s3(s3_client, bucket_name, file_key, new_rows_parquet)
                 logger.info(
                     f"Successfully written parquet data to {bucket_name}/{file_key}'"
