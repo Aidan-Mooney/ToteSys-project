@@ -369,6 +369,5 @@ def test_7(caplog):
                     "counterparty": "counterparty/yadayada.parquet",
                 }
             )
-            print(mock.call_count)
     assert "CRITICAL" in caplog.text
     assert "Unable to get attribute" in caplog.text
