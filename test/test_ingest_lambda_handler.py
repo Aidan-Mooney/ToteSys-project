@@ -96,9 +96,7 @@ class TestIntegration:
         assert "Successfully retrieved 5 rows from table" in caplog.text
         assert "Successfully written parquet data to" in caplog.text
         assert "No new rows found for" not in caplog.text
-        assert response == {
-            "files_added": ["table_name/2024/11/13/141420987654.parquet"]
-        }
+        assert response == {"table_name": "table_name/2024/11/13/141420987654.parquet"}
 
 
 class TestErrorRaisedByGetLastIngestTime:

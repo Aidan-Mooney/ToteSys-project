@@ -53,17 +53,23 @@ def lambda_handler(event, context):
         - WARNING when query_db returns an empty list
 
     """
+    norm_fact_tables = ["payment", "purchase_order", "sales_order"]
+    base_date = "2000-01-01 00:00:00.000000"
+
     bucket_name = os.environ["ingest_bucket_name"]
     end_time = dt.now(
         timezone.utc
     )  # add timezone or look at the context to see if there's time
     end_time_str = format_time(end_time)
     table_names = event["tables_to_query"]
-    file_key_list = []
+    return_val = {}
     for table_name in table_names:
         try:
             start_time = get_last_ingest_time(bucket_name, table_name)
-            start_time_str = format_time(start_time)
+            if start_time:
+                start_time_str = format_time(start_time)
+            else:
+                start_time_str = base_date
             logger.info(
                 f"Successfully retrieved last ingest time from {bucket_name} for table '{table_name}'"
             )
@@ -95,8 +101,13 @@ def lambda_handler(event, context):
             )
             break
         if new_rows[table_name]:
+            if table_name not in norm_fact_tables:
+                query_string = generate_new_entry_query(
+                    table_name, base_date, end_time_str
+                )
+                new_rows = query_db(query_string)
             file_key = generate_file_key(table_name, end_time)
-            file_key_list.append(file_key)
+            return_val[table_name] = file_key
             new_rows_parquet = parquet_data(new_rows)
             try:
                 write_to_s3(s3_client, bucket_name, file_key, new_rows_parquet)
@@ -113,4 +124,4 @@ def lambda_handler(event, context):
                 f"No new rows found for {table_name} between {start_time_str} and {end_time_str}"
             )
 
-    return {"files_added": file_key_list}
+    return return_val
