@@ -16,9 +16,10 @@ def db_connections_get_secret(client, secret_name):
     return secret
 
 
-def connect_to_db():
+def connect_to_db(secret_name: str = "totesys_db_credentials"):
+    assert secret_name in ["totesys_db_credentials", "totesys_warehouse_credentials"]
     secretsmanager = boto3.client("secretsmanager")
-    creds = db_connections_get_secret(secretsmanager, "totesys_db_credentials")
+    creds = db_connections_get_secret(secretsmanager, secret_name)
     return pg8000.native.Connection(
         user=creds["user"],
         password=creds["password"],
