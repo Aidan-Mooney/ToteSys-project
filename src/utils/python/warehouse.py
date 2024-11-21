@@ -37,6 +37,7 @@ class Warehouse:
         self.s3_client = s3_client
         self.dataframes = {}
         for filename in list_of_filenames:
+            logger.debug(filename)
             if filename[0:6] == "static":
                 table_name = filename[len("static") + 1 : -len(".parquet")]
             else:
