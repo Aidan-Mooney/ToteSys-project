@@ -9,6 +9,8 @@ from unittest.mock import patch
 from datetime import datetime
 from pytest import mark
 
+environ["DEV_ENVIRONMENT"] = "testing"
+
 
 @mock_aws
 def put_parquet_file_to_s3(filepath, bucket_name, s3_client, table_name):
