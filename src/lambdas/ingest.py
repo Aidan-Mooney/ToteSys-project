@@ -47,6 +47,14 @@ def lambda_handler(event, context):
         - converts the data to parquet
         - adds it to the s3 bucket
 
+    Returns:
+        -   a dictionary containing the table names as keys and file_key as value
+        {
+            'table_name_1' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet',
+            'table_name_2' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet',
+            ...
+        }
+
     Logs:
         - INFO when each function is successful
         - CRITICAL when each function fails fatally
@@ -59,7 +67,7 @@ def lambda_handler(event, context):
     bucket_name = os.environ["ingest_bucket_name"]
     end_time = dt.now(
         timezone.utc
-    )  # add timezone or look at the context to see if there's time
+    ) 
     end_time_str = format_time(end_time)
     table_names = event["tables_to_query"]
     return_val = {}
