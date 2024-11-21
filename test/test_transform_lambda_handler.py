@@ -12,6 +12,13 @@ environ["DEV_ENVIRONMENT"] = "testing"
 from src.lambdas.transform import lambda_handler as transform
 from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
 
+ig_bucket_name = "ig_bucket"
+tf_bucket_name = "tf_bucket"
+PATCHED_ENVIRON = {
+    "ingest_bucket_name": ig_bucket_name,
+    "transform_bucket_name": tf_bucket_name,
+}
+
 
 @mock_aws
 def put_parquet_file_to_s3(filepath, bucket_name, s3_client, table_name):
@@ -27,8 +34,6 @@ def put_parquet_file_to_s3(filepath, bucket_name, s3_client, table_name):
     "loads a single table into the warehouse, then its transformed counterpart is added to the transform bucket"
 )
 def test_1():
-    ig_bucket_name = "ig_bucket"
-    tf_bucket_name = "tf_bucket"
     s3_client = client("s3")
     s3_client.create_bucket(
         Bucket=ig_bucket_name,
@@ -47,7 +52,7 @@ def test_1():
     )
     with patch.dict(
         environ,
-        {"ingest_bucket_name": ig_bucket_name, "transform_bucket_name": tf_bucket_name},
+        PATCHED_ENVIRON,
         clear=True,
     ):
         with patch("src.lambdas.transform.datetime") as mock:
@@ -70,8 +75,6 @@ def test_1():
 )
 @mock_aws
 def test_2():
-    ig_bucket_name = "ingest_bucket_name"
-    tf_bucket_name = "transform_bucket_name"
     s3_client = client("s3")
     s3_client.create_bucket(
         Bucket=ig_bucket_name,
@@ -90,7 +93,7 @@ def test_2():
         )
     with patch.dict(
         environ,
-        {"ingest_bucket_name": ig_bucket_name, "transform_bucket_name": tf_bucket_name},
+        PATCHED_ENVIRON,
         clear=True,
     ):
         with patch("src.lambdas.transform.datetime") as mock:
@@ -129,8 +132,6 @@ def test_2():
     "doesn't construct location and department tables when only std_address and std_department are in the event"
 )
 def test_3():
-    ig_bucket_name = "ig_bucket"
-    tf_bucket_name = "tf_bucket"
     s3_client = client("s3")
     s3_client.create_bucket(
         Bucket=ig_bucket_name,
@@ -154,7 +155,7 @@ def test_3():
     )
     with patch.dict(
         environ,
-        {"ingest_bucket_name": ig_bucket_name, "transform_bucket_name": tf_bucket_name},
+        PATCHED_ENVIRON,
         clear=True,
     ):
         transform(
