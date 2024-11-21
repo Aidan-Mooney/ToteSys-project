@@ -13,9 +13,22 @@ else:
     from write_to_s3 import write_to_s3
 
 
-def transform(event, context={}):
-    INGEST_BUCKET_NAME = environ["ig_bucket_name"]
-    TRANSFORM_BUCKET_NAME = environ["tf_bucket_name"]
+def lambda_handler(event, context={}):
+    """
+    Expects an event of the form
+    {
+        "address": "address/yadayada.parquet",
+        "counterparty": "counterparty/yadayada.parquet",
+        "currency": "currency/yadayada.parquet",
+        "design": "design/yadayada.parquet",
+        ...
+        "static_department": "department/yadayada.parquet",
+        "static_address": "address/yadayada.parquet",
+    }
+    and adds the files stored at these paths in the ingest bucket to a Warehouse object. It then extracts the corresponding warehouse tables and places them in the transform s3 bucket.
+    """
+    INGEST_BUCKET_NAME = environ["ingest_bucket_name"]
+    TRANSFORM_BUCKET_NAME = environ["transform_bucket_name"]
     current_time = datetime.now()
     s3_client = client("s3")
     relationships = {

@@ -9,7 +9,7 @@ from pytest import mark
 
 environ["DEV_ENVIRONMENT"] = "testing"
 
-from src.lambdas.transform import transform
+from src.lambdas.transform import lambda_handler as transform
 from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
 
 
@@ -47,7 +47,7 @@ def test_1():
     )
     with patch.dict(
         environ,
-        {"ig_bucket_name": ig_bucket_name, "tf_bucket_name": tf_bucket_name},
+        {"ingest_bucket_name": ig_bucket_name, "transform_bucket_name": tf_bucket_name},
         clear=True,
     ):
         with patch("src.lambdas.transform.datetime") as mock:
@@ -70,8 +70,8 @@ def test_1():
 )
 @mock_aws
 def test_2():
-    ig_bucket_name = "ig_bucket"
-    tf_bucket_name = "tf_bucket"
+    ig_bucket_name = "ingest_bucket_name"
+    tf_bucket_name = "transform_bucket_name"
     s3_client = client("s3")
     s3_client.create_bucket(
         Bucket=ig_bucket_name,
@@ -90,7 +90,7 @@ def test_2():
         )
     with patch.dict(
         environ,
-        {"ig_bucket_name": ig_bucket_name, "tf_bucket_name": tf_bucket_name},
+        {"ingest_bucket_name": ig_bucket_name, "transform_bucket_name": tf_bucket_name},
         clear=True,
     ):
         with patch("src.lambdas.transform.datetime") as mock:
@@ -102,8 +102,8 @@ def test_2():
                     "counterparty": "counterparty/yadayada.parquet",
                     "currency": "currency/yadayada.parquet",
                     "design": "design/yadayada.parquet",
-                    "std_department": "department/yadayada.parquet",
-                    "std_address": "address/yadayada.parquet",
+                    "static_department": "department/yadayada.parquet",
+                    "static_address": "address/yadayada.parquet",
                 }
             )
     tf_parquet_list = [
@@ -154,7 +154,7 @@ def test_3():
     )
     with patch.dict(
         environ,
-        {"ig_bucket_name": ig_bucket_name, "tf_bucket_name": tf_bucket_name},
+        {"ingest_bucket_name": ig_bucket_name, "transform_bucket_name": tf_bucket_name},
         clear=True,
     ):
         transform(
