@@ -1,7 +1,9 @@
 from boto3 import client
+from botocore.exceptions import ClientError
 from src.utils.python.warehouse import Warehouse
 from os import environ
 from datetime import datetime
+from logging import getLogger
 
 if environ["DEV_ENVIRONMENT"] == "testing":
     from src.utils.python.generate_file_key import generate_file_key
@@ -11,6 +13,8 @@ else:
     from generate_file_key import generate_file_key
     from generate_parquet_of_df import generate_parquet_of_df
     from write_to_s3 import write_to_s3
+
+logger = getLogger(__name__)
 
 
 def lambda_handler(event, context={}):
@@ -56,13 +60,20 @@ def lambda_handler(event, context={}):
     for table_name in event:
         if table_name in relationships:
             warehouse_table_name = relationships[table_name]
-            df = getattr(warehouse, warehouse_table_name)
-            file_key = generate_file_key(warehouse_table_name, current_time)
-            write_to_s3(
-                s3_client,
-                TRANSFORM_BUCKET_NAME,
-                file_key=file_key,
-                data=generate_parquet_of_df(df),
-            )
-            transformed_file_paths[table_name] = file_key
+            try:
+                df = getattr(warehouse, warehouse_table_name)
+                file_key = generate_file_key(warehouse_table_name, current_time)
+                write_to_s3(
+                    s3_client,
+                    TRANSFORM_BUCKET_NAME,
+                    file_key=file_key,
+                    data=generate_parquet_of_df(df),
+                )
+                transformed_file_paths[table_name] = file_key
+            except ClientError as c:
+                logger.critical(f"{__name__} failed to write to s3: {c}")
+            except AttributeError as a:
+                logger.critical(
+                    f"Unable to get attribute {warehouse_table_name} from warehouse: {a}"
+                )
     return transformed_file_paths

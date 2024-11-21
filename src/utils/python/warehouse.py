@@ -1,10 +1,14 @@
 from pandas import DataFrame
 from os import environ
+from logging import getLogger
+from botocore.exceptions import ClientError
 
 if environ["DEV_ENVIRONMENT"] == "testing":
     from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
 else:
     from get_df_from_s3_parquet import get_df_from_s3_parquet
+
+logger = getLogger(__name__)
 
 
 class Warehouse:
@@ -37,9 +41,14 @@ class Warehouse:
                 table_name = filename[len("static") + 1 : -len(".parquet")]
             else:
                 table_name = filename[: filename.index("/")]
-            self.dataframes[table_name] = get_df_from_s3_parquet(
-                self.s3_client, bucket_name, filename
-            )
+            try:
+                self.dataframes[table_name] = get_df_from_s3_parquet(
+                    self.s3_client, bucket_name, filename
+                )
+            except ClientError as c:
+                logger.warning(
+                    f"{__name__} encountered error retrieving file {filename} from bucket {bucket_name}: {c}"
+                )
 
     @property
     def dim_design(self) -> DataFrame:
