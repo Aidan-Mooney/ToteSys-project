@@ -17,6 +17,8 @@ tf_bucket_name = "tf_bucket"
 PATCHED_ENVIRON = {
     "ingest_bucket_name": ig_bucket_name,
     "transform_bucket_name": tf_bucket_name,
+    "static_address_path": "static/address.parquet",
+    "static_department_path": "static/department.parquet",
 }
 
 
