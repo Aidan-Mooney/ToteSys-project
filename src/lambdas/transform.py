@@ -30,9 +30,13 @@ def lambda_handler(event, context={}):
     }
     and adds the files stored at these paths in the ingest bucket to a Warehouse object. It then extracts the corresponding warehouse tables and places them in the transform s3 bucket.
     Returns {"table_name_1": "path_to_dim/fact_table_1_in_tf_bucket"
+            "dim_counterparty": "pathtolatestdimcounterparty"
+            "fact_payment": "path..."
                 ...
             }
     """
+    if not event:
+        logger.info("No tables to update")
     INGEST_BUCKET_NAME = environ["ingest_bucket_name"]
     TRANSFORM_BUCKET_NAME = environ["transform_bucket_name"]
     current_time = datetime.now()
@@ -59,8 +63,10 @@ def lambda_handler(event, context={}):
     try:
         warehouse = Warehouse(ingest_paths, INGEST_BUCKET_NAME, s3_client)
     except ValueError as v:
-        logger.critical(f"big fixing {v}")
-        logger.critical(ingest_paths)
+        logger.critical(v)
+    except AttributeError as a:
+        logger.critical(a)
+        raise a
     transformed_file_paths = {}
     for table_name in event:
         if table_name in relationships:
@@ -79,6 +85,6 @@ def lambda_handler(event, context={}):
                 logger.critical(f"{__name__} failed to write to s3: {c}")
             except AttributeError as a:
                 logger.critical(
-                    f"Unable to get attribute {warehouse_table_name} from warehouse: {a}"
+                    f"Unable to accesss attribute {warehouse_table_name} from warehouse: {a}"
                 )
     return transformed_file_paths
