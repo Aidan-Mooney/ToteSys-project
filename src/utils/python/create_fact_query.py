@@ -1,7 +1,6 @@
 from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
 from os import environ 
 from pg8000.native import literal
-from datetime import datetime
 
 
 def create_fact_query(table_name, table_path, s3_client):
