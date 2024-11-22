@@ -1,4 +1,5 @@
 from os import environ
+from pandas import DataFrame
 
 if environ["DEV_ENVIRONMENT"] == "testing":
     from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
@@ -15,11 +16,11 @@ pandas_to_sql_dtype = {
 }
 
 
-def generate_drop_table_statement(table_name):
+def generate_drop_table_statement(table_name: str) -> str:
     return f"DROP TABLE IF EXISTS {table_name};\n"
 
 
-def generate_create_table_statement(table_name, col_dict):
+def generate_create_table_statement(table_name: str, col_dict: dict[str]) -> str:
     if not col_dict:
         raise ValueError("column_dict must be non-empty")
     output = f"CREATE TABLE {table_name} (\n"
@@ -29,7 +30,9 @@ def generate_create_table_statement(table_name, col_dict):
     return output
 
 
-def generate_insert_into_statement(table_name, columns, df):
+def generate_insert_into_statement(
+    table_name: str, columns: list[str], df: DataFrame
+) -> str:
     output = f"INSERT INTO {table_name}\n"
     output += f"    ({', '.join(columns)})\n"
     output += "VALUES\n"
@@ -42,7 +45,7 @@ def generate_insert_into_statement(table_name, columns, df):
     return output + ";"
 
 
-def create_dim_query(table_name, table_path, s3_client):
+def create_dim_query(table_name: str, table_path: str, s3_client) -> str:
     if not table_name:
         raise ValueError("table_name must not be null")
     df = get_df_from_s3_parquet(s3_client, environ["transform_bucket_name"], table_path)
