@@ -18,7 +18,7 @@ def test_1():
     test_table_name = "i_dont_start_with_dim_or_fact"
     test_path = "iamirrelavent.parquet"
     with raises(InvalidTableNameError) as e:
-        generate_warehouse_query(test_table_name, test_path)
+        generate_warehouse_query(test_table_name, test_path, "")
     assert str(e.value) == f"This table has an invalid name: '{test_table_name}'"
 
 
@@ -29,8 +29,8 @@ def test_2():
     with patch(f"{PATCHPATH}.create_fact_query") as fact_func_mock:
         return_val = "test_return"
         fact_func_mock.return_value = return_val
-        generate_warehouse_query(test_table_name, test_path)
-    fact_func_mock.assert_called_once_with(test_table_name, test_path)
+        generate_warehouse_query(test_table_name, test_path, "")
+    fact_func_mock.assert_called_once_with(test_table_name, test_path, "")
 
 
 @mark.it("returns the correct fact query string")
@@ -40,7 +40,7 @@ def test_3():
     with patch(f"{PATCHPATH}.create_fact_query") as fact_func_mock:
         return_val = "test_return"
         fact_func_mock.return_value = return_val
-        result = generate_warehouse_query(test_table_name, test_path)
+        result = generate_warehouse_query(test_table_name, test_path, "")
     assert result == return_val
 
 
@@ -51,8 +51,8 @@ def test_4():
     with patch(f"{PATCHPATH}.create_dim_query") as dim_func_mock:
         return_val = "test_return"
         dim_func_mock.return_value = return_val
-        generate_warehouse_query(test_table_name, test_path)
-    dim_func_mock.assert_called_once_with(test_table_name, test_path)
+        generate_warehouse_query(test_table_name, test_path, "")
+    dim_func_mock.assert_called_once_with(test_table_name, test_path, "")
 
 
 @mark.it("returns the correct dim query string")
@@ -62,5 +62,5 @@ def test_5():
     with patch(f"{PATCHPATH}.create_dim_query") as dim_func_mock:
         return_val = "test_return"
         dim_func_mock.return_value = return_val
-        result = generate_warehouse_query(test_table_name, test_path)
+        result = generate_warehouse_query(test_table_name, test_path, "")
     assert result == return_val
