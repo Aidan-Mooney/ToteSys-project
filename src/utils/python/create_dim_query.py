@@ -25,7 +25,7 @@ def generate_create_table_statement(table_name: str, col_dict: dict[str]) -> str
         raise ValueError("column_dict must be non-empty")
     output = f"CREATE TABLE {table_name} (\n"
     for column, dtype in col_dict.items():
-        if column[-3:] == "_id":
+        if column[-3:] == "_id" and table_name != "dim_date":
             dtype = "INT"
         output += f"    {column} {dtype},\n"
     output += ");\n"
@@ -54,11 +54,23 @@ def create_dim_query(table_name: str, table_path: str, s3_client) -> str:
         raise ValueError("table_name must not be null")
     df = get_df_from_s3_parquet(s3_client, environ["transform_bucket_name"], table_path)
     columns = df.columns.values.tolist()
-    pd_data_type_dict = {col_name: str(df.dtypes[col_name]) for col_name in columns}
-    sql_data_type_dict = {
-        col_name: pandas_to_sql_dtype[value]
-        for col_name, value in pd_data_type_dict.items()
-    }
+    if table_name == "dim_date":
+        sql_data_type_dict = {
+            "date_id": "DATE",
+            "year": "INT",
+            "month": "INT",
+            "day": "INT",
+            "day_of_week": "INT",
+            "day_name": "VARCHAR(100)",
+            "month_name": "VARCHAR(100)",
+            "quarter": "INT",
+        }
+    else:
+        pd_data_type_dict = {col_name: str(df.dtypes[col_name]) for col_name in columns}
+        sql_data_type_dict = {
+            col_name: pandas_to_sql_dtype[value]
+            for col_name, value in pd_data_type_dict.items()
+        }
     sql_string = (
         generate_drop_table_statement(table_name)
         + generate_create_table_statement(table_name, sql_data_type_dict)

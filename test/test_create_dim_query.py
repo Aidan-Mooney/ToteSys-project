@@ -42,6 +42,7 @@ class TestIntegrationTests:
             "dim_payment_type",
             "dim_staff",
             "dim_transaction",
+            "dim_date",
         ],
     )
     def test_2(self, table_name):
