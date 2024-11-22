@@ -1,6 +1,5 @@
 from src.utils.python.create_fact_query import create_fact_query
 from unittest.mock import patch
-from datetime import datetime as dt
 from pandas import DataFrame, read_parquet
 
 PATCH_PATH = "src.utils.python.create_fact_query"
