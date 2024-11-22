@@ -3,7 +3,7 @@ from os import environ
 from pg8000.native import literal
 
 
-def create_fact_query(table_name, table_path, s3_client):
+def create_fact_query(table_name: str, table_path: str, s3_client) -> str:
     """
     SQL Query to check if it exists, return True/False
     If True we append to the existing fact table
