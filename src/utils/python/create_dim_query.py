@@ -1,5 +1,6 @@
 from os import environ
-from pandas import DataFrame
+from pandas import DataFrame, isnull
+from numpy import isnan
 
 if environ["DEV_ENVIRONMENT"] == "testing":
     from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
@@ -25,6 +26,8 @@ def generate_create_table_statement(table_name: str, col_dict: dict[str]) -> str
         raise ValueError("column_dict must be non-empty")
     output = f"CREATE TABLE {table_name} (\n"
     for column, dtype in col_dict.items():
+        if column[-3:] == "_id":
+            dtype = "INT"
         output += f"    {column} {dtype},\n"
     output += ");\n"
     return output
@@ -38,7 +41,9 @@ def generate_insert_into_statement(
     output += "VALUES\n"
     for _, row in df.iterrows():
         row_list = [
-            str(row[column]).replace("'", "''") if row[column] is not None else "NULL"
+            str(row[column]).replace("'", "''")
+            if row[column] is not None and not isnull(row[column])
+            else "NULL"
             for column in columns
         ]
         output += f'    ({", ".join(row_list)})\n'
@@ -49,6 +54,7 @@ def create_dim_query(table_name: str, table_path: str, s3_client) -> str:
     if not table_name:
         raise ValueError("table_name must not be null")
     df = get_df_from_s3_parquet(s3_client, environ["transform_bucket_name"], table_path)
+    print(df.head)
     columns = df.columns.values.tolist()
     pd_data_type_dict = {col_name: str(df.dtypes[col_name]) for col_name in columns}
     sql_data_type_dict = {
