@@ -1,5 +1,5 @@
 from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
-from os import environ
+from os import environ 
 from pg8000.native import literal
 from datetime import datetime
 
@@ -25,12 +25,7 @@ def create_fact_query(table_name, table_path, s3_client):
     for row in facts_vals:
         for i in range(len(row)):
             element = row[i]
-            if type(element) is datetime.date:
-                row[i] = f"DATE({element})"
-            elif type(element) is datetime.time:
-                row[i] = f"CAST({element} AS time)"
-            else:
-                row[i] = literal(element)
+            row[i] = literal(element)
         values = ", ".join(row)
         query += f"({values}),"
 
