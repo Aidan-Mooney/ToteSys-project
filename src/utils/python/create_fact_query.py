@@ -1,6 +1,7 @@
 from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
 from os import environ
-from pandas import DataFrame
+from pg8000.native import literal
+
 
 def create_fact_query(table_name, table_path, s3_client):
     """
@@ -10,58 +11,24 @@ def create_fact_query(table_name, table_path, s3_client):
     return query string to be used to update the table (in a separate function)
     """
 
-    df = get_df_from_s3_parquet(s3_client, bucket_name=environ['transform_bucket_name'], filename=table_path)
+    df = get_df_from_s3_parquet(
+        s3_client, bucket_name=environ["transform_bucket_name"], filename=table_path
+    )
 
     facts_cols = df.columns.values.tolist()
     cols_string = ", ".join(facts_cols)
 
-    query = f"""INSERT INTO {table_name} 
-    ({cols_string})
-    VALUES 
-
-    """
+    query = f"INSERT INTO {table_name} ({cols_string}) VALUES "
 
     facts_vals = df.values.tolist()
-    for val in facts_vals:
-        
-        values = ", ".join(val)
-        query += f'({values})'
+    for row in facts_vals:
+        for i in range(len(row)):
+            element = row[i]
+            row[i] = literal(element)
+        values = ", ".join(row)
+        query += f"({values}),"
 
-    print(query)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return query[:-1] + ";"
 
     # sql_string = """SELECT EXISTS (
     #             SELECT *
@@ -71,17 +38,14 @@ def create_fact_query(table_name, table_path, s3_client):
     # try:
     #     conn.run(sql_string, fact_table = table_name)
 
-
     # except Exception:
     #     # create fact_table here
     #     create_table = f"""CREATE TABLE {table_name} (
     #                         )
     #     """
     #     pass
-    
+
     # finally:
     #     if conn():
     #         close_db_connection(conn)
-    #     return  
-
-    
+    #     return
