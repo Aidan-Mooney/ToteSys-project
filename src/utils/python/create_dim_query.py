@@ -1,6 +1,5 @@
 from os import environ
 from pandas import DataFrame, isnull
-from numpy import isnan
 
 if environ["DEV_ENVIRONMENT"] == "testing":
     from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
