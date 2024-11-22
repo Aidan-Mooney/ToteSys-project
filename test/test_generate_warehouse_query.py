@@ -2,14 +2,15 @@ from os import environ
 from pytest import raises, mark
 from unittest.mock import patch
 
-
-PATCHPATH = "src.utils.python.generate_warehouse_query"
 environ["DEV_ENVIRONMENT"] = "testing"
 
 from src.utils.python.generate_warehouse_query import (
     generate_warehouse_query,
     InvalidTableNameError,
 )
+
+
+PATCHPATH = "src.utils.python.generate_warehouse_query"
 
 
 @mark.it("raises an error if an invalid table name is passed in")
