@@ -1,5 +1,5 @@
 from os import environ
-from pandas import DataFrame, isnull
+from pandas import DataFrame, isnull, Timestamp
 
 if environ["DEV_ENVIRONMENT"] == "testing":
     from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
@@ -32,6 +32,17 @@ def generate_create_table_statement(table_name: str, col_dict: dict[str]) -> str
     return output
 
 
+def format_value(column, value):
+    if value is None or isnull(value):
+        return "NULL"
+    if isinstance(value, Timestamp):
+        if column == "date_id":
+            return value.to_pydatetime().strftime("%Y-%m-%d")
+        else:
+            return str(value)
+    return str(value).replace("'", "''")
+
+
 def generate_insert_into_statement(
     table_name: str, columns: list[str], df: DataFrame
 ) -> str:
@@ -39,12 +50,7 @@ def generate_insert_into_statement(
     output += f"    ({', '.join(columns)})\n"
     output += "VALUES\n"
     for _, row in df.iterrows():
-        row_list = [
-            str(row[column]).replace("'", "''")
-            if row[column] is not None and not isnull(row[column])
-            else "NULL"
-            for column in columns
-        ]
+        row_list = [format_value(column, row[column]) for column in columns]
         output += f'    ({", ".join(row_list)})\n'
     return output + ";"
 
