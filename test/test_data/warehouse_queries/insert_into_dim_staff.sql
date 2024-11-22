@@ -1,12 +1,3 @@
-DROP TABLE IF EXISTS dim_staff;
-CREATE TABLE dim_staff (
-    staff_id INT,
-    first_name VARCHAR(100),
-    last_name VARCHAR(100),
-    email_address VARCHAR(100),
-    department_name VARCHAR(100),
-    location VARCHAR(100),
-);
 INSERT INTO dim_staff
     (staff_id, first_name, last_name, email_address, department_name, location)
 VALUES

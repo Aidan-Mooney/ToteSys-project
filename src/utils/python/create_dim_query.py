@@ -54,7 +54,6 @@ def create_dim_query(table_name: str, table_path: str, s3_client) -> str:
     if not table_name:
         raise ValueError("table_name must not be null")
     df = get_df_from_s3_parquet(s3_client, environ["transform_bucket_name"], table_path)
-    print(df.head)
     columns = df.columns.values.tolist()
     pd_data_type_dict = {col_name: str(df.dtypes[col_name]) for col_name in columns}
     sql_data_type_dict = {

@@ -15,32 +15,42 @@ PATCHPATH = "src.utils.python.create_dim_query"
 PATCHDICT = {"transform_bucket_name": "test"}
 
 
-# @mark.it("raises ValueError if table_name is empty")
-# def test_3(self):
-#     test_table_name = ""
-#     test_column_dict = {
-#         "col_id": "INT",
-#         "col_name": "VARCHAR(100)",
-#         "col_bool": "BOOL",
-#         "col_time": "TIME",
-#         "col_datetime": "DATETIME",
-#         "col_price": "NUMERIC",
-#     }
-#     with raises(ValueError) as e:
-#         generate_create_table_statement(test_table_name, test_column_dict)
-#     assert str(e.value) == "table_name and all columns must not be null"
+def parquet_filepath(table_name):
+    return f"test/test_data/parquet_files/{table_name}.parquet"
 
 
-@mark.context("Integration tests")
+def sql_filepath(filename):
+    return f"test/test_data/warehouse_queries/{filename}.sql"
+
+
+@mark.context("Testing create_dim_query")
 class TestIntegrationTests:
-    @mark.it("generates correct sql query to drop and replace a dim table")
+    @mark.it("raises ValueError if table_name left blank")
     def test_1(self):
+        with raises(ValueError) as e:
+            create_dim_query("", "", "")
+        assert str(e.value) == "table_name must not be null"
+
+    @mark.it("generates correct SQL query to drop and replace")
+    @mark.parametrize(
+        "table_name",
+        [
+            "dim_counterparty",
+            "dim_currency",
+            "dim_design",
+            "dim_location",
+            "dim_payment_type",
+            "dim_staff",
+            "dim_transaction",
+        ],
+    )
+    def test_2(self, table_name):
         with patch.dict(environ, PATCHDICT, clear=True):
             with patch(f"{PATCHPATH}.get_df_from_s3_parquet") as get_df_mock:
-                with open("test/test_data/parquet_files/dim_staff.parquet", "rb") as f:
+                with open(parquet_filepath(table_name), "rb") as f:
                     get_df_mock.return_value = read_parquet(f)
-                result = create_dim_query("staff", "", "")
-        with open("test/test_data/warehouse_queries/dim_staff.sql", "r") as f:
+                result = create_dim_query(table_name, "", "")
+        with open(sql_filepath(table_name), "r") as f:
             expected = f.read()
         assert result == expected
 
@@ -101,5 +111,28 @@ class TestGenerateCreateTableStatementFunction:
         assert str(e.value) == "column_dict must be non-empty"
 
 
-class TestGenerate:
-    print("hello")
+@mark.context("testing generate_insert_into_statement")
+class TestGenerateInsertIntoStatement:
+    @mark.it("produces correct INSERT INTO statement for rows in dim_staff")
+    def test_1(self):
+        test_table_name = "dim_staff"
+        test_df = read_parquet(parquet_filepath(test_table_name))
+        test_df_columns = test_df.columns.values.tolist()
+        result = generate_insert_into_statement(
+            test_table_name, test_df_columns, test_df
+        )
+        with open(sql_filepath(f"insert_into_{test_table_name}"), "r") as f:
+            expected = f.read()
+        assert result == expected
+
+    @mark.it("produces correct INSERT INTO statement for rows in dim_counterparty")
+    def test_2(self):
+        test_table_name = "dim_counterparty"
+        test_df = read_parquet(parquet_filepath(test_table_name))
+        test_df_columns = test_df.columns.values.tolist()
+        result = generate_insert_into_statement(
+            test_table_name, test_df_columns, test_df
+        )
+        with open(sql_filepath(f"insert_into_{test_table_name}"), "r") as f:
+            expected = f.read()
+        assert result == expected
