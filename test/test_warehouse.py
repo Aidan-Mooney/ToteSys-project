@@ -355,10 +355,10 @@ class TestFactSalesOrder:
             "agreed_delivery_date": str,
             "agreed_payment_date": str,
             "agreed_delivery_location_id": int64,
-            "created_date": date,
-            "created_time": time,
-            "last_updated_date": date,
-            "last_updated_time": time,
+            "created_date": str,
+            "created_time": str,
+            "last_updated_date": str,
+            "last_updated_time": str,
         }
         for col in col_dtypes:
             assert isinstance(df.loc[1][col], col_dtypes[col])
@@ -400,10 +400,10 @@ class TestFactPayment:
             "currency_id": int64,
             "payment_type_id": int64,
             "payment_date": str,
-            "created_date": date,
-            "created_time": time,
-            "last_updated_date": date,
-            "last_updated_time": time,
+            "created_date": str,
+            "created_time": str,
+            "last_updated_date": str,
+            "last_updated_time": str,
         }
         for col in col_dtypes:
             assert isinstance(df.loc[1][col], col_dtypes[col])
@@ -450,10 +450,10 @@ class TestFactPurchaseOrder:
             "agreed_delivery_date": str,
             "agreed_payment_date": str,
             "agreed_delivery_location_id": int64,
-            "created_date": date,
-            "created_time": time,
-            "last_updated_date": date,
-            "last_updated_time": time,
+            "created_date": str,
+            "created_time": str,
+            "last_updated_date": str,
+            "last_updated_time": str,
         }
         for col in col_dtypes:
             assert isinstance(df.loc[1][col], col_dtypes[col])
