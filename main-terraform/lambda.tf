@@ -12,13 +12,6 @@ data "archive_file" "transformer" {
   output_path = "${path.module}/../packages/transformer/transform.zip"
 }
 
-data "archive_file" "loader" {
-  type             = "zip"
-  output_file_mode = "0666"
-  source_file = "${path.module}/../src/lambdas/load.py"
-  output_path = "${path.module}/../packages/loader/load.zip"
-}
-
 resource "aws_lambda_function" "ingest_lambda_function" {
   role                  = aws_iam_role.ingest_lambda_role.arn
   function_name         = var.ingest_lambda_name
@@ -62,7 +55,7 @@ resource "aws_lambda_function" "transform_lambda_function" {
                           ]
   timeout               = var.default_timeout
   handler               = "${var.transform_lambda_name}.lambda_handler"
-  layers                = ["arn:aws:lambda:eu-west-2:336392948345:layer:AWSSDKPandas-Python312:14", aws_lambda_layer_version.utils.arn
+  layers                = ["arn:aws:lambda:eu-west-2:336392948345:layer:AWSSDKPandas-Python312:14", aws_lambda_layer_version.utils.arn, aws_lambda_layer_version.dependencies.arn#utils
                           ] 
   environment {
     variables = {ingest_bucket_name = data.aws_ssm_parameter.ingest_bucket_name.value, 
@@ -78,32 +71,3 @@ resource "aws_lambda_function" "transform_lambda_function" {
   }
 }
 
-resource "aws_lambda_function" "load_lambda_function" {
-  role                  = aws_iam_role.load_lambda_role.arn #TODO
-  function_name         = var.load_lambda_name
-  source_code_hash      = data.archive_file.loader.output_base64sha256
-  s3_bucket             = aws_s3_object.load_lambda_file.bucket
-  s3_key                = aws_s3_object.load_lambda_file.id
-  runtime               = var.python_runtime
-  depends_on            = [ 
-                            aws_s3_object.dependencies_lambda_file,
-                            aws_s3_object.load_lambda_file,
-                            aws_iam_role_policy_attachment.s3_load_policy, #TODO
-                            aws_s3_object.utils_file,
-                            aws_cloudwatch_log_group.totesys-cw-log-group
-                          ]
-  timeout               = var.default_timeout
-  handler               = "${var.load_lambda_name}.lambda_handler"
-  layers                = ["arn:aws:lambda:eu-west-2:336392948345:layer:AWSSDKPandas-Python312:14", aws_lambda_layer_version.utils.arn, aws_lambda_layer_version.dependencies.arn
-                          ] 
-  environment {
-    variables = { 
-                 transform_bucket_name = data.aws_ssm_parameter.transform_bucket_name.value, 
-                 DEV_ENVIRONMENT = "deploy"
-                }
-              }
-  logging_config {
-    log_format  = "Text"
-    log_group   = aws_cloudwatch_log_group.totesys-cw-log-group.name
-  }
-}
