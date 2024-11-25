@@ -4,7 +4,7 @@ def create_fact_tables(connect_to_db, close_db_connection):
         CREATE fact table
         Else """
     
-    conn = connect_to_db()
+    conn = connect_to_db(secret_name="totesys_warehouse_credentials")
         
     facts_sales_order_query = """CREATE TABLE IF NOT EXISTS facts_sales_order (
                                     sales_record_id SERIAL PRIMARY KEY,
