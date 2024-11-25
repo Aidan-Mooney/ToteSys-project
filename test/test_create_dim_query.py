@@ -49,10 +49,10 @@ class TestIntegrationTests:
                 with open(parquet_filepath(table_name), "rb") as f:
                     get_df_mock.return_value = read_parquet(f)
                 result = create_dim_query(table_name, "", "")
-        with open(sql_filepath(table_name), "w") as f:
-            # expected = f.read()
-            f.write(result)
-        # assert result == expected
+        with open(sql_filepath(table_name), "r") as f:
+            expected = f.read()
+            # f.write(result)
+        assert result == expected
 
 
 @mark.context("testing generate_delete_from_statement")

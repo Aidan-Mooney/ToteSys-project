@@ -24,7 +24,7 @@ def generate_insert_into_statement(
     output += f"""    ({", ".join(columns)})\n"""
     output += "VALUES\n"
     for _, row in df.iterrows():
-        row_list = [f"'{format_value(column, row[column])}'" for column in columns]
+        row_list = [f"'{format_value(row[column])}'" for column in columns]
         output += f'    ({", ".join(row_list)}),\n'
     return output[:-2] + ";"
 
