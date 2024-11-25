@@ -2,8 +2,8 @@ def query_db(
     sql_string: str,
     connect_to_db,
     close_db_connection,
-    dict_name="response",
-    secret_name="totesys_db_credentials",
+    dict_name: str="response",
+    secret_name: str="totesys_db_credentials",
     **kwargs: dict,
 ):
     """
@@ -15,6 +15,7 @@ def query_db(
     connect_to_db: function which returns connection to a database
     close_db_connection: function which closes database connection
     dict_name: name used in the key of the reponse dictionary
+    secret_name: name of secret stored in AWS Secrets Manager
     kwargs: keys and values passed into SQL query using :-syntax
     """
     conn = connect_to_db(secret_name)
