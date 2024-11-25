@@ -1,6 +1,5 @@
 from numpy import float64, int64, isnan
 from pandas import DataFrame, read_parquet
-from datetime import date, time
 from pytest import fixture, mark, raises
 from os import listdir
 from moto import mock_aws
