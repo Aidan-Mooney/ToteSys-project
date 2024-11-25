@@ -174,10 +174,14 @@ class Warehouse:
                 "agreed_delivery_location_id",
             ]
         ]
-        df["created_date"] = sales_order["created_at"].dt.date
-        df["created_time"] = sales_order["created_at"].dt.time
-        df["last_updated_date"] = sales_order["last_updated"].dt.date
-        df["last_updated_time"] = sales_order["last_updated"].dt.time
+        df["created_date"] = format_date_for_db(sales_order["created_at"].dt.date)
+        df["created_time"] = format_time_for_db(sales_order["created_at"].dt.time)
+        df["last_updated_date"] = format_date_for_db(
+            sales_order["last_updated"].dt.date
+        )
+        df["last_updated_time"] = format_time_for_db(
+            sales_order["last_updated"].dt.time
+        )
         df.rename(columns={"staff_id": "sales_staff_id"}, inplace=True)
         return df
 
@@ -196,10 +200,10 @@ class Warehouse:
                 "payment_date",
             ]
         ]
-        df["created_date"] = payment["created_at"].dt.date
-        df["created_time"] = payment["created_at"].dt.time
-        df["last_updated_date"] = payment["last_updated"].dt.date
-        df["last_updated_time"] = payment["last_updated"].dt.time
+        df["created_date"] = format_date_for_db(payment["created_at"].dt.date)
+        df["created_time"] = format_time_for_db(payment["created_at"].dt.time)
+        df["last_updated_date"] = format_date_for_db(payment["last_updated"].dt.date)
+        df["last_updated_time"] = format_time_for_db(payment["last_updated"].dt.time)
         return df
 
     @property
@@ -219,8 +223,20 @@ class Warehouse:
                 "agreed_delivery_location_id",
             ]
         ]
-        df["created_date"] = purchase_order["created_at"].dt.date
-        df["created_time"] = purchase_order["created_at"].dt.time
-        df["last_updated_date"] = purchase_order["last_updated"].dt.date
-        df["last_updated_time"] = purchase_order["last_updated"].dt.time
+        df["created_date"] = format_date_for_db(purchase_order["created_at"].dt.date)
+        df["created_time"] = format_time_for_db(purchase_order["created_at"].dt.time)
+        df["last_updated_date"] = format_date_for_db(
+            purchase_order["last_updated"].dt.date
+        )
+        df["last_updated_time"] = format_time_for_db(
+            purchase_order["last_updated"].dt.time
+        )
         return df
+
+
+def format_date_for_db(series):
+    return series.apply(lambda x: x.strftime("%Y-%m-%d"))
+
+
+def format_time_for_db(series):
+    return series.apply(lambda x: x.strftime("%H:%M:%S.%f"))
