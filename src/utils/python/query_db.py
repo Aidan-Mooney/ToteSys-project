@@ -3,6 +3,7 @@ def query_db(
     connect_to_db,
     close_db_connection,
     dict_name="response",
+    secret_name="totesys_db_credentials",
     **kwargs: dict,
 ):
     """
@@ -16,7 +17,7 @@ def query_db(
     dict_name: name used in the key of the reponse dictionary
     kwargs: keys and values passed into SQL query using :-syntax
     """
-    conn = connect_to_db()
+    conn = connect_to_db(secret_name)
     db_query = conn.run(sql_string, **kwargs)
     cols = [col["name"] for col in conn.columns]
     close_db_connection(conn)
