@@ -1,5 +1,5 @@
 from src.utils.python.create_fact_tables import create_fact_tables
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 PATCH_PATH = "src.utils.python.create_fact_tables"
 
