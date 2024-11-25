@@ -80,7 +80,7 @@ def lambda_handler(event, context={}):
                     file_key=file_key,
                     data=generate_parquet_of_df(df),
                 )
-                transformed_file_paths[table_name] = file_key
+                transformed_file_paths[relationships[table_name]] = file_key
             except ClientError as c:
                 logger.critical(f"{__name__} failed to write to s3: {c}")
             except AttributeError as a:
