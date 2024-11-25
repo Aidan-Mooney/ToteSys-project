@@ -117,10 +117,10 @@ data "aws_iam_policy_document" "s3_load_document" {
       "${data.aws_ssm_parameter.transform_bucket_arn.value}/*"
     ]
   }
-  statement { # If we have time to refactor this could be its own policy document
+  statement { 
     actions = ["secretsmanager:GetSecretValue"]
 
-    resources = ["${data.aws_ssm_parameter.credentials_secret_arn.value}" 
+    resources = ["${data.aws_ssm_parameter.warehouse_credentials_secret_arn.value}" 
     ]
   }
 }
