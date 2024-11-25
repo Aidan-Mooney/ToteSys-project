@@ -38,6 +38,10 @@ variable "transform_lambda_name" {
   default = "transform"
 }
 
+variable "load_lambda_name" {
+  default = "load"
+}
+
 variable "python_runtime" {
   default = "python3.12"
 }
@@ -57,6 +61,14 @@ variable "credentials_secret_arn" {
 
 data "aws_ssm_parameter" "credentials_secret_arn" {
   name = var.credentials_secret_arn
+}
+
+variable "warehouse_credentials_secret_arn" {
+  default = "secret_warehouse_credentials"
+}
+
+data "aws_ssm_parameter" "warehouse_credentials_secret_arn" {
+  name = var.warehouse_credentials_secret_arn
 }
 
 variable "static_address_path" {
