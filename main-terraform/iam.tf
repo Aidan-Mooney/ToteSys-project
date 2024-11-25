@@ -1,11 +1,16 @@
 resource "aws_iam_role" "ingest_lambda_role" {
     name_prefix = "role-${var.ingest_lambda_name}"
-    assume_role_policy = data.aws_iam_policy_document.assume_role_document.json
+    assume_role_policy = data.aws_iam_policy_document.assume_lambda_role_document.json
 }
 
 resource "aws_iam_role" "transform_lambda_role" {
     name_prefix = "role-${var.transform_lambda_name}"
-    assume_role_policy = data.aws_iam_policy_document.assume_role_document.json
+    assume_role_policy = data.aws_iam_policy_document.assume_lambda_role_document.json
+}
+
+resource "aws_iam_role" "load_lambda_role" {
+    name_prefix = "role-${var.load_lambda_name}"
+    assume_role_policy = data.aws_iam_policy_document.assume_lambda_role_document.json
 }
 
 resource "aws_iam_role" "state_role" {
@@ -19,7 +24,7 @@ resource "aws_iam_role" "eventbridge_role" {
 }
 #####################################################
 
-data "aws_iam_policy_document" "assume_role_document" {
+data "aws_iam_policy_document" "assume_lambda_role_document" {
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
@@ -103,6 +108,22 @@ data "aws_iam_policy_document" "s3_transform_document" {
   }
 }
 
+data "aws_iam_policy_document" "s3_load_document" {
+  statement {
+    
+    actions = ["s3:GetObject"]
+
+    resources = [
+      "${data.aws_ssm_parameter.transform_bucket_arn.value}/*"
+    ]
+  }
+  statement { # If we have time to refactor this could be its own policy document
+    actions = ["secretsmanager:GetSecretValue"]
+
+    resources = ["${data.aws_ssm_parameter.credentials_secret_arn.value}" 
+    ]
+  }
+}
 
 data "aws_iam_policy_document" "invoke_lambdas_document" {
   statement {
@@ -118,6 +139,7 @@ data "aws_iam_policy_document" "invoke_lambdas_document" {
     resources = [
       "${aws_lambda_function.ingest_lambda_function.arn}*",
       "${aws_lambda_function.transform_lambda_function.arn}*",
+      "${aws_lambda_function.load_lambda_function.arn}*",
     ]
   }
 }
@@ -163,13 +185,19 @@ resource "aws_iam_policy" "s3_ingest_policy" {
 resource "aws_iam_policy" "s3_transform_policy" {
     name_prefix = "s3-policy-${var.transform_lambda_name}"
     policy      = data.aws_iam_policy_document.s3_transform_document.json
-    description = "allows cloud service to write to ${data.aws_ssm_parameter.transform_bucket_arn.value}"
+    description = "allows cloud service to write to ${data.aws_ssm_parameter.transform_bucket_arn.value} and read from ${data.aws_ssm_parameter.ingest_bucket_arn.value}"
+}
+
+resource "aws_iam_policy" "s3_load_policy" {
+    name_prefix = "s3-policy-${var.load_lambda_name}"
+    policy      = data.aws_iam_policy_document.s3_load_document.json
+    description = "allows cloud service to read from ${data.aws_ssm_parameter.transform_bucket_arn.value}"
 }
 
 resource "aws_iam_policy" "invoke_lambdas_policy" {
   name_prefix = "invoke-lambda-policy-for-${var.state_machine_name}"
   policy      = data.aws_iam_policy_document.invoke_lambdas_document.json
-  description = "allows cloud service to invoke lambda functions (ingest, transform) by state machine ${var.state_machine_name}"
+  description = "allows cloud service to invoke lambda functions (ingest, transform, load) by state machine ${var.state_machine_name}"
 }
 
 resource "aws_iam_policy" "eventbridge_policy" {
@@ -197,6 +225,11 @@ resource "aws_iam_role_policy_attachment" "s3_transform_code_policy" {
     policy_arn = aws_iam_policy.s3_code_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "s3_load_code_policy" {
+    role = aws_iam_role.load_lambda_role.name
+    policy_arn = aws_iam_policy.s3_code_policy.arn
+}
+
 resource "aws_iam_role_policy_attachment" "s3_ingest_policy" {
     role = aws_iam_role.ingest_lambda_role.name
     policy_arn = aws_iam_policy.s3_ingest_policy.arn
@@ -205,6 +238,11 @@ resource "aws_iam_role_policy_attachment" "s3_ingest_policy" {
 resource "aws_iam_role_policy_attachment" "s3_transform_policy" {
     role = aws_iam_role.transform_lambda_role.name
     policy_arn = aws_iam_policy.s3_transform_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "s3_load_policy" {
+    role = aws_iam_role.load_lambda_role.name
+    policy_arn = aws_iam_policy.s3_load_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "invoke_lambdas_policy_attachment" {
@@ -224,5 +262,10 @@ resource "aws_iam_role_policy_attachment" "lambda_logs-for-ingest-policy" {
 
 resource "aws_iam_role_policy_attachment" "lambda_logs-for-transform-policy" {
   role       = aws_iam_role.transform_lambda_role.name
+  policy_arn = aws_iam_policy.lambda_logging-policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logs-for-load-policy" {
+  role       = aws_iam_role.load_lambda_role.name
   policy_arn = aws_iam_policy.lambda_logging-policy.arn
 }
