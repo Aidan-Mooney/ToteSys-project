@@ -1,5 +1,5 @@
 from src.dim_date import dim_date
-from pandas import DataFrame, Timestamp
+from pandas import DataFrame
 from pytest import mark
 import numpy
 
