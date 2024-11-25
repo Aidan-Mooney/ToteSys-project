@@ -51,7 +51,7 @@ def dim_date(start_year: int, end_year: int) -> DataFrame:
                         ]
                     )
                 except ValueError:
-                    pass
+                    continue
     dim_date = DataFrame(
         date_lines,
         columns=[
