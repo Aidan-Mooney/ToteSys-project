@@ -18,4 +18,4 @@ def lambda_handler(event, context):
     create_fact_tables(connect_to_db, close_db_connection)
     for table_name in event:
         query = generate_warehouse_query(table_name, event[table_name], s3_client)
-        query_db(query, connect_to_db, close_db_connection, table_name)
+        query_db(query, connect_to_db, close_db_connection, table_name, 'totesys_warehouse_credentials')
