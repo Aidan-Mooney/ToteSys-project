@@ -1,6 +1,9 @@
-from src.utils.python.create_fact_query import create_fact_query
+from os import environ
 from unittest.mock import patch
 from pandas import DataFrame, read_parquet
+
+environ["DEV_ENVIRONMENT"] = "testing"
+from src.utils.python.create_fact_query import create_fact_query
 
 PATCH_PATH = "src.utils.python.create_fact_query"
 
@@ -38,4 +41,7 @@ def test_date_time_can_be_used():
         df_mock.return_value = df2
         result = create_fact_query("fact_payment", "", "s3_client")
 
-        assert result == "INSERT INTO fact_payment (transaction_id, created_date, created_time, paid) VALUES (15850, '2024-11-18', '09:01:10.169000', TRUE),(15855, '2024-11-18', '09:52:10.245000', TRUE);"
+        assert (
+            result
+            == "INSERT INTO fact_payment (transaction_id, created_date, created_time, paid) VALUES (2, '2022-11-03', '14:20:52.187000', FALSE),(3, '2022-11-03', '14:20:52.186000', FALSE);"
+        )
