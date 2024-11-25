@@ -38,10 +38,6 @@ variable "transform_lambda_name" {
   default = "transform"
 }
 
-variable "load_lambda_name" {
-  default = "load"
-}
-
 variable "python_runtime" {
   default = "python3.12"
 }
