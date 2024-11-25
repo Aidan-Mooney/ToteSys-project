@@ -1,6 +1,9 @@
-from src.utils.python.create_fact_query import create_fact_query
+from os import environ
 from unittest.mock import patch
 from pandas import DataFrame, read_parquet
+
+environ["DEV_ENVIRONMENT"] = "testing"
+from src.utils.python.create_fact_query import create_fact_query
 
 PATCH_PATH = "src.utils.python.create_fact_query"
 

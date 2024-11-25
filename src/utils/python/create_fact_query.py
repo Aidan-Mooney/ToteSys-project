@@ -1,6 +1,10 @@
-from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
 from os import environ 
 from pg8000.native import literal
+
+if environ["DEV_ENVIRONMENT"] == "testing":
+    from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
+else:
+    from get_df_from_s3_parquet import get_df_from_s3_parquet
 
 
 def create_fact_query(table_name: str, table_path: str, s3_client) -> str:
@@ -13,6 +17,7 @@ def create_fact_query(table_name: str, table_path: str, s3_client) -> str:
         - s3_client: client for s3
 
     Process:
+        - creates fact tables if they do not exist
         - it gets the panda dataframe from corresponding fact_table and file_key
         - fact_cols gets the column names of the fact table
         - adds the fact_cols to the beginning of the insert query statement
