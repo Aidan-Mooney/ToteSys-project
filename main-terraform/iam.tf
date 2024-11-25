@@ -213,7 +213,7 @@ resource "aws_iam_policy" "lambda_logging-policy" {
   policy      = data.aws_iam_policy_document.lambda_logging.json
 }
 
-#########################################################
+##########################################################
 
 resource "aws_iam_role_policy_attachment" "s3_ingest_code_policy" {
     role = aws_iam_role.ingest_lambda_role.name
