@@ -317,8 +317,8 @@ class TestDimStaff:
 class TestFactSalesOrder:
     @mark.it("returns data type dataframe")
     def test_1(self, warehouse_df):
-        df = warehouse_df.fact_sales_order
-        assert isinstance(df, DataFrame)
+        fact_sales_order = warehouse_df.fact_sales_order
+        assert isinstance(fact_sales_order, DataFrame)
 
     @mark.it("has the correct column headers")
     def test_2(self, warehouse_df):
