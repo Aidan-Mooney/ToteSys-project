@@ -277,7 +277,7 @@ def test_3():
 
 
 @mock_aws
-@mark.it("Raises critical log when fails to write to s3")
+@mark.it("raises critical log when fails to write to s3")
 def test_6(caplog):
     s3_client = client("s3")
     s3_client.create_bucket(
@@ -371,5 +371,46 @@ def test_7(caplog):
             )
     assert "CRITICAL" in caplog.text
     assert "Unable to access attribute" in caplog.text
-    # print(f"this guy👉{caplog.text}")
-    # print("helo")
+
+
+@mark.it("has correct return dict")
+@mock_aws
+def test_8():
+    s3_client = client("s3")
+    s3_client.create_bucket(
+        Bucket=ig_bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+    )
+    s3_client.create_bucket(
+        Bucket=tf_bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
+    )
+    put_parquet_file_to_s3(
+        "test/test_data/parquet_files/counterparty.parquet",
+        ig_bucket_name,
+        s3_client,
+        "counterparty",
+    )
+    put_parquet_file_to_s3(
+        "test/test_data/parquet_files/address.parquet",
+        ig_bucket_name,
+        s3_client,
+        "address",
+        True,
+    )
+    with patch.dict(
+        environ,
+        PATCHED_ENVIRON,
+        clear=True,
+    ):
+        with patch("src.lambdas.transform.datetime") as mock:
+            test_time = [2024, 11, 20, 21, 48]
+            mock.now.return_value = datetime(*test_time)
+            result = transform(
+                {
+                    "counterparty": "counterparty/yadayada.parquet",
+                }
+            )
+    assert result == {
+        "dim_counterparty": "dim_counterparty/2024/11/20/214800000000.parquet"
+    }
