@@ -104,6 +104,24 @@ data "aws_iam_policy_document" "s3_transform_document" {
 }
 
 
+data "aws_iam_policy_document" "s3_load_document" {
+  statement {
+    
+    actions = ["s3:GetObject"]
+
+    resources = [
+      "${data.aws_ssm_parameter.transform_bucket_arn.value}/*"
+    ]
+  }
+  statement { 
+    actions = ["secretsmanager:GetSecretValue"]
+
+    resources = ["${data.aws_ssm_parameter.warehouse_credentials_secret_arn.value}" 
+    ]
+  }
+}
+
+
 data "aws_iam_policy_document" "invoke_lambdas_document" {
   statement {
 
