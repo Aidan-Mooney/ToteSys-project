@@ -108,22 +108,6 @@ data "aws_iam_policy_document" "s3_transform_document" {
   }
 }
 
-data "aws_iam_policy_document" "s3_load_document" {
-  statement {
-    
-    actions = ["s3:GetObject"]
-
-    resources = [
-      "${data.aws_ssm_parameter.transform_bucket_arn.value}/*"
-    ]
-  }
-  statement { # If we have time to refactor this could be its own policy document
-    actions = ["secretsmanager:GetSecretValue"]
-
-    resources = ["${data.aws_ssm_parameter.credentials_secret_arn.value}" 
-    ]
-  }
-}
 
 data "aws_iam_policy_document" "s3_load_document" {
   statement {
