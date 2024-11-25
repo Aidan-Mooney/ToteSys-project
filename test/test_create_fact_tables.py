@@ -1,21 +1,18 @@
-def create_fact_tables(connect_to_db, close_db_connection):
-    """
-    Input:
-        - connect_to_db: connects to the database
-        - close_db_connection: closes the database connection
+from src.utils.python.create_fact_tables import create_fact_tables
+from unittest.mock import Mock, patch
 
-    Process:
-        - connects to the warehouse db
-        - creates fact sales order query created if it doesn't exist
-        - creates fact payment query created if it doesn't exist
-        - creates fact purchase order query created if it doesn't exist
-        - runs the query
-        - closes database connection
-    """
+PATCH_PATH = "src.utils.python.create_fact_tables"
 
-    conn = connect_to_db(secret_name="totesys_warehouse_credentials")
 
-    facts_sales_order_query = """
+def test_create_fact_tables():
+    connect_to_db_mock = Mock()
+    connect_to_db_mock.return_value = Mock()
+    close_db_connection_mock = Mock()
+    create_fact_tables(connect_to_db_mock, close_db_connection_mock)
+    assert close_db_connection_mock.call_count == 1
+    assert (
+        connect_to_db_mock.return_value.run.call_args[0][0]
+        == """
 CREATE TABLE IF NOT EXISTS fact_sales_order (
 sales_record_id SERIAL PRIMARY KEY,
 sales_order_id INT NOT NULL,
@@ -32,11 +29,7 @@ design_id INT NOT NULL,
 agreed_payment_date DATE NOT NULL,
 agreed_delivery_date DATE NOT NULL,
 agreed_delivery_location_id INT NOT NULL
-);
-""".strip()
-
-    facts_payment_query = """
-CREATE TABLE IF NOT EXISTS fact_payment (
+);CREATE TABLE IF NOT EXISTS fact_payment (
 payment_record_id SERIAL PRIMARY KEY,
 payment_id INT NOT NULL,
 created_date DATE NOT NULL,
@@ -50,11 +43,7 @@ currency_id INT NOT NULL,
 payment_type_id INT NOT NULL,
 paid BOOL NOT NULL,
 payment_date DATE NOT NULL
-);
-""".strip()
-
-    fact_purchase_order_query = """
-CREATE TABLE IF NOT EXISTS fact_purchase_order (
+);CREATE TABLE IF NOT EXISTS fact_purchase_order (
 purchase_record_id SERIAL PRIMARY KEY,
 purchase_order_id INT NOT NULL,
 created_date DATE NOT NULL,
@@ -72,13 +61,4 @@ agreed_delivery_date DATE NOT NULL,
 agreed_delivery_location_id INT NOT NULL
 );
 """.strip()
-
-    sql_string = (
-        facts_sales_order_query + facts_payment_query + fact_purchase_order_query
     )
-
-    try:
-        conn.run(sql_string)
-
-    finally:
-        close_db_connection(conn)
