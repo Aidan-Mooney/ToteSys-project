@@ -51,8 +51,8 @@ def dim_date(start_year: int, end_year: int) -> DataFrame:
                         ]
                     )
                 except ValueError:
-                    continue
-    return DataFrame(
+                    pass
+    dim_date = DataFrame(
         date_lines,
         columns=[
             "date_id",
@@ -65,5 +65,15 @@ def dim_date(start_year: int, end_year: int) -> DataFrame:
             "quarter",
         ],
     )
-# if __name__ == "__main__":
-#     dim_date(2020, 2026).to_parquet("data/dim_date.parquet")
+    dim_date["date_id"] = format_date_for_db(dim_date["date_id"])
+    return dim_date
+
+
+def format_date_for_db(series):
+    return series.apply(lambda x: x.strftime("%Y-%m-%d"))
+
+
+if __name__ == "__main__":
+    df = dim_date(2020, 2026)
+    df.to_parquet("data/dim_date.parquet")
+    df.to_parquet("test/test_data/parquet_files/dim_date.parquet")
