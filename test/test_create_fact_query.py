@@ -43,5 +43,5 @@ def test_date_time_can_be_used():
 
         assert (
             result
-            == "INSERT INTO fact_payment (transaction_id, created_date, created_time, paid) VALUES (2, '2022-11-03', '14:20:52.187000', FALSE),(3, '2022-11-03', '14:20:52.186000', FALSE);"
+            == "INSERT INTO fact_payment (transaction_id, created_date, created_time, paid) VALUES ('2', '2022-11-03', '14:20:52.187000', 'False'),('3', '2022-11-03', '14:20:52.186000', 'False');"
         )

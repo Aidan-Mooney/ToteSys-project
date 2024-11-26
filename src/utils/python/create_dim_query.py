@@ -8,7 +8,7 @@ else:
 
 
 def format_value(value):
-    if value is None or isnull(value):
+    if isnull(value) or value in [None, "NULL"]:
         return "NULL"
     return str(value).replace("'", "''")
 
@@ -35,7 +35,7 @@ def generate_insert_into_statement(
         [
             f"    {column} = EXCLUDED.{column}"
             for column in columns
-            if column[-3:] != "_id"
+            if column != f"{table_name[4:]}_id"
         ]
     )
     return output + ";"

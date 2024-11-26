@@ -46,7 +46,11 @@ class TestIntegrationTests:
                 with open(parquet_filepath(table_name), "rb") as f:
                     get_df_mock.return_value = read_parquet(f)
                 result = create_dim_query(table_name, "", "")
-        with open(sql_filepath(table_name), "r") as f:
-            expected = f.read()
-            # f.write(result)
-        assert result == expected
+        WRITING = False  # when true, writes new SQL queries rather than tests equality against the SQL files. Set to False for normal testing
+        if WRITING:
+            with open(sql_filepath(table_name), "w") as f:
+                f.write(result)
+        else:
+            with open(sql_filepath(table_name), "r") as f:
+                expected = f.read()
+            assert result == expected
