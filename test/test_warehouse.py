@@ -101,7 +101,7 @@ class TestDimDesign:
     def test_4(self, warehouse_df):
         design_df = warehouse_df.dim_design
 
-        assert isinstance(design_df.loc[1]["design_id"], int64)
+        assert isinstance(design_df.loc[1]["design_id"], str)
         assert isinstance(design_df.loc[1]["design_name"], str)
         assert isinstance(design_df.loc[1]["file_location"], str)
         assert isinstance(design_df.loc[1]["file_name"], str)
@@ -111,7 +111,7 @@ class TestDimDesign:
         design_df = warehouse_df.dim_design
         row = design_df.loc[1]
 
-        assert row["design_id"] == 51
+        assert row["design_id"] == "51"
         assert row["design_name"] == "Bronze"
         assert row["file_location"] == "/private"
         assert row["file_name"] == "bronze-20221024-4dds.json"
@@ -141,7 +141,7 @@ class TestDimTransaction:
     def test_8(self, warehouse_df):
         transaction_df = warehouse_df.dim_transaction
 
-        assert isinstance(transaction_df.loc[1]["transaction_id"], int64)
+        assert isinstance(transaction_df.loc[1]["transaction_id"], str)
         assert isinstance(transaction_df.loc[1]["transaction_type"], str)
         assert isinstance(transaction_df.loc[1]["sales_order_id"], int | str)
         assert isinstance(transaction_df.loc[1]["purchase_order_id"], int | str)
@@ -151,10 +151,10 @@ class TestDimTransaction:
         transaction_df = warehouse_df.dim_transaction
         row = transaction_df.loc[100]
 
-        assert row["transaction_id"] == 101
+        assert row["transaction_id"] == "101"
         assert row["transaction_type"] == "PURCHASE"
         assert row["sales_order_id"] == "NULL"
-        assert row["purchase_order_id"] == 62
+        assert row["purchase_order_id"] == "62"
 
 
 @mark.context("dim_counterparty")
@@ -199,7 +199,7 @@ class TestDimCounterparty:
         assert isinstance(
             counterparty_df.loc[3]["counterparty_legal_phone_number"], str
         )
-        assert isinstance(counterparty_df.loc[3]["counterparty_id"], int64)
+        assert isinstance(counterparty_df.loc[3]["counterparty_id"], str)
         assert isinstance(counterparty_df.loc[3]["counterparty_legal_name"], str)
 
 
@@ -218,7 +218,7 @@ class TestDimCurrency:
     @mark.it("has columns containing the correct data types")
     def test_3(self, warehouse_df):
         df = warehouse_df.dim_currency
-        col_dtypes = {"currency_id": int64, "currency_code": str, "currency_name": str}
+        col_dtypes = {"currency_id": str, "currency_code": str, "currency_name": str}
         for col in col_dtypes:
             assert isinstance(df.loc[1][col], col_dtypes[col])
 
@@ -238,7 +238,7 @@ class TestDimPaymentType:
     @mark.it("has columns containing the correct data types")
     def test_3(self, warehouse_df):
         df = warehouse_df.dim_payment_type
-        col_dtypes = {"payment_type_id": int64, "payment_type_name": str}
+        col_dtypes = {"payment_type_id": str, "payment_type_name": str}
         for col in col_dtypes:
             assert isinstance(df.loc[1][col], col_dtypes[col])
 
@@ -268,7 +268,7 @@ class TestDimLocation:
     def test_3(self, warehouse_df):
         df = warehouse_df.dim_location
         col_dtypes = {
-            "location_id": int64,
+            "location_id": str,
             "address_line_1": str,
             "city": str,
             "postal_code": str,
@@ -302,7 +302,7 @@ class TestDimStaff:
     def test_3(self, warehouse_df):
         df = warehouse_df.dim_staff
         col_dtypes = {
-            "staff_id": int64,
+            "staff_id": str,
             "first_name": str,
             "last_name": str,
             "email_address": str,
@@ -344,16 +344,16 @@ class TestFactSalesOrder:
     def test_3(self, warehouse_df):
         df = warehouse_df.fact_sales_order
         col_dtypes = {
-            "sales_order_id": int64,
-            "design_id": int64,
-            "sales_staff_id": int64,
-            "counterparty_id": int64,
-            "units_sold": int64,
-            "unit_price": float64,
-            "currency_id": int64,
+            "sales_order_id": str,
+            "design_id": str,
+            "sales_staff_id": str,
+            "counterparty_id": str,
+            "units_sold": str,
+            "unit_price": str,
+            "currency_id": str,
             "agreed_delivery_date": str,
             "agreed_payment_date": str,
-            "agreed_delivery_location_id": int64,
+            "agreed_delivery_location_id": str,
             "created_date": str,
             "created_time": str,
             "last_updated_date": str,
@@ -392,12 +392,12 @@ class TestFactPayment:
     def test_3(self, warehouse_df):
         df = warehouse_df.fact_payment
         col_dtypes = {
-            "payment_id": int64,
-            "transaction_id": int64,
-            "counterparty_id": int64,
-            "payment_amount": float64,
-            "currency_id": int64,
-            "payment_type_id": int64,
+            "payment_id": str,
+            "transaction_id": str,
+            "counterparty_id": str,
+            "payment_amount": str,
+            "currency_id": str,
+            "payment_type_id": str,
             "payment_date": str,
             "created_date": str,
             "created_time": str,
@@ -439,16 +439,16 @@ class TestFactPurchaseOrder:
     def test_3(self, warehouse_df):
         df = warehouse_df.fact_purchase_order
         col_dtypes = {
-            "purchase_order_id": int64,
-            "staff_id": int64,
-            "counterparty_id": int64,
+            "purchase_order_id": str,
+            "staff_id": str,
+            "counterparty_id": str,
             "item_code": str,
-            "item_quantity": int64,
-            "item_unit_price": float64,
-            "currency_id": int64,
+            "item_quantity": str,
+            "item_unit_price": str,
+            "currency_id": str,
             "agreed_delivery_date": str,
             "agreed_payment_date": str,
-            "agreed_delivery_location_id": int64,
+            "agreed_delivery_location_id": str,
             "created_date": str,
             "created_time": str,
             "last_updated_date": str,

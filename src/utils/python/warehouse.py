@@ -207,6 +207,7 @@ class Warehouse:
         df["created_time"] = format_time_for_db(payment["created_at"].dt.time)
         df["last_updated_date"] = format_date_for_db(payment["last_updated"].dt.date)
         df["last_updated_time"] = format_time_for_db(payment["last_updated"].dt.time)
+        print(df)
         return none_to_NULL(df)
 
     @property
@@ -250,4 +251,4 @@ def format_str_to_int(series):
 
 
 def none_to_NULL(df):
-    return df.apply(lambda x: x.apply(lambda y: "NULL" if not y else str(y)))
+    return df.apply(lambda x: x.apply(lambda y: "NULL" if y is None else str(y)))
