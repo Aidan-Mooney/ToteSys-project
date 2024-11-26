@@ -1,4 +1,3 @@
-DELETE FROM dim_transaction;
 INSERT INTO dim_transaction
     (transaction_id, transaction_type, sales_order_id, purchase_order_id)
 VALUES

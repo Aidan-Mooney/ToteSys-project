@@ -1,4 +1,3 @@
-DELETE FROM dim_location;
 INSERT INTO dim_location
     (location_id, address_line_1, address_line_2, district, city, postal_code, country, phone)
 VALUES
