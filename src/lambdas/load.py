@@ -1,4 +1,4 @@
-from logging import getLogger
+from logging import getLogger, INFO
 from os import environ
 
 from boto3 import client
@@ -14,6 +14,7 @@ else:
     from query_db import query_db
 
 logger = getLogger(__name__)
+logger.setLevel(INFO)
 
 
 def lambda_handler(event, context):
