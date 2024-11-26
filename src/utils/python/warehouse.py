@@ -2,6 +2,7 @@ from pandas import DataFrame
 from os import environ
 from logging import getLogger
 from botocore.exceptions import ClientError
+from numpy import isnan
 
 if environ["DEV_ENVIRONMENT"] == "testing":
     from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
@@ -55,7 +56,7 @@ class Warehouse:
     def dim_design(self) -> DataFrame:
         design = self.dataframes["design"]
         df = design[["design_id", "design_name", "file_location", "file_name"]]
-        return df
+        return none_to_NULL(df)
 
     @property
     def dim_transaction(self) -> DataFrame:
@@ -68,7 +69,9 @@ class Warehouse:
                 "purchase_order_id",
             ]
         ]
-        return df
+        df["sales_order_id"] = format_str_to_int(df["sales_order_id"])
+        df["purchase_order_id"] = format_str_to_int(df["purchase_order_id"])
+        return none_to_NULL(df)
 
     @property
     def dim_counterparty(self) -> DataFrame:
@@ -106,7 +109,7 @@ class Warehouse:
         )
         df = address_cols.merge(counterparty_cols, how="inner", on="address_id")
         df.drop(columns=["address_id"], inplace=True)
-        return df
+        return none_to_NULL(df)
 
     @property
     def dim_currency(self) -> DataFrame:
@@ -119,13 +122,13 @@ class Warehouse:
         names_cols = DataFrame(names, columns=["currency_code", "currency_name"])
         currency_cols = currency[["currency_id", "currency_code"]]
         df = currency_cols.merge(names_cols, how="outer", on="currency_code")
-        return df
+        return none_to_NULL(df)
 
     @property
     def dim_payment_type(self) -> DataFrame:
         payment_type = self.dataframes["payment_type"]
         df = payment_type[["payment_type_id", "payment_type_name"]]
-        return df
+        return none_to_NULL(df)
 
     @property
     def dim_location(self) -> DataFrame:
@@ -143,7 +146,7 @@ class Warehouse:
             ]
         ]
         df.rename(columns={"address_id": "location_id"}, inplace=True)
-        return df
+        return none_to_NULL(df)
 
     @property
     def dim_staff(self) -> DataFrame:
@@ -155,7 +158,7 @@ class Warehouse:
         department_cols = department[["department_name", "location", "department_id"]]
         df = staff_cols.merge(department_cols, how="inner", on="department_id")
         df.drop(columns=["department_id"], inplace=True)
-        return df
+        return none_to_NULL(df)
 
     @property
     def fact_sales_order(self) -> DataFrame:
@@ -183,7 +186,7 @@ class Warehouse:
             sales_order["last_updated"].dt.time
         )
         df.rename(columns={"staff_id": "sales_staff_id"}, inplace=True)
-        return df
+        return none_to_NULL(df)
 
     @property
     def fact_payment(self) -> DataFrame:
@@ -204,7 +207,7 @@ class Warehouse:
         df["created_time"] = format_time_for_db(payment["created_at"].dt.time)
         df["last_updated_date"] = format_date_for_db(payment["last_updated"].dt.date)
         df["last_updated_time"] = format_time_for_db(payment["last_updated"].dt.time)
-        return df
+        return none_to_NULL(df)
 
     @property
     def fact_purchase_order(self) -> DataFrame:
@@ -231,7 +234,7 @@ class Warehouse:
         df["last_updated_time"] = format_time_for_db(
             purchase_order["last_updated"].dt.time
         )
-        return df
+        return none_to_NULL(df)
 
 
 def format_date_for_db(series):
@@ -240,3 +243,11 @@ def format_date_for_db(series):
 
 def format_time_for_db(series):
     return series.apply(lambda x: x.strftime("%H:%M:%S.%f"))
+
+
+def format_str_to_int(series):
+    return series.apply(lambda x: "NULL" if isnan(x) else str(int(float(x))))
+
+
+def none_to_NULL(df):
+    return df.apply(lambda x: x.apply(lambda y: "NULL" if not y else str(y)))

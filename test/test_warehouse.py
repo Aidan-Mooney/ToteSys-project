@@ -1,4 +1,4 @@
-from numpy import float64, int64, isnan
+from numpy import float64, int64
 from pandas import DataFrame, read_parquet
 from pytest import fixture, mark, raises
 from os import listdir
@@ -143,8 +143,8 @@ class TestDimTransaction:
 
         assert isinstance(transaction_df.loc[1]["transaction_id"], int64)
         assert isinstance(transaction_df.loc[1]["transaction_type"], str)
-        assert isinstance(transaction_df.loc[1]["sales_order_id"], float64)
-        assert isinstance(transaction_df.loc[1]["purchase_order_id"], float64)
+        assert isinstance(transaction_df.loc[1]["sales_order_id"], int | str)
+        assert isinstance(transaction_df.loc[1]["purchase_order_id"], int | str)
 
     @mark.it("checks that dim transaction dataframe returns correct values within rows")
     def test_9(self, warehouse_df):
@@ -153,8 +153,8 @@ class TestDimTransaction:
 
         assert row["transaction_id"] == 101
         assert row["transaction_type"] == "PURCHASE"
-        assert isnan(row["sales_order_id"])
-        assert row["purchase_order_id"] == 62.0
+        assert row["sales_order_id"] == "NULL"
+        assert row["purchase_order_id"] == 62
 
 
 @mark.context("dim_counterparty")
