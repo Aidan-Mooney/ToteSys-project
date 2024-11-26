@@ -4,10 +4,7 @@ from pandas import read_parquet
 from pytest import mark, raises
 
 environ["DEV_ENVIRONMENT"] = "testing"
-from src.utils.python.create_dim_query import (
-    create_dim_query,
-    generate_delete_from_statement,
-)
+from src.utils.python.create_dim_query import create_dim_query
 
 PATCHPATH = "src.utils.python.create_dim_query"
 PATCHDICT = {"transform_bucket_name": "test"}
@@ -53,19 +50,3 @@ class TestIntegrationTests:
             expected = f.read()
             # f.write(result)
         assert result == expected
-
-
-@mark.context("testing generate_delete_from_statement")
-class TestGenerateDeleteFromStatementFunction:
-    @mark.it("produces drop table statement with correct table_name")
-    def test_1(self):
-        test_table_name = "test_name"
-        expected = "DELETE FROM test_name;\n"
-        result = generate_delete_from_statement(test_table_name)
-        assert result == expected
-
-    @mark.it("ends with semicolon plus newline character")
-    def test_2(self):
-        test_table_name = "test_name"
-        result = generate_delete_from_statement(test_table_name)
-        assert result[-2:] == ";\n"
