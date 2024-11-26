@@ -213,7 +213,7 @@ resource "aws_iam_policy" "eventbridge_policy" {
   description = "allows cloud service to start execution on state machine ${var.state_machine_name}"
 }
 
-resource "aws_iam_policy" "lambda_logging-policy" {
+resource "aws_iam_policy" "lambda_logging_policy" {
   name        = "lambda_logging"
   path        = "/"
   description = "IAM policy for logging from a lambda"
@@ -264,15 +264,15 @@ resource "aws_iam_role_policy_attachment" "eventbridge_policy_attachment" {
   
 resource "aws_iam_role_policy_attachment" "lambda_logs_for_ingest_policy" {
   role       = aws_iam_role.ingest_lambda_role.name
-  policy_arn = aws_iam_policy.lambda_logging-policy.arn
+  policy_arn = aws_iam_policy.lambda_logging_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_logs_for_transform_policy" {
   role       = aws_iam_role.transform_lambda_role.name
-  policy_arn = aws_iam_policy.lambda_logging-policy.arn
+  policy_arn = aws_iam_policy.lambda_logging_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_logs_for_load_policy" {
   role       = aws_iam_role.load_lambda_role.name
-  policy_arn = aws_iam_policy.lambda_logging-policy.arn
+  policy_arn = aws_iam_policy.lambda_logging_policy.arn
 }

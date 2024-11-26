@@ -29,7 +29,7 @@ resource "aws_lambda_function" "ingest_lambda_function" {
   depends_on            = [ aws_s3_object.dependencies_lambda_file,
                             aws_s3_object.ingest_lambda_file,
                             aws_s3_object.utils_file,
-                            aws_iam_role_policy_attachment.lambda_logs-for-ingest-policy,
+                            aws_iam_role_policy_attachment.lambda_logs_for_ingest_policy,
                             aws_cloudwatch_log_group.totesys-cw-log-group,
                             ]
   timeout               = var.default_timeout
@@ -56,7 +56,7 @@ resource "aws_lambda_function" "transform_lambda_function" {
   s3_key                = aws_s3_object.transform_lambda_file.id
   runtime               = var.python_runtime
   depends_on            = [ aws_s3_object.transform_lambda_file,
-                            aws_iam_role_policy_attachment.s3_transform_policy,
+                            aws_iam_role_policy_attachment.transform_policy,
                             aws_s3_object.utils_file,
                             aws_cloudwatch_log_group.totesys-cw-log-group
                           ]
@@ -79,7 +79,7 @@ resource "aws_lambda_function" "transform_lambda_function" {
 }
 
 resource "aws_lambda_function" "load_lambda_function" {
-  role                  = aws_iam_role.load_lambda_role.arn #TODO
+  role                  = aws_iam_role.load_lambda_role.arn
   function_name         = var.load_lambda_name
   source_code_hash      = data.archive_file.loader.output_base64sha256
   s3_bucket             = aws_s3_object.load_lambda_file.bucket
@@ -88,7 +88,7 @@ resource "aws_lambda_function" "load_lambda_function" {
   depends_on            = [ 
                             aws_s3_object.dependencies_lambda_file,
                             aws_s3_object.load_lambda_file,
-                            aws_iam_role_policy_attachment.s3_load_policy, #TODO
+                            aws_iam_role_policy_attachment.load_policy,
                             aws_s3_object.utils_file,
                             aws_cloudwatch_log_group.totesys-cw-log-group
                           ]
