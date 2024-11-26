@@ -22,7 +22,7 @@ def lambda_handler(event, context):
     #     create_fact_tables(connect_to_db, close_db_connection)
     # except DatabaseError as de:
     #     logger.critical(f'Failed to create fact tables: {de}')
-    for table_name in event:
+    for table_name in sorted(event):
         query = generate_warehouse_query(table_name, event[table_name], s3_client)
         try:
             query_db(
