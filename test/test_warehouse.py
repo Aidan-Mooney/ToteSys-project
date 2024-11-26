@@ -1,4 +1,3 @@
-from numpy import float64, int64
 from pandas import DataFrame, read_parquet
 from pytest import fixture, mark, raises
 from os import listdir
