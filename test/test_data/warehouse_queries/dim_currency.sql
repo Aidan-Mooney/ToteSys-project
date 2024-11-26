@@ -1,4 +1,3 @@
-DELETE FROM dim_currency;
 INSERT INTO dim_currency
     (currency_id, currency_code, currency_name)
 VALUES

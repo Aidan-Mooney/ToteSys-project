@@ -1,4 +1,3 @@
-DELETE FROM dim_design;
 INSERT INTO dim_design
     (design_id, design_name, file_location, file_name)
 VALUES

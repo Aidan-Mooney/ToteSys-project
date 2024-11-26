@@ -1,4 +1,3 @@
-DELETE FROM dim_counterparty;
 INSERT INTO dim_counterparty
     (counterparty_legal_address_line_1, counterparty_legal_address_line_2, counterparty_legal_district, counterparty_legal_city, counterparty_legal_postal_code, counterparty_legal_country, counterparty_legal_phone_number, counterparty_id, counterparty_legal_name)
 VALUES
