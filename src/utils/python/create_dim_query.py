@@ -23,10 +23,20 @@ def generate_insert_into_statement(
     output = f"INSERT INTO {table_name}\n"
     output += f"""    ({", ".join(columns)})\n"""
     output += "VALUES\n"
+    value_rows = []
     for _, row in df.iterrows():
         row_list = [f"'{format_value(row[column])}'" for column in columns]
-        output += f'    ({", ".join(row_list)}),\n'
-    return output[:-2] + ";"
+        value_rows.append(f'    ({", ".join(row_list)})')
+    output += ",\n".join(value_rows)
+    output += f"\nON CONFLICT ({table_name[4:]}_id) DO UPDATE\nSET\n"
+    output += ",\n".join(
+        [
+            f"    {column} = EXCLUDED.{column}"
+            for column in columns
+            if column[-3:] != "_id"
+        ]
+    )
+    return output + ";"
 
 
 def create_dim_query(table_name: str, table_path: str, s3_client) -> str:

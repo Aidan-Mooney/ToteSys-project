@@ -2193,4 +2193,13 @@ VALUES
     ('2025-12-28', '2025', '12', '28', '6', 'Sunday', 'December', '4'),
     ('2025-12-29', '2025', '12', '29', '0', 'Monday', 'December', '4'),
     ('2025-12-30', '2025', '12', '30', '1', 'Tuesday', 'December', '4'),
-    ('2025-12-31', '2025', '12', '31', '2', 'Wednesday', 'December', '4');
+    ('2025-12-31', '2025', '12', '31', '2', 'Wednesday', 'December', '4')
+ON CONFLICT (date_id) DO UPDATE
+SET
+    year = EXCLUDED.year,
+    month = EXCLUDED.month,
+    day = EXCLUDED.day,
+    day_of_week = EXCLUDED.day_of_week,
+    day_name = EXCLUDED.day_name,
+    month_name = EXCLUDED.month_name,
+    quarter = EXCLUDED.quarter;
