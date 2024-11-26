@@ -70,15 +70,20 @@ data "aws_iam_policy_document" "s3_code_document" {
   }
 }
 
-data "aws_iam_policy_document" "s3_ingest_document" {
+data "aws_iam_policy_document" "ingest_policy_document" {
   statement {
 
-    actions = ["s3:PutObject",
-                "s3:ListBucket"]
+    actions = ["s3:PutObject"]
 
     resources = [
-      "${data.aws_ssm_parameter.ingest_bucket_arn.value}/*",
-      "${data.aws_ssm_parameter.ingest_bucket_arn.value}"
+      "${data.aws_ssm_parameter.ingest_bucket_arn.value}/*"
+    ]
+  }
+  statement {
+
+    actions = ["s3:ListBucket"]
+
+    resources = ["${data.aws_ssm_parameter.ingest_bucket_arn.value}"
     ]
   }
   statement {
@@ -89,7 +94,7 @@ data "aws_iam_policy_document" "s3_ingest_document" {
   }
 }
 
-data "aws_iam_policy_document" "s3_transform_document" {
+data "aws_iam_policy_document" "transform_policy_document" {
   statement {
 
     actions = ["s3:PutObject"]
@@ -109,7 +114,7 @@ data "aws_iam_policy_document" "s3_transform_document" {
 }
 
 
-data "aws_iam_policy_document" "s3_load_document" {
+data "aws_iam_policy_document" "load_policy_document" {
   statement {
     
     actions = ["s3:GetObject"]
@@ -178,21 +183,21 @@ resource "aws_iam_policy" "s3_code_policy" {
     description = "allows cloud service to access objects inside ${aws_s3_bucket.code_bucket.arn}"
 }
 
-resource "aws_iam_policy" "s3_ingest_policy" {
+resource "aws_iam_policy" "ingest_policy" {
     name_prefix = "s3-policy-${var.ingest_lambda_name}"
-    policy      = data.aws_iam_policy_document.s3_ingest_document.json
+    policy      = data.aws_iam_policy_document.ingest_policy_document.json
     description = "allows cloud service to write to ${data.aws_ssm_parameter.ingest_bucket_arn.value}"
 }
 
-resource "aws_iam_policy" "s3_transform_policy" {
+resource "aws_iam_policy" "transform_policy" {
     name_prefix = "s3-policy-${var.transform_lambda_name}"
-    policy      = data.aws_iam_policy_document.s3_transform_document.json
+    policy      = data.aws_iam_policy_document.transform_policy_document.json
     description = "allows cloud service to write to ${data.aws_ssm_parameter.transform_bucket_arn.value} and read from ${data.aws_ssm_parameter.ingest_bucket_arn.value}"
 }
 
-resource "aws_iam_policy" "s3_load_policy" {
+resource "aws_iam_policy" "load_policy" {
     name_prefix = "s3-policy-${var.load_lambda_name}"
-    policy      = data.aws_iam_policy_document.s3_load_document.json
+    policy      = data.aws_iam_policy_document.load_policy_document.json
     description = "allows cloud service to read from ${data.aws_ssm_parameter.transform_bucket_arn.value}"
 }
 
@@ -232,19 +237,19 @@ resource "aws_iam_role_policy_attachment" "s3_load_code_policy" {
     policy_arn = aws_iam_policy.s3_code_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "s3_ingest_policy" {
+resource "aws_iam_role_policy_attachment" "ingest_policy" {
     role = aws_iam_role.ingest_lambda_role.name
-    policy_arn = aws_iam_policy.s3_ingest_policy.arn
+    policy_arn = aws_iam_policy.ingest_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "s3_transform_policy" {
+resource "aws_iam_role_policy_attachment" "transform_policy" {
     role = aws_iam_role.transform_lambda_role.name
-    policy_arn = aws_iam_policy.s3_transform_policy.arn
+    policy_arn = aws_iam_policy.transform_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "s3_load_policy" {
+resource "aws_iam_role_policy_attachment" "load_policy" {
     role = aws_iam_role.load_lambda_role.name
-    policy_arn = aws_iam_policy.s3_load_policy.arn
+    policy_arn = aws_iam_policy.load_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "invoke_lambdas_policy_attachment" {
@@ -257,17 +262,17 @@ resource "aws_iam_role_policy_attachment" "eventbridge_policy_attachment" {
   policy_arn = aws_iam_policy.eventbridge_policy.arn
 }
   
-resource "aws_iam_role_policy_attachment" "lambda_logs-for-ingest-policy" {
+resource "aws_iam_role_policy_attachment" "lambda_logs_for_ingest_policy" {
   role       = aws_iam_role.ingest_lambda_role.name
   policy_arn = aws_iam_policy.lambda_logging-policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_logs-for-transform-policy" {
+resource "aws_iam_role_policy_attachment" "lambda_logs_for_transform_policy" {
   role       = aws_iam_role.transform_lambda_role.name
   policy_arn = aws_iam_policy.lambda_logging-policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_logs-for-load-policy" {
+resource "aws_iam_role_policy_attachment" "lambda_logs_for_load_policy" {
   role       = aws_iam_role.load_lambda_role.name
   policy_arn = aws_iam_policy.lambda_logging-policy.arn
 }
