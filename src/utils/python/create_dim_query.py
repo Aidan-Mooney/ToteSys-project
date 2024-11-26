@@ -25,7 +25,7 @@ def generate_insert_into_statement(
         for column in columns:
             formatted_val = format_value(row[column])
             if formatted_val == "NULL":
-                row_list.append("NULL")
+                row_list.append(formatted_val)
             else:
                 row_list.append(f"'{formatted_val}'")
         value_rows.append(f'    ({", ".join(row_list)})')
