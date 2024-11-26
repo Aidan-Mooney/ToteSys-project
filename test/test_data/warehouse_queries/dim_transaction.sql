@@ -15979,4 +15979,7 @@ VALUES
     ('15975', 'SALE', '11285.0', 'NULL'),
     ('15976', 'SALE', '11286.0', 'NULL'),
     ('15977', 'SALE', '11287.0', 'NULL'),
-    ('15978', 'SALE', '11288.0', 'NULL');
+    ('15978', 'SALE', '11288.0', 'NULL')
+ON CONFLICT (transaction_id) DO UPDATE
+SET
+    transaction_type = EXCLUDED.transaction_type;

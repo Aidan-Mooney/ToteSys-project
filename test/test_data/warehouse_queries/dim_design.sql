@@ -479,4 +479,9 @@ VALUES
     ('475', 'Steel', '/media', 'steel-20240930-54ot.json'),
     ('476', 'Concrete', '/rescue', 'concrete-20241118-tu7d.json'),
     ('477', 'Bronze', '/lib', 'bronze-20230409-joj9.json'),
-    ('478', 'Metal', '/opt/share', 'metal-20240122-859b.json');
+    ('478', 'Metal', '/opt/share', 'metal-20240122-859b.json')
+ON CONFLICT (design_id) DO UPDATE
+SET
+    design_name = EXCLUDED.design_name,
+    file_location = EXCLUDED.file_location,
+    file_name = EXCLUDED.file_name;

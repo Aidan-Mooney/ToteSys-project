@@ -31,4 +31,13 @@ VALUES
     ('27', '7212 Breitenberg View', 'Nora Bridge', 'Buckinghamshire', 'Oakland Park', '77499', 'Guam', '2949 665163'),
     ('28', '079 Horacio Landing', 'NULL', 'NULL', 'Utica', '93045', 'Austria', '7772 084705'),
     ('29', '37736 Heathcote Lock', 'Noemy Pines', 'NULL', 'Bartellview', '42400-5199', 'Congo', '1684 702261'),
-    ('30', '0336 Ruthe Heights', 'NULL', 'Buckinghamshire', 'Lake Myrlfurt', '94545-4284', 'Falkland Islands (Malvinas)', '1083 286132');
+    ('30', '0336 Ruthe Heights', 'NULL', 'Buckinghamshire', 'Lake Myrlfurt', '94545-4284', 'Falkland Islands (Malvinas)', '1083 286132')
+ON CONFLICT (location_id) DO UPDATE
+SET
+    address_line_1 = EXCLUDED.address_line_1,
+    address_line_2 = EXCLUDED.address_line_2,
+    district = EXCLUDED.district,
+    city = EXCLUDED.city,
+    postal_code = EXCLUDED.postal_code,
+    country = EXCLUDED.country,
+    phone = EXCLUDED.phone;

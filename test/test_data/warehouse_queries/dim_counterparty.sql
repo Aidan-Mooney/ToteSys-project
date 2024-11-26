@@ -21,4 +21,14 @@ VALUES
     ('822 Providenci Spring', 'NULL', 'Berkshire', 'Derekport', '25541', 'Papua New Guinea', '4111 801405', '6', 'Mraz LLC'),
     ('079 Horacio Landing', 'NULL', 'NULL', 'Utica', '93045', 'Austria', '7772 084705', '2', 'Leannon, Predovic and Morar'),
     ('37736 Heathcote Lock', 'Noemy Pines', 'NULL', 'Bartellview', '42400-5199', 'Congo', '1684 702261', '4', 'Kohler Inc'),
-    ('0336 Ruthe Heights', 'NULL', 'Buckinghamshire', 'Lake Myrlfurt', '94545-4284', 'Falkland Islands (Malvinas)', '1083 286132', '14', 'Hintz, Hayes and Will');
+    ('0336 Ruthe Heights', 'NULL', 'Buckinghamshire', 'Lake Myrlfurt', '94545-4284', 'Falkland Islands (Malvinas)', '1083 286132', '14', 'Hintz, Hayes and Will')
+ON CONFLICT (counterparty_id) DO UPDATE
+SET
+    counterparty_legal_address_line_1 = EXCLUDED.counterparty_legal_address_line_1,
+    counterparty_legal_address_line_2 = EXCLUDED.counterparty_legal_address_line_2,
+    counterparty_legal_district = EXCLUDED.counterparty_legal_district,
+    counterparty_legal_city = EXCLUDED.counterparty_legal_city,
+    counterparty_legal_postal_code = EXCLUDED.counterparty_legal_postal_code,
+    counterparty_legal_country = EXCLUDED.counterparty_legal_country,
+    counterparty_legal_phone_number = EXCLUDED.counterparty_legal_phone_number,
+    counterparty_legal_name = EXCLUDED.counterparty_legal_name;

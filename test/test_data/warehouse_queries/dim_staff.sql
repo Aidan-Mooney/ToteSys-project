@@ -21,4 +21,11 @@ VALUES
     ('17', 'Irving', 'O''Keefe', 'irving.o''keefe@terrifictotes.com', 'Production', 'Leeds'),
     ('18', 'Tomasa', 'Moore', 'tomasa.moore@terrifictotes.com', 'HR', 'Leeds'),
     ('19', 'Pierre', 'Sauer', 'pierre.sauer@terrifictotes.com', 'Purchasing', 'Manchester'),
-    ('20', 'Flavio', 'Kulas', 'flavio.kulas@terrifictotes.com', 'Production', 'Leeds');
+    ('20', 'Flavio', 'Kulas', 'flavio.kulas@terrifictotes.com', 'Production', 'Leeds')
+ON CONFLICT (staff_id) DO UPDATE
+SET
+    first_name = EXCLUDED.first_name,
+    last_name = EXCLUDED.last_name,
+    email_address = EXCLUDED.email_address,
+    department_name = EXCLUDED.department_name,
+    location = EXCLUDED.location;
