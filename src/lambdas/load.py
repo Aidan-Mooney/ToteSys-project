@@ -5,12 +5,10 @@ from boto3 import client
 from pg8000.core import DatabaseError
 
 if environ["DEV_ENVIRONMENT"] == "testing":
-    from src.utils.python.create_fact_tables import create_fact_tables
     from src.utils.python.db_connections import close_db_connection, connect_to_db
     from src.utils.python.generate_warehouse_query import generate_warehouse_query
     from src.utils.python.query_db import query_db
 else:
-    from create_fact_tables import create_fact_tables
     from db_connections import close_db_connection, connect_to_db
     from generate_warehouse_query import generate_warehouse_query
     from query_db import query_db
