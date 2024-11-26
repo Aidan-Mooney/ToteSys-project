@@ -7,10 +7,6 @@ else:
     from get_df_from_s3_parquet import get_df_from_s3_parquet
 
 
-def generate_delete_from_statement(table_name: str) -> str:
-    return f"DELETE FROM {table_name};\n"
-
-
 def format_value(value):
     if value is None or isnull(value):
         return "NULL"
@@ -25,7 +21,13 @@ def generate_insert_into_statement(
     output += "VALUES\n"
     value_rows = []
     for _, row in df.iterrows():
-        row_list = [f"'{format_value(row[column])}'" for column in columns]
+        row_list = []
+        for column in columns:
+            formatted_val = format_value(row[column])
+            if formatted_val == "NULL":
+                row_list.append("NULL")
+            else:
+                row_list.append(f"'{formatted_val}'")
         value_rows.append(f'    ({", ".join(row_list)})')
     output += ",\n".join(value_rows)
     output += f"\nON CONFLICT ({table_name[4:]}_id) DO UPDATE\nSET\n"
