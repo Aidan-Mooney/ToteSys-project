@@ -2,8 +2,8 @@ def query_db(
     sql_string: str,
     connect_to_db,
     close_db_connection,
-    dict_name: str="response",
-    secret_name: str="totesys_db_credentials",
+    dict_name: str = "response",
+    secret_name: str = "totesys_db_credentials",
     **kwargs: dict,
 ):
     """
@@ -20,6 +20,8 @@ def query_db(
     """
     conn = connect_to_db(secret_name)
     db_query = conn.run(sql_string, **kwargs)
+    if not conn.columns:
+        return None
     cols = [col["name"] for col in conn.columns]
     close_db_connection(conn)
     if dict_name:
