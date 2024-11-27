@@ -54,6 +54,12 @@ variable "state_machine_name" {
   default = "totesys_state_machine"
 }
 
+# EVENT BRIDGE NAME #######################################
+
+variable "event_bridge_name" {
+  default = "totesys_five_min_trigger"
+}
+
 # LAMBDA FUNC DEFAULTS ####################################
 
 variable "python_runtime" {
