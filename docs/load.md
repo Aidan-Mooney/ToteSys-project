@@ -19,12 +19,15 @@ Creates the query that will insert the updated values to the dim tables.
 #### Functions
 ##### `create_dim_query`
 
+#### Purpose
+Generates a query to delete all entries in a table and insert values from a parquet file.
+
 ###### Inputs
-`table_name` Mandatory, no default. 
+`table_name` Mandatory, no default. Takes the name of the file to be accessed from the s3 transform bucket.
 
-`table_path` Mandatory, no default. 
+`table_path` Mandatory, no default. Takes the key of which file that needs to be accessed from the s3 transform bucket.
 
-`s3_client` Mandatory, no default.
+`s3_client` Mandatory, no default. Boto3.client("s3") object
 
 ###### Outputs
 Returns a string of the query to be ran and update values to the dim tables in the data warehouse.
@@ -36,34 +39,40 @@ ___
 
 ##### `generate_insert_into_statement`
 #### Purpose
-Creates the query that will insert the updated values to the dim tables.
-
-#### Functions
-##### `create_dim_query`
+Appends `INSERT INTO` statement to the query with corresponding values from the DataFrame
 
 ###### Inputs
-`table_name` Mandatory, no default. 
+`table_name` Mandatory, no default. Takes the name of the dim table that will be use to query the warehouse database.
 
-`table_path` Mandatory, no default. 
+`columns` Mandatory, no default. Takes a list of names from the columns of the DataFrame.
 
-`s3_client` Mandatory, no default.
-
-`data` contents of the file`.
+`df` Mandatory, no default. Takes the DataFrame of the corresponding dim table.
 
 ###### Outputs
-
+`output` The string query of the INSERT statement
 
 ###### Logging
 Currently None
 
 ___
+##### `format_value`
+#### Purpose
+Checks if the value give is a `None` or `NULL` value and returns the string `"NULL"`. Otherwise it returns the string of the value.
 
+###### Inputs
+`value` Mandatory, no default. Takes any value and formats it.
 
+###### Outputs
+The string of the value or `"NULL"`
 
-
+###### Logging
+Currently None
+___
 
 ### `create_fact_query.py`
 
-### `generate_warehouse_query.py`
 
+___
+### `generate_warehouse_query.py`
+___
 ### `cleardb.sql`
