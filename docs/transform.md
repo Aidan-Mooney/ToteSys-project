@@ -234,3 +234,48 @@ Returns the parquet data from the corresponding DataFrame.
 
 ###### Logging
 Currently none
+
+___
+
+### `dim_date.py`
+
+#### Functions
+##### `dim_date`
+
+###### Purpose
+Creates dim_date DataFrame between two specified years which contains the following columns:
+  - data_id
+  - year
+  - month
+  - day
+  - day_of_week
+  - day_name
+  - month_name
+  - quarter
+
+###### Inputs
+`start_year` Mandatory, no default. Takes an int for the year to start the data.
+
+`end_year` Mandatory, no default. Takes an int for the year to end the the data
+
+###### Outputs
+`dim_date` Returns a DataFrame containing all the breakdown of dates between the two years given.
+
+###### Logging
+Currently none
+
+___
+
+##### `format_date_for_db`
+
+###### Purpose
+Takes a Panda Series as a parameter, which is a column that has a datetime.date format, and casts it to a string in the format of `%Y-%m-%d` 
+
+###### Inputs
+`series` Mandatory, no default. Takes a Panda Series of datas.
+
+###### Outputs
+Returns the Series in the correct format.
+
+###### Logging
+Currently none
