@@ -1,12 +1,13 @@
 from numpy import float64, int64, isnan
 from pandas import DataFrame, read_parquet
-from datetime import date, time
-from pytest import fixture, mark
+from pytest import fixture, mark, raises
 from os import listdir
 from moto import mock_aws
 from boto3 import client
 from os import environ
 from io import BytesIO
+from logging import CRITICAL
+from botocore.exceptions import ClientError
 
 environ["DEV_ENVIRONMENT"] = "testing"
 from src.utils.python.warehouse import Warehouse
@@ -67,6 +68,17 @@ class TestConstructor:
             "sales_order_id",
             "purchase_order_id",
         ]
+
+    @mock_aws
+    @mark.it("Makes a critical log when the bucket doesn't exist")
+    def test_3(self, caplog):
+        s3_client = client("s3")
+        test_key = "transaction/dddddd.parquet"
+        caplog.set_level(CRITICAL)
+        with raises(ClientError):
+            Warehouse([test_key], TEST_BUCKET, s3_client)
+        assert "CRITICAL" in caplog.text
+        assert "encountered error retrieving file" in caplog.text
 
 
 @mark.context("dim_design")
@@ -305,8 +317,8 @@ class TestDimStaff:
 class TestFactSalesOrder:
     @mark.it("returns data type dataframe")
     def test_1(self, warehouse_df):
-        df = warehouse_df.fact_sales_order
-        assert isinstance(df, DataFrame)
+        fact_sales_order = warehouse_df.fact_sales_order
+        assert isinstance(fact_sales_order, DataFrame)
 
     @mark.it("has the correct column headers")
     def test_2(self, warehouse_df):
@@ -342,10 +354,10 @@ class TestFactSalesOrder:
             "agreed_delivery_date": str,
             "agreed_payment_date": str,
             "agreed_delivery_location_id": int64,
-            "created_date": date,
-            "created_time": time,
-            "last_updated_date": date,
-            "last_updated_time": time,
+            "created_date": str,
+            "created_time": str,
+            "last_updated_date": str,
+            "last_updated_time": str,
         }
         for col in col_dtypes:
             assert isinstance(df.loc[1][col], col_dtypes[col])
@@ -387,10 +399,10 @@ class TestFactPayment:
             "currency_id": int64,
             "payment_type_id": int64,
             "payment_date": str,
-            "created_date": date,
-            "created_time": time,
-            "last_updated_date": date,
-            "last_updated_time": time,
+            "created_date": str,
+            "created_time": str,
+            "last_updated_date": str,
+            "last_updated_time": str,
         }
         for col in col_dtypes:
             assert isinstance(df.loc[1][col], col_dtypes[col])
@@ -437,10 +449,10 @@ class TestFactPurchaseOrder:
             "agreed_delivery_date": str,
             "agreed_payment_date": str,
             "agreed_delivery_location_id": int64,
-            "created_date": date,
-            "created_time": time,
-            "last_updated_date": date,
-            "last_updated_time": time,
+            "created_date": str,
+            "created_time": str,
+            "last_updated_date": str,
+            "last_updated_time": str,
         }
         for col in col_dtypes:
             assert isinstance(df.loc[1][col], col_dtypes[col])
