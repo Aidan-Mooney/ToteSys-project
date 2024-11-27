@@ -1,10 +1,14 @@
 from pandas import DataFrame
 from os import environ
+from logging import getLogger
+from botocore.exceptions import ClientError
 
 if environ["DEV_ENVIRONMENT"] == "testing":
     from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
 else:
     from get_df_from_s3_parquet import get_df_from_s3_parquet
+
+logger = getLogger(__name__)
 
 
 class Warehouse:
@@ -33,10 +37,19 @@ class Warehouse:
         self.s3_client = s3_client
         self.dataframes = {}
         for filename in list_of_filenames:
-            table_name = filename[: filename.index("/")]
-            self.dataframes[table_name] = get_df_from_s3_parquet(
-                self.s3_client, bucket_name, filename
-            )
+            if filename[0:6] == "static":
+                table_name = filename[len("static") + 1 : -len(".parquet")]
+            else:
+                table_name = filename[: filename.index("/")]
+            try:
+                self.dataframes[table_name] = get_df_from_s3_parquet(
+                    self.s3_client, bucket_name, filename
+                )
+            except ClientError as c:
+                logger.critical(
+                    f"{__name__} encountered error retrieving file {filename} from bucket {bucket_name}: {c}"
+                )
+                raise c
 
     @property
     def dim_design(self) -> DataFrame:
@@ -161,10 +174,14 @@ class Warehouse:
                 "agreed_delivery_location_id",
             ]
         ]
-        df["created_date"] = sales_order["created_at"].dt.date
-        df["created_time"] = sales_order["created_at"].dt.time
-        df["last_updated_date"] = sales_order["last_updated"].dt.date
-        df["last_updated_time"] = sales_order["last_updated"].dt.time
+        df["created_date"] = format_date_for_db(sales_order["created_at"].dt.date)
+        df["created_time"] = format_time_for_db(sales_order["created_at"].dt.time)
+        df["last_updated_date"] = format_date_for_db(
+            sales_order["last_updated"].dt.date
+        )
+        df["last_updated_time"] = format_time_for_db(
+            sales_order["last_updated"].dt.time
+        )
         df.rename(columns={"staff_id": "sales_staff_id"}, inplace=True)
         return df
 
@@ -183,10 +200,10 @@ class Warehouse:
                 "payment_date",
             ]
         ]
-        df["created_date"] = payment["created_at"].dt.date
-        df["created_time"] = payment["created_at"].dt.time
-        df["last_updated_date"] = payment["last_updated"].dt.date
-        df["last_updated_time"] = payment["last_updated"].dt.time
+        df["created_date"] = format_date_for_db(payment["created_at"].dt.date)
+        df["created_time"] = format_time_for_db(payment["created_at"].dt.time)
+        df["last_updated_date"] = format_date_for_db(payment["last_updated"].dt.date)
+        df["last_updated_time"] = format_time_for_db(payment["last_updated"].dt.time)
         return df
 
     @property
@@ -206,8 +223,20 @@ class Warehouse:
                 "agreed_delivery_location_id",
             ]
         ]
-        df["created_date"] = purchase_order["created_at"].dt.date
-        df["created_time"] = purchase_order["created_at"].dt.time
-        df["last_updated_date"] = purchase_order["last_updated"].dt.date
-        df["last_updated_time"] = purchase_order["last_updated"].dt.time
+        df["created_date"] = format_date_for_db(purchase_order["created_at"].dt.date)
+        df["created_time"] = format_time_for_db(purchase_order["created_at"].dt.time)
+        df["last_updated_date"] = format_date_for_db(
+            purchase_order["last_updated"].dt.date
+        )
+        df["last_updated_time"] = format_time_for_db(
+            purchase_order["last_updated"].dt.time
+        )
         return df
+
+
+def format_date_for_db(series):
+    return series.apply(lambda x: x.strftime("%Y-%m-%d"))
+
+
+def format_time_for_db(series):
+    return series.apply(lambda x: x.strftime("%H:%M:%S.%f"))
