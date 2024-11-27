@@ -1,5 +1,5 @@
 from os import environ
-from pandas import DataFrame, isnull
+from pandas import DataFrame
 
 if environ["DEV_ENVIRONMENT"] == "testing":
     from src.utils.python.get_df_from_s3_parquet import get_df_from_s3_parquet
@@ -8,14 +8,26 @@ else:
 
 
 def format_value(value):
-    if isnull(value) or value in [None, "NULL"]:
-        return "NULL"
+    """
+    Doubles-up apostrophes in values so that they are escaped in the SQL query.
+    Other modifications to values which aren't made in the data warehouse should be added to this function.
+    """
     return str(value).replace("'", "''")
 
 
 def generate_insert_into_statement(
     table_name: str, columns: list[str], df: DataFrame
 ) -> str:
+    """
+    Return an SQL query to upsert dim tables with new rows. Contains the following components:
+    - INSERT INTO table_name (all columns given in parameter)
+    - VALUES (rows in the dataframe)
+    - ON CONFLICT (id_column) DO UPDATE SET other_column = EXCLUDED.other_column (for all columns other than the id column)
+        - if a new row is entered with the same id, that row is replaced in the dim_table.
+        - this 'upserting' is necessary because of foreign key constraints from the fact tables which don't allow deletion of rows from the dim tables.
+
+    These queries are formatted to be easily read by people.
+    """
     output = f"INSERT INTO {table_name}\n"
     output += f"""    ({", ".join(columns)})\n"""
     output += "VALUES\n"
