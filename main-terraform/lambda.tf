@@ -21,6 +21,13 @@ data "archive_file" "loader" {
   output_path      = "${path.module}/../packages/loader/load.zip"
 }
 
+data "archive_file" "publish" {
+  type             = "zip"
+  output_file_mode = "0666"
+  source_file      = "${path.module}/../src/lambdas/ingest_email_publisher.py"
+  output_path      = "${path.module}/../packages/ingest_email_publisher/ingest_email_publisher.zip"
+}
+
 ### LAMBDA FUNCTIONS ######################################
 
 resource "aws_lambda_function" "ingest_lambda_function" {
@@ -31,10 +38,6 @@ resource "aws_lambda_function" "ingest_lambda_function" {
   s3_key                = aws_s3_object.ingest_lambda_file.id
   runtime               = var.python_runtime
   depends_on            = [ 
-    # aws_s3_object.ingest_lambda_file,
-    # aws_s3_object.dependencies_lambda_file,   <- See pull request message
-    # aws_s3_object.utils_file,
-    # aws_iam_role_policy_attachment.ingest_policy,
     aws_iam_role_policy_attachment.lambda_logs_for_ingest_policy,
     aws_cloudwatch_log_group.totesys-cw-log-group,
   ]
@@ -68,9 +71,6 @@ resource "aws_lambda_function" "transform_lambda_function" {
   s3_key                = aws_s3_object.transform_lambda_file.id
   runtime               = var.python_runtime
   depends_on            = [ 
-    # aws_s3_object.transform_lambda_file,
-    # aws_iam_role_policy_attachment.transform_policy,   <- See pull request message
-    # aws_s3_object.utils_file,
     aws_iam_role_policy_attachment.lambda_logs_for_ingest_policy,
     aws_cloudwatch_log_group.totesys-cw-log-group
   ]
@@ -104,13 +104,9 @@ resource "aws_lambda_function" "load_lambda_function" {
   s3_key                = aws_s3_object.load_lambda_file.id
   runtime               = var.python_runtime
   depends_on            = [ 
-                            # aws_s3_object.dependencies_lambda_file, 
-                            # aws_s3_object.load_lambda_file,
-                            # aws_iam_role_policy_attachment.load_policy,   <- See pull request message
-                            # aws_s3_object.utils_file,
-                            aws_iam_role_policy_attachment.lambda_logs_for_ingest_policy,
-                            aws_cloudwatch_log_group.totesys-cw-log-group
-                          ]
+    aws_iam_role_policy_attachment.lambda_logs_for_ingest_policy,
+    aws_cloudwatch_log_group.totesys-cw-log-group
+  ]
   timeout               = var.default_timeout
   handler               = "${var.load_lambda_name}.lambda_handler"
   layers                = [
@@ -128,6 +124,20 @@ resource "aws_lambda_function" "load_lambda_function" {
   logging_config {
     log_format  = "Text"
     log_group   = aws_cloudwatch_log_group.totesys-cw-log-group.name
+  } 
+}
+
+resource "aws_lambda_function" "publish" {
+  function_name    = "publisher"
+  s3_bucket        = aws_s3_object.ingest_publisher_lambda_file.bucket
+  s3_key           = aws_s3_object.ingest_publisher_lambda_file.id
+  handler          = "publish.lambda_handler"
+  runtime          = var.python_runtime
+  source_code_hash = data.archive_file.publish.output_base64sha256
+  role             = aws_iam_role.ingest_lambda_role.arn
+  timeout          = 12
+  environment {
+    variables = {"sns_topic_arn" = aws_sns_topic.send_email.arn
+    }
   }
-  
 }
