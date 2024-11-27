@@ -35,8 +35,8 @@ def db_connections_get_secret(sm_client, secret_name: str):
 def connect_to_db(secret_name: str = "totesys_db_credentials"):
     """
     Return a pg8000 connection object, connected to the database corresponding to the credentials given.
-    Parameters:
-    secret_name: name of the secret in SecretsManager which contains the DB credentials. Defaults to "totesys_db_credentials". May only be "totesys_db_credentials" or "totesys_warehouse_credentials"
+
+    :param secret_name: name of the secret in SecretsManager which contains the DB credentials. Defaults to "totesys_db_credentials". May only be "totesys_db_credentials" or "totesys_warehouse_credentials"
     """
     assert secret_name in ["totesys_db_credentials", "totesys_warehouse_credentials"]
     secretsmanager = boto3.client("secretsmanager")
@@ -53,5 +53,7 @@ def connect_to_db(secret_name: str = "totesys_db_credentials"):
 def close_db_connection(conn):
     """
     Close the pg8000 connection passed in using the .close() method.
+
+    :param conn:
     """
     conn.close()

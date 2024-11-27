@@ -1,16 +1,16 @@
 def create_fact_tables(connect_to_db, close_db_connection):
     """
-    Input:
-        - connect_to_db: connects to the database
-        - close_db_connection: closes the database connection
+    1. connect to the warehouse db
+    2. create fact sales order query created if it doesn't exist
+    3. create fact payment query created if it doesn't exist
+    4. create fact purchase order query created if it doesn't exist
+    5. run the query
+    6. close the database connection
 
-    Process:
-        - connects to the warehouse db
-        - creates fact sales order query created if it doesn't exist
-        - creates fact payment query created if it doesn't exist
-        - creates fact purchase order query created if it doesn't exist
-        - runs the query
-        - closes database connection
+    :param connect_to_db: connects to the database
+    :param close_db_connection: closes the database connection
+
+
     """
 
     conn = connect_to_db(secret_name="totesys_warehouse_credentials")

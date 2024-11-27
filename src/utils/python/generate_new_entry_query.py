@@ -13,10 +13,9 @@ def generate_new_entry_query(table_name: str, start_time: str, end_time: str) ->
     - YYYY-MM-DD hh:mm:ss.xxx (where xxx are milliseconds)
     - YYYY-MM-DD hh:mm:ss.ususus (where ususus is microseconds)
 
-    Parameters
-    table_name: str The name of the table in the database
-    start_time: str The start of the time range (inclusive)
-    end_time: str The end of the time range (exclusive)
+    :param table_name: str The name of the table in the database
+    :param start_time: str The start of the time range (inclusive)
+    :param end_time: str The end of the time range (exclusive)
     """
     time_condition = re.compile(
         r"^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2}(.\d{3})?(\d{3})?)?$"

@@ -37,8 +37,13 @@ logger.setLevel(INFO)
 
 def lambda_handler(event, context):
     """
-    Structure of event:
-        event = {"tables_to_query": ["table_name",...]}
+
+    :param event: json object containing names of tables to query the database for
+
+    .. code-block :: json
+        {"tables_to_query": ["table_name",...]}
+
+    :param context: unused
 
     Process:
         - gets the start_time from get_last_ingest_time
@@ -48,18 +53,23 @@ def lambda_handler(event, context):
         - converts the data to parquet
         - adds it to the s3 bucket
 
-    Returns:
-        -   a dictionary containing the table names as keys and file_key as value
-        {
-            'table_name_1' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet',
-            'table_name_2' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet',
-            ...
-        }
-
     Logs:
         - INFO when each function is successful
         - CRITICAL when each function fails fatally
         - WARNING when query_db returns an empty list
+
+    :returns event:
+
+        a dictionary containing the table names as keys and file_key as value
+
+        .. code-block :: json
+            {
+                "table_name_1" : "table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet",
+                "table_name_2" : "table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet",
+                ...
+            }
+
+
 
     """
     norm_fact_tables = ["payment", "purchase_order", "sales_order"]

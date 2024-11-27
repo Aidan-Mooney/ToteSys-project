@@ -12,8 +12,7 @@ def format_value(value: str) -> str:
     Doubles-up apostrophes in values so that they are escaped in the SQL query.
     Other modifications to values which aren't made in the data warehouse should be added to this function.
 
-    Parameters:
-    - value: string to be modified
+    :param value: string to be modified
     """
     return str(value).replace("'", "''")
 
@@ -32,9 +31,9 @@ def generate_insert_into_statement(
     These queries are formatted to be easily read by people.
 
     Parameters:
-    - table_name: name of the warehouse table being modified
-    - columns:  a list containing the names of the columns to modify. This must be a subset of the columns of df.
-    - df: a pandas DataFrame object containing the data to upsert.
+    :param table_name: name of the warehouse table being modified
+    :param columns:  a list containing the names of the columns to modify. This must be a subset of the columns of df.
+    :param df: a pandas DataFrame object containing the data to upsert.
     """
     output = f"INSERT INTO {table_name}\n"
     output += f"""    ({", ".join(columns)})\n"""
@@ -65,10 +64,9 @@ def create_dim_query(table_name: str, table_path: str, s3_client) -> str:
     """
     Generates a query to delete all entries in a table and insert values from a parquet file.
 
-    Parameters:
-    - table_name: name of warehouse table to modify
-    - table_path: path to parquet file in ingest bucket to populate the table with
-    - s3_client: s3 client to access transform bucket with
+    :param table_name: name of warehouse table to modify
+    :param table_path: path to parquet file in ingest bucket to populate the table with
+    :param s3_client: s3 client to access transform bucket with
     """
     if not table_name:
         raise ValueError("table_name must not be null")

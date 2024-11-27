@@ -23,7 +23,7 @@ class Warehouse:
             list_of_filenames: list of file keys in an s3 bucket
             bucket_name: name of the s3 bucket to access ingest files from
 
-        Properties:
+        Attributes:
             dim_design (depends on design)
             dim_transation (depends on transaction)
             dim_counterparty (depends on counterparty and address)

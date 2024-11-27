@@ -6,6 +6,10 @@ from datetime import datetime
 def get_latest_filename(s3_client, bucket_name: str, table_name: str):
     """
     Return the file in the bucket bucket_name with the prefix table_name which has the "biggest" name, ie. the name containing the latest timestamp.
+
+    :param s3_client: boto3 client for accessing s3
+    :param bucket_name: name of the s3 bucket to retrieve filename from
+    :param table_name: name of the table to get the latest filename for
     """
     try:
         objs = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=f"{table_name}/")[
@@ -21,6 +25,9 @@ def get_latest_filename(s3_client, bucket_name: str, table_name: str):
 def get_last_ingest_time(bucket_name: str, table_name: str):
     """
     Return a datetime object corresponding to the key of the most-recently-modified file in bucket bucket_name with the prefix table_name.
+
+    :param bucket_name: name of the bucket to retrieve filenames from
+    :param table_name: name of table to retrieve the last ingest time for
     """
     s3_client = client("s3")
     filename = get_latest_filename(s3_client, bucket_name, table_name)

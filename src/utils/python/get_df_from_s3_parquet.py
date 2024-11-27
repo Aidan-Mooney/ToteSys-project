@@ -6,10 +6,9 @@ def get_df_from_s3_parquet(s3_client, bucket_name: str, filename: str) -> DataFr
     """
     Return the pandas DataFrame contained at the location filename inside bucket bucket_name.
 
-    Parameters:
-        s3_client: boto3 s3 client
-        bucket_name: name of bucket
-        filename: file key in s3 bucket
+    :param s3_client: boto3 s3 client
+    :param bucket_name: name of bucket
+    :param filename: file key in s3 bucket
     """
     buffer = BytesIO()
     s3_client.download_fileobj(bucket_name, filename, buffer)
