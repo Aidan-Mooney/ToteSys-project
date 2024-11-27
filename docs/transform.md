@@ -1,4 +1,6 @@
-# Terrific Totes - Transform Process
+# Terrific Totes 
+
+## Transform Process
 
 ## Overview
 
@@ -13,22 +15,22 @@ The transform process aims to:
 ### `warehouse.py`
 
 #### Purpose
-
 Warehouse object expects parquet file from ingest bucket and creates dim- and fact- tables.
 
 **Warning**: Only access properties for which you have ingested the relevant dependencies, otherwise will raise a KeyError.
 
 #### Classes
-
 `Warehouse`
 
-##### `__init__`
+##### Constructor
+`__init__`
 
+###### Inputs
 `list_of_filenames` list of file keys in an s3 bucket
+
 `bucket_name` name of the s3 bucket to access ingest files from
 
 ##### Properties
-
 Each produces a pandas dataframe representing a dimension or fact table for the data warehouse
 
 - `dim_design` (depends on design)
@@ -194,26 +196,26 @@ Each produces a pandas dataframe representing a dimension or fact table for the 
 ___
 
 ### `get_df_from_parquet.py`
+
 #### Function
 ##### `get_df_from_parquet`
 
 ###### Purpose
-
 Returns the DataFrame of the parquet data from the corresponding s3 bucket and key.
 
 ###### Inputs
-
 `s3_client` Mandatory, no default. Takes a boto3.client s3 object.
+
 `bucket_name` Mandatory, no default. Takes a string representing the name of the bucket.
+
 `filename` Mandatory, no default. Takes a string representing the key of the file the is going to be accessed.
 
 ###### Outputs
-
 `read_parquet(buffer)` Returns a DataFrame of the paraquet data accessed by the s3 client.
 
 ###### Logging
-
 Currently none
+
 ___
 
 ### `generate_parquet_of_df.py`
@@ -221,17 +223,13 @@ ___
 ##### `generate_parquet_of_df`
 
 ###### Purpose
-
 Returns the parquet data from the corresponding DataFrame.
 
 ###### Inputs
-
 `df` Mandatory, no default. Takes the DataFrame that will be .
 
 ###### Outputs
-
 `out_buffer.getvalue()` Returns a paraquet data from the corresponding DataFrame.
 
 ###### Logging
-
 Currently none
