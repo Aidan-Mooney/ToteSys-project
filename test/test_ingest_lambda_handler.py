@@ -7,7 +7,7 @@ from unittest.mock import patch
 from pytest import mark
 from datetime import datetime
 from botocore.exceptions import ClientError
-from logging import CRITICAL, WARNING, INFO
+from logging import CRITICAL, INFO
 from src.utils.python.generate_new_entry_query import DateFormatError
 from pg8000.core import DatabaseError
 
