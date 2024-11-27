@@ -1,4 +1,3 @@
-DELETE FROM dim_staff;
 INSERT INTO dim_staff
     (staff_id, first_name, last_name, email_address, department_name, location)
 VALUES

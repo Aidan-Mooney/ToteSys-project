@@ -1,4 +1,3 @@
-DELETE FROM dim_date;
 INSERT INTO dim_date
     (date_id, year, month, day, day_of_week, day_name, month_name, quarter)
 VALUES

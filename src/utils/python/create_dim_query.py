@@ -7,12 +7,8 @@ else:
     from get_df_from_s3_parquet import get_df_from_s3_parquet
 
 
-def generate_delete_from_statement(table_name: str) -> str:
-    return f"DELETE FROM {table_name};\n"
-
-
 def format_value(value):
-    if value is None or isnull(value):
+    if isnull(value) or value in [None, "NULL"]:
         return "NULL"
     return str(value).replace("'", "''")
 
@@ -25,7 +21,13 @@ def generate_insert_into_statement(
     output += "VALUES\n"
     value_rows = []
     for _, row in df.iterrows():
-        row_list = [f"'{format_value(row[column])}'" for column in columns]
+        row_list = []
+        for column in columns:
+            formatted_val = format_value(row[column])
+            if formatted_val == "NULL":
+                row_list.append(formatted_val)
+            else:
+                row_list.append(f"'{formatted_val}'")
         value_rows.append(f'    ({", ".join(row_list)})')
     output += ",\n".join(value_rows)
     output += f"\nON CONFLICT ({table_name[4:]}_id) DO UPDATE\nSET\n"
@@ -33,7 +35,7 @@ def generate_insert_into_statement(
         [
             f"    {column} = EXCLUDED.{column}"
             for column in columns
-            if column[-3:] != "_id"
+            if column != f"{table_name[4:]}_id"
         ]
     )
     return output + ";"
@@ -51,7 +53,4 @@ def create_dim_query(table_name: str, table_path: str, s3_client) -> str:
         raise ValueError("table_name must not be null")
     df = get_df_from_s3_parquet(s3_client, environ["transform_bucket_name"], table_path)
     columns = df.columns.values.tolist()
-    sql_string = generate_delete_from_statement(
-        table_name
-    ) + generate_insert_into_statement(table_name, columns, df)
-    return sql_string
+    return generate_insert_into_statement(table_name, columns, df)
