@@ -51,4 +51,7 @@ def connect_to_db(secret_name: str = "totesys_db_credentials"):
 
 
 def close_db_connection(conn):
+    """
+    Close the pg8000 connection passed in using the .close() method.
+    """
     conn.close()
