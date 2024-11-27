@@ -173,4 +173,5 @@ cython_debug/
 
 #database credentials
 *db_credentials.json
+*warehouse_credentials.json
 *email.txt
