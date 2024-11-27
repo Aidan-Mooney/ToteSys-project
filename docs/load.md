@@ -23,14 +23,14 @@ Creates the query that will insert the updated values to the dim tables.
 Generates a query to delete all entries in a table and insert values from a parquet file.
 
 ###### Inputs
-`table_name` Mandatory, no default. Takes the name of the file to be accessed from the s3 transform bucket.
+`table_name` Mandatory, no default. Takes the table name of the file to be accessed from the s3 transform bucket.
 
 `table_path` Mandatory, no default. Takes the key of which file that needs to be accessed from the s3 transform bucket.
 
 `s3_client` Mandatory, no default. Boto3.client("s3") object
 
 ###### Outputs
-Returns a string of the query to be ran and update values to the dim tables in the data warehouse.
+Returns a string of the query to be ran and appends/inserts values to the dim tables in the data warehouse.
 
 ###### Logging
 Currently None
@@ -70,7 +70,27 @@ Currently None
 ___
 
 ### `create_fact_query.py`
+#### Purpose
+Creates the query that will insert the updated values to the fact tables.
 
+#### Function
+##### `create_fact_query`
+
+#### Purpose
+Generates a query by fetching the DataFrame from the corresponding table name and key.
+
+###### Inputs
+`table_name` Mandatory, no default. Takes the table name of the file to be accessed from the s3 transform bucket.
+
+`table_path` Mandatory, no default. Takes the key of which file that needs to be accessed from the s3 transform bucket.
+
+`s3_client` Mandatory, no default. Boto3.client("s3") object
+
+###### Outputs
+Returns a string of the query to be ran and appends/inserts values to the fact tables in the data warehouse.
+
+###### Logging
+Currently None
 
 ___
 ### `generate_warehouse_query.py`
