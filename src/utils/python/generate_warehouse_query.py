@@ -13,14 +13,14 @@ class InvalidTableNameError(Exception):
     pass
 
 
-def generate_warehouse_query(table_name: str, table_path: str, s3_client):
+def generate_warehouse_query(table_name: str, table_path: str, s3_client) -> str:
     """
     Returns the database query string for updating the table table_name. See create_fact_query and create_dim_query for specific queries.
 
-    PARAMETERS
-    table_name: str = name of the warehouse table to be queried
-    table_path: str = path to the data for corresponding table in transform bucket
-    s3_client: obj = s3_client to be used by create_fact_query and create_dim_query to access the parquet files
+    :param table_name: name of the warehouse table to be queried
+    :param table_path: path to the data for corresponding table in transform bucket
+    :param s3_client: s3_client to be used by create_fact_query and create_dim_query to access the parquet files
+    :returns query: SQL query string to perform the requested update to the warehouse table
     """
     if table_name[0:4] == "fact":
         query = create_fact_query(table_name, table_path, s3_client)

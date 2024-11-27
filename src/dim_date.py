@@ -3,6 +3,13 @@ from datetime import datetime
 
 
 def dim_date(start_year: int, end_year: int) -> DataFrame:
+    """
+    Return a DataFrame containing all the days between the years provided: 1st Jan start_year <= day < 1st Jan end_year.
+
+    :param start_year: year to begin the dim_date table, on the 1st of Jan
+    :param end_year: year to end the dim_date table, on the 31st of Dec
+    :returns dim_date DataFrame:
+    """
     quarters = {i: int(4 * i / 12) + 1 for i in range(0, 12)}
     month_names = [
         "January",

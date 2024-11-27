@@ -1,4 +1,4 @@
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from os import environ
 from logging import getLogger
 from botocore.exceptions import ClientError
@@ -23,7 +23,7 @@ class Warehouse:
             list_of_filenames: list of file keys in an s3 bucket
             bucket_name: name of the s3 bucket to access ingest files from
 
-        Properties:
+        Attributes:
             dim_design (depends on design)
             dim_transation (depends on transaction)
             dim_counterparty (depends on counterparty and address)
@@ -238,17 +238,29 @@ class Warehouse:
         return none_to_NULL(df)
 
 
-def format_date_for_db(series):
+def format_date_for_db(series: Series):
+    """
+    Map a column of date objects to a column of formatted date strings
+    """
     return series.apply(lambda x: x.strftime("%Y-%m-%d"))
 
 
-def format_time_for_db(series):
+def format_time_for_db(series: Series):
+    """
+    Map a column of time objects to a column of formatted time strings
+    """
     return series.apply(lambda x: x.strftime("%H:%M:%S.%f"))
 
 
-def format_str_to_int(series):
+def format_str_to_int(series: Series):
+    """
+    Map a column of numerical strings/numeric/NaN values to a column of integer strings/NULL values.
+    """
     return series.apply(lambda x: "NULL" if isnan(x) else str(int(float(x))))
 
 
-def none_to_NULL(df):
+def none_to_NULL(df: DataFrame):
+    """
+    Map all None values in df to "NULL" strings
+    """
     return df.apply(lambda x: x.apply(lambda y: "NULL" if y is None else str(y)))

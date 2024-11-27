@@ -20,20 +20,28 @@ logger = getLogger(__name__)
 
 def lambda_handler(event, context={}):
     """
-    Expects an event of the form
-    {
-        "address": "address/yadayada.parquet",
-        "counterparty": "counterparty/yadayada.parquet",
-        "currency": "currency/yadayada.parquet",
-        "design": "design/yadayada.parquet"
-        ...
-    }
-    and adds the files stored at these paths in the ingest bucket to a Warehouse object. It then extracts the corresponding warehouse tables and places them in the transform s3 bucket.
-    Returns {"table_name_1": "path_to_dim/fact_table_1_in_tf_bucket"
-            "dim_counterparty": "pathtolatestdimcounterparty"
-            "fact_payment": "path..."
-                ...
-            }
+    Add the files stored at these paths in the ingest bucket to a Warehouse object. Then, extract the corresponding warehouse tables and place them in the transform s3 bucket.
+
+    :param event: names of updated tables and paths to newest file in the ingest bucket. eg.
+
+    .. code-block :: json
+        {
+            "address": "address/yadayada.parquet",
+            "counterparty": "counterparty/yadayada.parquet",
+            "currency": "currency/yadayada.parquet",
+            "design": "design/yadayada.parquet"
+            ...
+        }
+
+    :returns event:
+
+    .. code-block :: json
+        {
+            "table_name_1": "path_to_dim/fact_table_1_in_tf_bucket",
+            "dim_counterparty": "pathtolatestdimcounterparty",
+            "fact_payment": "path...",
+            ...
+        }
     """
     if not event:
         logger.info("No tables to update")
