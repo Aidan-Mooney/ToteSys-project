@@ -177,3 +177,10 @@ Each produces a pandas dataframe representing a dimension or fact table for the 
     - last_updated_at:
       - last_updated_date
       - last_updated_time
+
+  - format_date_for_db
+    - takes a series/column of the swaps it to the time
+
+  - formate_time_for_db
+
+#### `get_df_from_parquet.py`
