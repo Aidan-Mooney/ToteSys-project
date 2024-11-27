@@ -5,7 +5,7 @@ class DateFormatError(Exception):
     pass
 
 
-def generate_new_entry_query(table_name: str, start_time: str, end_time: str):
+def generate_new_entry_query(table_name: str, start_time: str, end_time: str) -> str:
     """
     Return a valid PostgreSQL query string for rows which were modified in the given table between the start_time and end_time. Will raise DateFormatError if start_time or end_time are in an invalid format. Valid formats include:
     - YYYY-MM-DD
