@@ -8,7 +8,7 @@ resource "null_resource" "create_dependencies" {
   }
 }
 
-###############################################
+### ARCHIVED DIRECTORIES ############################################
 
 data "archive_file" "dependencies"{
   type             = "zip"
@@ -24,7 +24,7 @@ data "archive_file" "utils"{
   output_path      = "${path.module}/../packages/utils/utils.zip"
 }
 
-################################################
+### LAMBDA LAYERS ###################################################
 
 resource "aws_lambda_layer_version" "dependencies" {
   layer_name          = "dependencies"
@@ -33,6 +33,7 @@ resource "aws_lambda_layer_version" "dependencies" {
   s3_key              = aws_s3_object.dependencies_lambda_file.key
   depends_on          = [aws_s3_object.dependencies_lambda_file]
   source_code_hash    = data.archive_file.dependencies.output_base64sha256
+  description         = "Lambda layer containing project dependencies."
 }
 
 resource "aws_lambda_layer_version" "utils" {
@@ -42,4 +43,5 @@ resource "aws_lambda_layer_version" "utils" {
   s3_key              = aws_s3_object.utils_file.key
   depends_on          = [aws_s3_object.utils_file]
   source_code_hash    = data.archive_file.utils.output_base64sha256
+  description         = "Lambda layer containing project utils."
 }
