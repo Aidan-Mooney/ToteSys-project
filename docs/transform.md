@@ -197,11 +197,11 @@ ___
 
 ### `get_df_from_parquet.py`
 
-#### Function
-##### `get_df_from_parquet`
-
 ###### Purpose
 Returns the DataFrame of the parquet data from the corresponding s3 bucket and key.
+
+#### Function
+##### `get_df_from_parquet`
 
 ###### Inputs
 `s3_client` Mandatory, no default. Takes a boto3.client s3 object.
@@ -219,11 +219,12 @@ Currently none
 ___
 
 ### `generate_parquet_of_df.py`
-#### Function
-##### `generate_parquet_of_df`
 
 ###### Purpose
 Returns the parquet data from the corresponding DataFrame.
+
+#### Function
+##### `generate_parquet_of_df`
 
 ###### Inputs
 `df` Mandatory, no default. Takes the DataFrame that will be .
