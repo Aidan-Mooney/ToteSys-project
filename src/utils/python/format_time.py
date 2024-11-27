@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-def format_time(date_time: datetime):
+def format_time(date_time: datetime) -> str:
     """
     Return a string-formatted representation of the datetime object date_time of the format YY-MM-DD hh:mm:ss.ususus
 

@@ -7,7 +7,7 @@ else:
     from get_df_from_s3_parquet import get_df_from_s3_parquet
 
 
-def format_value(value):
+def format_value(value: str) -> str:
     """
     Doubles-up apostrophes in values so that they are escaped in the SQL query.
     Other modifications to values which aren't made in the data warehouse should be added to this function.
