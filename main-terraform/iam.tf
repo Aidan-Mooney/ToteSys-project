@@ -187,8 +187,7 @@ resource "aws_iam_policy" "eventbridge_policy" {
 }
 
 resource "aws_iam_policy" "lambda_logging_policy" {
-  name        = "lambda_logging"
-  path        = "/"
+  name_prefix = "lambda_logging"
   policy      = data.aws_iam_policy_document.lambda_logging.json
   description = "IAM policy for logging from a lambda."
 }
