@@ -17,6 +17,8 @@ def query_db(
     :param dict_name: name used in the key of the reponse dictionary
     :param secret_name: name of secret stored in AWS Secrets Manager
     :param kwargs: keys and values passed into SQL query using :-syntax
+
+    :returns rows dict: dictionary containing response from DB query
     """
     conn = connect_to_db(secret_name)
     db_query = conn.run(sql_string, **kwargs)

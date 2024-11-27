@@ -30,10 +30,11 @@ def generate_insert_into_statement(
 
     These queries are formatted to be easily read by people.
 
-    Parameters:
     :param table_name: name of the warehouse table being modified
     :param columns:  a list containing the names of the columns to modify. This must be a subset of the columns of df.
     :param df: a pandas DataFrame object containing the data to upsert.
+
+    :returns INSERT INTO statement:
     """
     output = f"INSERT INTO {table_name}\n"
     output += f"""    ({", ".join(columns)})\n"""

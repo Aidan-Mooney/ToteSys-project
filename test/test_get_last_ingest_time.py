@@ -109,7 +109,7 @@ class Testget_last_ingest_time:
         assert result.second == 14
         assert result.microsecond == 999999
 
-    @mark.it("Returns False if no filename exists")
+    @mark.it("Returns None if no filename exists")
     def test_2(self):
         test_filename = None
         with patch(
@@ -117,7 +117,7 @@ class Testget_last_ingest_time:
             return_value=test_filename,
         ):
             result = get_last_ingest_time(TEST_BUCKET, "")
-        assert result is False 
+        assert result is None
 
 
 class Testintegration:
@@ -146,11 +146,11 @@ class Testintegration:
         assert result.microsecond == 999999
 
     @mock_aws
-    @mark.it("Returns False when no file is found.")
+    @mark.it("Returns None when no file is found.")
     def test_2(self, s3_client):
         s3_client.create_bucket(
             Bucket=TEST_BUCKET,
             CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
         )
         result = get_last_ingest_time(TEST_BUCKET, "test_table")
-        assert result is False 
+        assert result is None

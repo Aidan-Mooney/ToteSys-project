@@ -8,8 +8,7 @@ def generate_parquet_of_df(df: DataFrame) -> bytes:
 
     :param df: pandas DataFrame
 
-    :returns:
-    Parquet bytes
+    :returns parquet bytes of df:
     """
     out_buffer = BytesIO()
     df.to_parquet(out_buffer, index=False)
