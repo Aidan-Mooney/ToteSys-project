@@ -31,3 +31,9 @@ resource "aws_ssm_parameter" "secret_arn" {
   type = "String"
   value = "${aws_secretsmanager_secret.db_credentials.arn}"
 }
+
+resource "aws_ssm_parameter" "warehouse_secret_arn" {
+  name = "secret_warehouse_credentials"
+  type = "String"
+  value = "${aws_secretsmanager_secret.warehouse_credentials.arn}"
+}

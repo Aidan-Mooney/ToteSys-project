@@ -10,13 +10,14 @@ def query_db(
     Take an sql query string and return the result of the query as a dictionary formatted like a json object with table names etc.
     If dict_name = "", only return the first row of the query response as a dictionary with column keys.
     Otherwise, return a dictionary containing a list of dictionaries, where each dictionary contains a row of the query response.
-    Parameters:
-    sql_string: str string containing valid PostgreSQL query
-    connect_to_db: function which returns connection to a database
-    close_db_connection: function which closes database connection
-    dict_name: name used in the key of the reponse dictionary
-    secret_name: name of secret stored in AWS Secrets Manager
-    kwargs: keys and values passed into SQL query using :-syntax
+    :param sql_string: str string containing valid PostgreSQL query
+    :param connect_to_db: function which returns connection to a database
+    :param close_db_connection: function which closes database connection
+    :param dict_name: name used in the key of the reponse dictionary
+    :param secret_name: name of secret stored in AWS Secrets Manager
+    :param kwargs: keys and values passed into SQL query using :-syntax
+
+    :returns rows dict: dictionary containing response from DB query
     """
     conn = connect_to_db(secret_name)
     db_query = conn.run(sql_string, **kwargs)

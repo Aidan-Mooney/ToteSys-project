@@ -7,7 +7,7 @@ from unittest.mock import patch
 from pytest import mark
 from datetime import datetime
 from botocore.exceptions import ClientError
-from logging import CRITICAL, WARNING, INFO
+from logging import CRITICAL, INFO
 from src.utils.python.generate_new_entry_query import DateFormatError
 from pg8000.core import DatabaseError
 
@@ -166,7 +166,7 @@ class TestQueryDB:
         with patch(f"{PATCH_PATH}.get_last_ingest_time", return_value=datetime.now()):
             with patch(f"{PATCH_PATH}.generate_new_entry_query", return_value=""):
                 with patch(f"{PATCH_PATH}.query_db", return_value={"something": []}):
-                    caplog.set_level(WARNING)
+                    caplog.set_level(INFO)
                     lambda_handler({"tables_to_query": ["something"]}, {})
         assert "No new rows found for" in caplog.text
 
@@ -359,4 +359,4 @@ class TestStaticEnviron:
                                 _, call_kwargs_2 = call_values[1]
             assert call_kwargs_1 == expected_static_call
             assert call_kwargs_2 == expected_call
-            assert response == {'address': 'address/2024/11/13/141420987654.parquet'}
+            assert response == {"address": "address/2024/11/13/141420987654.parquet"}

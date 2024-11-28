@@ -1,7 +1,7 @@
 import os
 from datetime import datetime as dt
 from datetime import timezone
-from logging import getLogger
+from logging import getLogger, INFO
 
 from boto3 import client
 from botocore.exceptions import ClientError
@@ -17,7 +17,7 @@ if DEV_ENVIRONMENT == "testing":
         generate_new_entry_query,
     )
     from src.utils.python.get_last_ingest_time import get_last_ingest_time
-    from src.utils.python.parquet_data import parquet_data
+    from src.utils.python.parquet_data import generate_parquet_of_dict as parquet_data
     from src.utils.python.query_db import query_db
     from src.utils.python.write_to_s3 import write_to_s3
 else:
@@ -26,18 +26,25 @@ else:
     from generate_file_key import generate_file_key
     from generate_new_entry_query import DateFormatError, generate_new_entry_query
     from get_last_ingest_time import get_last_ingest_time
-    from parquet_data import parquet_data
+    from parquet_data import generate_parquet_of_dict as parquet_data
     from query_db import query_db
     from write_to_s3 import write_to_s3
 
 s3_client = client("s3")
 logger = getLogger(__name__)
+logger.setLevel(INFO)
+
 
 
 def lambda_handler(event, context):
     """
-    Structure of event:
-        event = {"tables_to_query": ["table_name",...]}
+    :param event: json object containing names of tables to query the database for
+
+    .. code-block :: json
+        {"tables_to_query": ["table_name",...]}
+
+    :param context: unused
+
 
     Process:
         - gets the start_time from get_last_ingest_time
@@ -60,14 +67,25 @@ def lambda_handler(event, context):
         - CRITICAL when each function fails fatally
         - WARNING when query_db returns an empty list
 
+    :returns event:
+
+        a dictionary containing the table names as keys and file_key as value
+
+        .. code-block :: json
+            {
+                "table_name_1" : "table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet",
+                "table_name_2" : "table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet",
+                ...
+            }
+
+
+
     """
     norm_fact_tables = ["payment", "purchase_order", "sales_order"]
     base_date = "2000-01-01 00:00:00.000000"
 
     bucket_name = os.environ["ingest_bucket_name"]
-    end_time = dt.now(
-        timezone.utc
-    ) 
+    end_time = dt.now(timezone.utc)
     end_time_str = format_time(end_time)
     table_names = event["tables_to_query"]
     return_val = {}
@@ -113,14 +131,18 @@ def lambda_handler(event, context):
                 query_string = generate_new_entry_query(
                     table_name, base_date, end_time_str
                 )
-                new_rows = query_db(query_string, connect_to_db, close_db_connection, table_name)
+                new_rows = query_db(
+                    query_string, connect_to_db, close_db_connection, table_name
+                )
             file_key = generate_file_key(table_name, end_time)
             return_val[table_name] = file_key
             new_rows_parquet = parquet_data(new_rows[table_name])
             try:
-                if table_name in ['address', 'department']:
-                    static_file_key = os.environ[f"static_{table_name}_path"]   
-                    write_to_s3(s3_client, bucket_name, static_file_key, new_rows_parquet)
+                if table_name in ["address", "department"]:
+                    static_file_key = os.environ[f"static_{table_name}_path"]
+                    write_to_s3(
+                        s3_client, bucket_name, static_file_key, new_rows_parquet
+                    )
                 write_to_s3(s3_client, bucket_name, file_key, new_rows_parquet)
                 logger.info(
                     f"Successfully written parquet data to {bucket_name}/{file_key}'"
@@ -131,7 +153,7 @@ def lambda_handler(event, context):
                 )
                 break
         else:
-            logger.warning(
+            logger.info(
                 f"No new rows found for {table_name} between {start_time_str} and {end_time_str}"
             )
 

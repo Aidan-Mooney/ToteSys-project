@@ -17,12 +17,22 @@ logger = getLogger(__name__)
 logger.setLevel(INFO)
 
 
-def lambda_handler(event, context):
+def lambda_handler(event: dict[str], context=None) -> None:
+    """
+    Ingest parquet files from the transform bucket and load the rows contained within into the data warehouse.
+
+    :param event: json object containing the names of updated tables and the path to the new rows, stored in the transform bucket. Structured like
+
+    .. code-block:: json
+        {
+            "table_name1": "table_name1/.../yadayada.parquet",
+            "table_name1": "table_name1/.../yadayada.parquet",
+            ...
+        }
+
+    :param context: unused
+    """
     s3_client = client("s3")
-    # try:
-    #     create_fact_tables(connect_to_db, close_db_connection)
-    # except DatabaseError as de:
-    #     logger.critical(f'Failed to create fact tables: {de}')
     for table_name in sorted(event):
         query = generate_warehouse_query(table_name, event[table_name], s3_client)
         try:

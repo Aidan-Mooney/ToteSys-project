@@ -1,6 +1,6 @@
 resource "aws_cloudwatch_event_rule" "scheduler" {
-  name = "every_5_mins_rule"
-  description = "trigger step function seconds"
+  name = var.event_bridge_name
+  description = "Triggers '${var.state_machine_name}' every 5 minutes."
   schedule_expression = "rate(5 minutes)"
 }
 
