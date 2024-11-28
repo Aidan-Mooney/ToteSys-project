@@ -4,11 +4,35 @@
 
 ## Overview
 
+### `transform.py`
+
 The transform process aims to:
 
 - Read the parquet files from the [ingest process](ingest.md)
 - Process and transform data to the correct star schema
 - Write parquet files for upload to the data warehouse
+
+#### Function
+- `lambda_handler`
+
+#### Purpose
+- Expects an event containing a dictionary with the table from totesysDB that has been updated
+- Adds the files stored at these paths in the ingest bucket to a Warehouse object
+- It then extracts the corresponding warehouse tables and places them in the transform s3 bucket
+- Returns a dictionary of the dim tables and fact tables and their corresponding keys that have been added to the s3 transform bucket
+
+#### Inputs
+- `event` Mandatory, no default. Structure of event: 
+  - `{"address": "address/yadayada.parquet","counterparty": "counterparty/yadayada.parquet", "currency": "currency/yadayada.parquet","design": "design/yadayada.parquet"...}`
+
+- `context` Mandatory, no default. Metadata about the lambda handler.
+
+#### Outputs
+- A dictionary containing the table names as keys and file_key as value.
+- `{"table_name_1": "path_to_dim/fact_table_1_in_tf_bucket",  "dim_counterparty": "pathtolatestdimcounterparty", "fact_payment": "path...", ...}`
+
+#### Logging
+- `CRITICAL` when each function fails fatally
 
 ## Package
 
@@ -20,17 +44,17 @@ Warehouse object expects parquet file from ingest bucket and creates dim- and fa
 **Warning**: Only access properties for which you have ingested the relevant dependencies, otherwise will raise a KeyError.
 
 #### Classes
-`Warehouse`
+- `Warehouse`
 
-##### Constructor
-`__init__`
+#### Constructor
+- `__init__`
 
-###### Inputs
-`list_of_filenames` list of file keys in an s3 bucket
+#### Inputs
+- `list_of_filenames` list of file keys in an s3 bucket
 
-`bucket_name` name of the s3 bucket to access ingest files from
+- `bucket_name` name of the s3 bucket to access ingest files from
 
-##### Properties
+#### Properties
 Each produces a pandas dataframe representing a dimension or fact table for the data warehouse
 
 - `dim_design` (depends on design)
@@ -181,7 +205,7 @@ Each produces a pandas dataframe representing a dimension or fact table for the 
       - last_updated_date
       - last_updated_time
 
-  ##### Static Functions
+  #### Static Functions
   - `format_date_for_db`
     - takes a Series as a parameter, which is a column that has a datetime.date format, and casts it to a string in the format of `%Y-%m-%d` 
 
@@ -197,53 +221,62 @@ ___
 
 ### `get_df_from_parquet.py`
 
-###### Purpose
+#### Purpose
 Returns the DataFrame of the parquet data from the corresponding s3 bucket and key.
 
 #### Function
-##### `get_df_from_parquet`
+- `get_df_from_parquet`
 
-###### Inputs
-`s3_client` Mandatory, no default. Takes a boto3.client s3 object.
+#### Purpose
+- Gets the parquet data from the corresponding table name and file key.
+- Returns the DataFrame from the parquet data
 
-`bucket_name` Mandatory, no default. Takes a string representing the name of the bucket.
+#### Inputs
+- `s3_client` Mandatory, no default. Takes a boto3.client s3 object.
 
-`filename` Mandatory, no default. Takes a string representing the key of the file the is going to be accessed.
+- `bucket_name` Mandatory, no default. Takes a string representing the name of the bucket.
 
-###### Outputs
-`read_parquet(buffer)` Returns a DataFrame of the paraquet data accessed by the s3 client.
+- `filename` Mandatory, no default. Takes a string representing the key of the file the is going to be accessed.
 
-###### Logging
-Currently none
+#### Outputs
+- `read_parquet(buffer)` Returns a DataFrame of the paraquet data accessed by the s3 client.
+
+#### Logging
+- Currently none
 
 ___
 
 ### `generate_parquet_of_df.py`
 
-###### Purpose
+#### Purpose
 Returns the parquet data from the corresponding DataFrame.
 
 #### Function
-##### `generate_parquet_of_df`
+- `generate_parquet_of_df`
 
-###### Inputs
-`df` Mandatory, no default. Takes the DataFrame that will be .
+#### Purpose
+- Takes the DataFrame from the corrsponding table
+- Converts it to parquet data ready to be uploaded to an s3 bucket.
 
-###### Outputs
-`out_buffer.getvalue()` Returns a paraquet data from the corresponding DataFrame.
+#### Inputs
+- `df` Mandatory, no default. Takes the DataFrame that will be .
 
-###### Logging
-Currently none
+#### Outputs
+- `out_buffer.getvalue()` Returns a paraquet data from the corresponding DataFrame.
+
+#### Logging
+- Currently none
 
 ___
 
 ### `dim_date.py`
+Creates a DataFrame of dates with information ready to be analysed.
 
-#### Functions
-##### `dim_date`
+#### Function
+- `dim_date`
 
-###### Purpose
-Creates dim_date DataFrame between two specified years which contains the following columns:
+#### Purpose
+- Creates dim_date DataFrame between two specified years which contains the following columns:
   - data_id
   - year
   - month
@@ -253,29 +286,30 @@ Creates dim_date DataFrame between two specified years which contains the follow
   - month_name
   - quarter
 
-###### Inputs
-`start_year` Mandatory, no default. Takes an int for the year to start the data.
+#### Inputs
+- `start_year` Mandatory, no default. Takes an int for the year to start the data.
 
-`end_year` Mandatory, no default. Takes an int for the year to end the the data
+- `end_year` Mandatory, no default. Takes an int for the year to end the the data
 
-###### Outputs
-`dim_date` Returns a DataFrame containing all the breakdown of dates between the two years given.
+#### Outputs
+- `dim_date` Returns a DataFrame containing all the breakdown of dates between the two years given.
 
-###### Logging
-Currently none
+#### Logging
+- Currently none
 
 ___
 
-##### `format_date_for_db`
+#### Function 
+- `format_date_for_db`
 
-###### Purpose
-Takes a Panda Series as a parameter, which is a column that has a datetime.date format, and casts it to a string in the format of `%Y-%m-%d` 
+#### Purpose
+- Takes a Panda Series as a parameter, which is a column that has a datetime.date format, and casts it to a string in the format of `%Y-%m-%d` 
 
-###### Inputs
-`series` Mandatory, no default. Takes a Panda Series of datas.
+#### Inputs
+- `series` Mandatory, no default. Takes a Panda Series of datas.
 
-###### Outputs
-Returns the Series in the correct format.
+#### Outputs
+- Returns the Series in the correct format.
 
-###### Logging
-Currently none
+#### Logging
+- Currently none

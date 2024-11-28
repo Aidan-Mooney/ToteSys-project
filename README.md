@@ -85,6 +85,12 @@ The ingest process aims to:
 #### Outputs
 - A dictionary containing the table names as keys and file_key as value.
 
+-  `{
+            'table_name_1' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet',
+        'table_name_2' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet',
+            ...
+        }`
+
 #### Logging
 - `INFO` when each function is successful
 - `CRITICAL` when each function fails fatally

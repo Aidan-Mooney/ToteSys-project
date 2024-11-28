@@ -24,12 +24,17 @@ The ingest process aims to:
 - adds it to the s3 bucket
 
 #### Inputs
-- `event` Mandatory, no default. Structure of event: `event = {"tables_to_query": ["table_name",...]}`
+- `event` Mandatory, no default. Structure of event: `{"tables_to_query": ["table_name",...]}`
 
 - `context` Mandatory, no default. Metadata about the lambda handler.
 
 #### Outputs
 - A dictionary containing the table names as keys and file_key as value.
+-  `{
+            'table_name_1' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet',
+        'table_name_2' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet',
+            ...
+        }`
 
 #### Logging
 - `INFO` when each function is successful
