@@ -26,7 +26,7 @@ def lambda_handler(event: dict[str], context=None) -> None:
     .. code-block:: json
         {
             "table_name1": "table_name1/.../yadayada.parquet",
-            "table_name1": "table_name1/.../yadayada.parquet",
+            "table_name2": "table_name2/.../yadayada.parquet",
             ...
         }
 
