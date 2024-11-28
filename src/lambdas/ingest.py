@@ -36,7 +36,7 @@ logger.setLevel(INFO)
 
 
 
-def lambda_handler(event, context):
+def lambda_handler(event: dict, context: None) -> dict:
     """
     :param event: json object containing names of tables to query the database for
 
