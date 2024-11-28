@@ -93,6 +93,31 @@ Returns a string of the query to be ran and appends/inserts values to the fact t
 Currently None
 
 ___
+
 ### `generate_warehouse_query.py`
+#### Purpose
+Returns the database query string for updating the table table_name. 
+
+#### Function
+##### `create_fact_query`
+
+#### Purpose
+First it checks whether the table name is of a dim table or fact table then gets the correct type of query to return from the corresponding table.
+
+###### Inputs
+`table_name` Mandatory, no default. Takes the table name accessed from the s3 transform bucket.
+
+`table_path` Mandatory, no default. Takes the key of which file that needs to be accessed from the s3 transform bucket.
+
+`s3_client` Mandatory, no default. Boto3.client("s3") object
+
+###### Outputs
+Returns a string of the query to be ran and appends/inserts values to a tables in the data warehouse.
+
+###### Logging
+Currently None
 ___
+
 ### `cleardb.sql`
+#### Purpose
+Makes sure that each time when changes are made and then deployed, all the data in each of the fact tables then dim tables are deleted. This is to make sure that the data inside the warehouse is accurate and up to date.
