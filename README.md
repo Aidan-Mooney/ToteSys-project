@@ -96,7 +96,7 @@ The ingest process aims to:
 - `CRITICAL` when each function fails fatally
 - `WARNING` when query_db returns an empty list
 
-## Package
+## Packages
 
 ### `db_connections.py`
 
@@ -378,7 +378,7 @@ The transform process aims to:
 #### Logging
 - `CRITICAL` when each function fails fatally
 
-## Package
+## Packages
 
 ### `warehouse.py`
 
@@ -690,7 +690,7 @@ The load process aims to:
 #### Logging
 - `CRITICAL` when each function fails fatally
 
-## Package
+## Packages
 
 ### `create_dim_query.py`
 #### Purpose
