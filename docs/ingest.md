@@ -4,17 +4,44 @@
 
 ## Overview
 
+### `ingest.py`
+
 The ingest process aims to:
 
 - Copy data from the ToteSys database
 - Convert this data into Parquet format
 - Save this data into an S3 bucket with an identifiable file name
 
-## Package
-
-### `db_connections.py`
+#### Function
+- `lambda_handler`
 
 #### Purpose
+- Gets the start_time from `get_last_ingest_time`
+- `end_time` is the time at the start of the run
+- generates a SQL query for each table name
+- queries the database
+- converts the data to parquet
+- adds it to the s3 bucket
+
+#### Inputs
+- `event` Mandatory, no default. Structure of event: `{"tables_to_query": ["table_name",...]}`
+
+- `context` Mandatory, no default. Metadata about the lambda handler.
+
+#### Outputs
+- A dictionary containing the table names as keys and file_key as value.
+-  `{
+            'table_name_1' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet',
+        'table_name_2' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet',
+            ...
+        }`
+
+#### Logging
+- `INFO` when each function is successful
+- `CRITICAL` when each function fails fatally
+- `WARNING` when query_db returns an empty list
+
+## Package
 
 This package provides the ability to connect to the Terrific Totes database and to close the connection.  It also manages the secret retrieval needed to connect.
 

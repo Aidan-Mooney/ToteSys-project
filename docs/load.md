@@ -1,6 +1,6 @@
 # Terrific Totes 
 
-## Transform Process
+## Load Process
 
 ## Overview
 
@@ -42,7 +42,6 @@ The ingest process aims to:
 - `WARNING` when query_db returns an empty list
 
 ## Package
-
 
 ### `create_dim_query.py`
 #### Purpose
