@@ -85,11 +85,7 @@ The ingest process aims to:
 #### Outputs
 - A dictionary containing the table names as keys and file_key as value.
 
--  `{
-            'table_name_1' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet',
-        'table_name_2' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet',
-            ...
-        }`
+-  `{'table_name_1' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet','table_name_2' : 'table_name/yyyy/mm/dd/hhmmssmmmmmm.parquet', ... }`
 
 #### Logging
 - `INFO` when each function is successful
@@ -803,31 +799,88 @@ Returns the database query string for updating the table table_name.
 - Currently None
 ___
 
+## Project Components - SQL
+
 ### `cleardb.sql`
+
 #### Purpose
 Makes sure that each time when changes are made and then deployed, all the data in each of the fact tables then dim tables are deleted. This is to make sure that the data inside the warehouse is accurate and up to date.
 
 ___
 
 ## Project Components - Terraform
-#### immutable-terraform
-##### main.tf
-##### s3.tf
-##### secrets.tf
-##### ssm.tf
-##### vars.tf
 
-#### main-terraform
-##### critical_email.tf
-##### cw_log_group.tf
-##### eventbridge.tf
-##### iam.tf
-##### lambda.tf
-##### layers.tf
-##### main.tf
-##### s3.tf
-##### secrets.tf
-##### state_machine.tf
-##### var.tf
+## immutable-terraform
+## Overview
+The immutable-terraform is the process which allows for the initial set up of AWS. Allowing database credentials as well as warehouse credentials to be uploaded to AWS secretsmanager. Also, providing the creation of the ingest and transform buckets, in addition to the use of AWS Simple Notification Service (SNS).
 
-### CICD
+### `main.tf`
+#### Purpose
+___
+
+### `s3.tf`
+#### Purpose
+___
+### `secrets.tf`
+#### Purpose
+___
+
+### `ssm.tf`
+#### Purpose
+___
+
+### `vars.tf`
+#### Purpose
+___
+
+
+## main-terraform
+## Overview
+
+### `critical_email.tf`
+#### Purpose
+___
+
+### `cw_log_group.tf`
+#### Purpose
+___
+
+### `eventbridge.tf`
+#### Purpose
+___
+
+### `iam.tf`
+#### Purpose
+___
+
+### `lambda.tf`
+#### Purpose
+___
+
+### `layers.tf`
+#### Purpose
+___
+
+### `main.tf`
+#### Purpose
+___
+
+### `s3.tf`
+#### Purpose
+___
+
+### `secrets.tf`
+#### Purpose
+___
+
+### `state_machine.tf`
+#### Purpose
+___
+
+### `var.tf`
+#### Purpose
+___
+
+
+## Project Components - Continuous Integration/Continuous Delivery (CI/CD)
+
