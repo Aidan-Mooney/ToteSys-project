@@ -4,13 +4,40 @@
 
 ## Overview
 
-The load process aims to:
+### `ingest.py`
 
-- Read the parquet files from the [transform process](transform.md)
-- Loads each data from the dim tables to the data warehouse first
-- Then loads each data from the fact tables to the data warehouse
+The ingest process aims to:
+
+- Copy data from the ToteSys database
+- Convert this data into Parquet format
+- Save this data into an S3 bucket with an identifiable file name
+
+#### Function
+- `lambda_handler`
+
+#### Purpose
+- Gets the start_time from `get_last_ingest_time`
+- `end_time` is the time at the start of the run
+- generates a SQL query for each table name
+- queries the database
+- converts the data to parquet
+- adds it to the s3 bucket
+
+#### Inputs
+- `event` Mandatory, no default. Structure of event: `event = {"tables_to_query": ["table_name",...]}`
+
+- `context` Mandatory, no default. Metadata about the lambda handler.
+
+#### Outputs
+- A dictionary containing the table names as keys and file_key as value.
+
+#### Logging
+- `INFO` when each function is successful
+- `CRITICAL` when each function fails fatally
+- `WARNING` when query_db returns an empty list
 
 ## Package
+
 
 ### `create_dim_query.py`
 #### Purpose
