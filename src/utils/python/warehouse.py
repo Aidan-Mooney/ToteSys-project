@@ -237,7 +237,6 @@ class Warehouse:
         )
         return none_to_NULL(df)
 
-
 def format_date_for_db(series: Series):
     """
     Map a column of date objects to a column of formatted date strings

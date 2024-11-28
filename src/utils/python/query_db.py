@@ -10,7 +10,6 @@ def query_db(
     Take an sql query string and return the result of the query as a dictionary formatted like a json object with table names etc.
     If dict_name = "", only return the first row of the query response as a dictionary with column keys.
     Otherwise, return a dictionary containing a list of dictionaries, where each dictionary contains a row of the query response.
-
     :param sql_string: str string containing valid PostgreSQL query
     :param connect_to_db: function which returns connection to a database
     :param close_db_connection: function which closes database connection

@@ -1,7 +1,6 @@
 from io import BytesIO
 from pandas import DataFrame
 
-
 def generate_parquet_of_df(df: DataFrame) -> bytes:
     """
     Return the parquet bytes of the passed-in dataframe.

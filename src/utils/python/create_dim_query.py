@@ -63,8 +63,7 @@ def generate_insert_into_statement(
 
 def create_dim_query(table_name: str, table_path: str, s3_client) -> str:
     """
-    Generates a query to delete all entries in a table and insert values from a parquet file.
-
+    Generates a query to delete all entries in a table and insert values from a parquet file
     :param table_name: name of warehouse table to modify
     :param table_path: path to parquet file in ingest bucket to populate the table with
     :param s3_client: s3 client to access transform bucket with
